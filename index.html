@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>미래전략 사업단</title>
+    <style>
+        :root { 
+            --primary-color: #2563eb; 
+            --link-color: #475569;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+        }
+        body { 
+            font-family: 'Malgun Gothic', sans-serif; 
+            background-color: var(--bg-color); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            color: #1e293b;
+        }
+        .container { 
+            width: 100%; 
+            max-width: 700px; 
+            background: var(--card-bg); 
+            padding: 40px; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        h1 { 
+            color: var(--primary-color); 
+            text-align: center; 
+            font-size: 32px; 
+            margin-bottom: 30px; 
+            letter-spacing: -1.5px;
+            font-weight: 900;
+        }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 30px; }
+        .input-group { padding: 20px; border: 1px solid var(--border-color); border-radius: 12px; }
+        .section-title { font-size: 15px; font-weight: 700; margin-bottom: 15px; color: #334155; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px; color: #64748b; }
+        input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; margin-bottom: 10px; }
+        .file-status { font-size: 11px; color: #10b981; font-weight: bold; margin-bottom: 10px; display: none; }
+        
+        /* 버튼 컨테이너 */
+        .btn-group { display: flex; flex-direction: column; gap: 12px; }
+        .btn { 
+            width: 100%; padding: 16px; border: none; 
+            border-radius: 10px; font-size: 17px; font-weight: 700; cursor: pointer; transition: 0.3s;
+            text-decoration: none; display: flex; align-items: center; justify-content: center;
+            box-sizing: border-box;
+        }
+        
+        /* 비교확인서 버튼 (외부 링크) */
+        .btn-secondary { 
+            background-color: #f1f5f9; 
+            color: var(--link-color); 
+            border: 1px solid #cbd5e1;
+        }
+        .btn-secondary:hover { background-color: #e2e8f0; color: #1e293b; }
+        
+        /* 서류 생성 및 저장 버튼 (메인) */
+        .btn-primary { 
+            background-color: var(--primary-color); 
+            color: white; 
+            padding: 20px;
+            font-size: 19px;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+        }
+        .btn-primary:hover { background-color: #1d4ed8; transform: translateY(-1px); }
+
+        #status { text-align: center; margin-top: 20px; font-weight: 600; font-size: 14px; }
+        #workingCanvas { display: none; }
+        .footer { text-align: center; margin-top: 30px; font-size: 12px; color: #94a3b8; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <h1>🏢 미래전략 사업단</h1>
+    
+    <div class="grid">
+        <div class="input-group">
+            <div class="section-title">📂 양식 파일 유지</div>
+            <label>고지의무 이행확인서</label>
+            <input type="file" id="file1" accept=".pdf" onchange="keepFile(1)">
+            <div id="file1-msg" class="file-status">✓ 고지양식 로드완료</div>
+            
+            <label>필수 동의서</label>
+            <input type="file" id="file2" accept=".pdf" onchange="keepFile(2)">
+            <div id="file2-msg" class="file-status">✓ 필수양식 로드완료</div>
+        </div>
+
+        <div class="input-group">
+            <div class="section-title">👤 기재 정보</div>
+            <label>계약 체결일</label>
+            <input type="date" id="cDate">
+            <label>계약자 성명</label>
+            <input type="text" id="uName" placeholder="성함 입력">
+            <label>담당 설계사</label>
+            <input type="text" id="pName" placeholder="설계사 성함">
+        </div>
+    </div>
+
+    <div class="btn-group">
+        <a href="https://pcs.iaa.or.kr/comm/login.do;jsessionid=11992BFDDCA2F348BDF67DF314C05764.iaapcc-2" 
+           target="_blank" class="btn btn-secondary">🔗 비교확인서 바로가기</a>
+        
+        <button class="btn btn-primary" onclick="startProcess()">📄 서류 생성 및 저장</button>
+    </div>
+
+    <div id="status"></div>
+    <div class="footer">© 2025 미래전략 사업단 All Rights Reserved.</div>
+</div>
+
+<canvas id="workingCanvas"></canvas>
+
+<script>
+    const pdfjsLib = window['pdfjs-dist/build/pdf'];
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    let storedFile1 = null;
+    let storedFile2 = null;
+
+    function keepFile(num) {
+        const fileInput = document.getElementById('file' + num);
+        const msg = document.getElementById('file' + num + '-msg');
+        if (fileInput.files[0]) {
+            if (num === 1) storedFile1 = fileInput.files[0];
+            else storedFile2 = fileInput.files[0];
+            msg.style.display = 'block';
+        }
+    }
+
+    async function startProcess() {
+        const date = document.getElementById('cDate').value;
+        const name = document.getElementById('uName').value;
+        const planner = document.getElementById('pName').value;
+
+        if (!storedFile1 || !storedFile2 || !date || !name || !planner) {
+            alert("양식 파일과 모든 정보를 입력해 주세요.");
+            return;
+        }
+
+        const status = document.getElementById('status');
+        status.style.color = "#f59e0b";
+        status.innerText = "⏳ JPG 파일을 생성 중입니다...";
+
+        try {
+            const dateObj = new Date(date);
+            const d = {
+                y: dateObj.getFullYear().toString().slice(-2),
+                m: (dateObj.getMonth() + 1).toString(),
+                day: dateObj.getDate().toString()
+            };
+
+            await processPdf(storedFile1, "고", d, name, planner);
+            await new Promise(resolve => setTimeout(resolve, 600));
+            await processPdf(storedFile2, "동", d, name, planner);
+
+            status.style.color = "#10b981";
+            status.innerText = "✅ " + name + "님의 서류 저장이 완료되었습니다.";
+        } catch (err) {
+            console.error(err);
+            status.innerText = "❌ 오류가 발생했습니다.";
+        }
+    }
+
+    async function processPdf(file, suffix, d, name, planner) {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const page = await pdf.getPage(1);
+        
+        const viewport = page.getViewport({ scale: 2.0 });
+        const canvas = document.getElementById('workingCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+
+        const s = 2.0; const h = viewport.height;
+
+        const draw = (txt, x, pdfY, size = 13) => {
+            ctx.font = `${size * s}px 'Malgun Gothic'`;
+            ctx.fillStyle = "black";
+            ctx.textAlign = "start";
+            ctx.textBaseline = "alphabetic";
+            ctx.fillText(txt, x * s, h - (pdfY * s));
+        };
+
+        const check = (x, pdfY) => {
+            ctx.font = `bold ${22 * s}px Arial`;
+            ctx.fillStyle = "red";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("v", x * s, h - (pdfY * s));
+        };
+
+        if (suffix === "고") {
+            [612, 579, 548, 504, 445, 385, 340, 310, 273].forEach(y => check(500, y));
+            draw(d.y, 199, 209); draw(d.m, 230, 209); draw(d.day, 256, 209);
+            draw(name, 431, 209); draw(name, 500, 209);
+            draw(d.y, 200, 96); draw(d.m, 225, 96); draw(d.day, 250, 96);
+            draw(planner, 430, 96); draw(planner, 505, 96);
+        } else {
+            [640, 545, 428, 310, 234].forEach(y => check(522, y));
+            draw(d.y, 254, 138); draw(d.m, 300, 138); draw(d.day, 341, 138);
+            draw(name, 150, 107); draw(name, 239, 107);
+            draw("미래전략사업단", 150, 58, 11);
+            draw(planner, 416, 64); draw(planner, 500, 64);
+        }
+
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = `${name}_${suffix}.jpg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+</script>
+
+</body>
+</html>
