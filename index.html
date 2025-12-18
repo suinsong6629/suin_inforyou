@@ -74,7 +74,7 @@
     const pdfjsLib = window['pdfjs-dist/build/pdf'];
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-    // 사용자가 제공한 구글 앱스 스크립트 URL
+    // 배포하신 구글 앱스 스크립트 URL
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwi2Cc3n57UaOUPsZAijahVbM5GB0p0IRVL9VR8EzqyYpNMcT7tgiLVwI6Qcv5gZtWFBg/exec';
 
     let storedFile1 = null;
@@ -102,7 +102,7 @@
 
         const status = document.getElementById('status');
         status.style.color = "#f59e0b";
-        status.innerText = "⏳ 서류를 생성하여 드라이브로 전송 중입니다...";
+        status.innerText = "⏳ 드라이브로 전송 중입니다. 잠시만 기다려주세요...";
 
         try {
             const dateObj = new Date(date);
@@ -112,17 +112,14 @@
                 day: dateObj.getDate().toString()
             };
 
-            // 1. 이미지 데이터 생성 (Base64 형식)
+            // 1. 이미지 데이터 생성 (Base64)
             const img1Data = await getRenderedImageData(storedFile1, "고", d, name, planner);
             const img2Data = await getRenderedImageData(storedFile2, "동", d, name, planner);
 
-            // 2. 구글 앱스 스크립트로 전송 (POST)
-            // 브라우저 보안 정책(CORS)으로 인해 'no-cors' 모드를 사용하거나 
-            // 서버 응답 처리를 위해 일반 fetch를 사용합니다.
-            const response = await fetch(scriptURL, {
+            // 2. 구글 앱스 스크립트로 전송 (로컬 다운로드 기능은 완전히 삭제됨)
+            await fetch(scriptURL, {
                 method: 'POST',
-                mode: 'no-cors', // 구글 스크립트 전용 설정
-                cache: 'no-cache',
+                mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     file1Data: img1Data,
@@ -132,14 +129,14 @@
                 })
             });
 
-            // no-cors 모드에서는 응답 내용을 읽을 수 없으므로 성공으로 간주하고 메시지 출력
+            // 성공 메시지 표시
             status.style.color = "#10b981";
-            status.innerText = "✅ 전송 완료! '고동비' 폴더를 확인해 주세요.";
+            status.innerText = "✅ 전송 완료! '고동비' 폴더에 저장되었습니다.";
             
         } catch (err) {
             console.error(err);
             status.style.color = "#ef4444";
-            status.innerText = "❌ 전송 중 오류가 발생했습니다.";
+            status.innerText = "❌ 전송 오류가 발생했습니다.";
         }
     }
 
