@@ -11,66 +11,19 @@
             --card-bg: #ffffff;
             --border-color: #e2e8f0;
         }
-        body { 
-            font-family: 'Malgun Gothic', sans-serif; 
-            background-color: var(--bg-color); 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-            margin: 0; 
-            color: #1e293b;
-        }
-        .container { 
-            width: 100%; 
-            max-width: 700px; 
-            background: var(--card-bg); 
-            padding: 40px; 
-            border-radius: 16px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-        }
-        h1 { 
-            color: var(--primary-color); 
-            text-align: center; 
-            font-size: 32px; 
-            margin-bottom: 30px; 
-            letter-spacing: -1.5px;
-            font-weight: 900;
-        }
+        body { font-family: 'Malgun Gothic', sans-serif; background-color: var(--bg-color); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; color: #1e293b; }
+        .container { width: 100%; max-width: 700px; background: var(--card-bg); padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        h1 { color: var(--primary-color); text-align: center; font-size: 32px; margin-bottom: 30px; letter-spacing: -1.5px; font-weight: 900; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 30px; }
         .input-group { padding: 20px; border: 1px solid var(--border-color); border-radius: 12px; }
         .section-title { font-size: 15px; font-weight: 700; margin-bottom: 15px; color: #334155; }
         label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px; color: #64748b; }
         input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; margin-bottom: 10px; }
         .file-status { font-size: 11px; color: #10b981; font-weight: bold; margin-bottom: 10px; display: none; }
-        
-        /* 버튼 컨테이너 */
         .btn-group { display: flex; flex-direction: column; gap: 12px; }
-        .btn { 
-            width: 100%; padding: 16px; border: none; 
-            border-radius: 10px; font-size: 17px; font-weight: 700; cursor: pointer; transition: 0.3s;
-            text-decoration: none; display: flex; align-items: center; justify-content: center;
-            box-sizing: border-box;
-        }
-        
-        /* 비교확인서 버튼 (외부 링크) */
-        .btn-secondary { 
-            background-color: #f1f5f9; 
-            color: var(--link-color); 
-            border: 1px solid #cbd5e1;
-        }
-        .btn-secondary:hover { background-color: #e2e8f0; color: #1e293b; }
-        
-        /* 서류 생성 및 저장 버튼 (메인) */
-        .btn-primary { 
-            background-color: var(--primary-color); 
-            color: white; 
-            padding: 20px;
-            font-size: 19px;
-            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
-        }
-        .btn-primary:hover { background-color: #1d4ed8; transform: translateY(-1px); }
-
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 10px; font-size: 17px; font-weight: 700; cursor: pointer; transition: 0.3s; text-decoration: none; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
+        .btn-secondary { background-color: #f1f5f9; color: var(--link-color); border: 1px solid #cbd5e1; }
+        .btn-primary { background-color: var(--primary-color); color: white; padding: 20px; font-size: 19px; }
         #status { text-align: center; margin-top: 20px; font-weight: 600; font-size: 14px; }
         #workingCanvas { display: none; }
         .footer { text-align: center; margin-top: 30px; font-size: 12px; color: #94a3b8; }
@@ -106,13 +59,12 @@
     </div>
 
     <div class="btn-group">
-        <a href="https://pcs.iaa.or.kr/comm/login.do;jsessionid=11992BFDDCA2F348BDF67DF314C05764.iaapcc-2" 
-           target="_blank" class="btn btn-secondary">🔗 비교확인서 바로가기</a>
-        
-        <button class="btn btn-primary" onclick="startProcess()">📄 서류 생성 및 저장</button>
+        <a href="https://pcs.iaa.or.kr/comm/login.do" target="_blank" class="btn btn-secondary">🔗 비교확인서 바로가기</a>
+        <button class="btn btn-primary" onclick="startProcess()">📄 서류 생성 및 바탕화면 저장</button>
     </div>
 
     <div id="status"></div>
+    <p style="text-align:center; font-size:11px; color:#94a3b8; margin-top:10px;">* 저장 창이 뜨면 왼쪽 즐겨찾기에서 '바탕 화면'을 선택해 주세요.</p>
     <div class="footer">© 2025 미래전략 사업단 All Rights Reserved.</div>
 </div>
 
@@ -147,46 +99,64 @@
 
         const status = document.getElementById('status');
         status.style.color = "#f59e0b";
-        status.innerText = "⏳ JPG 파일을 생성 중입니다...";
+        status.innerText = "⏳ 저장 위치를 지정해 주세요...";
 
         try {
             const dateObj = new Date(date);
             const d = {
-                y: dateObj.getFullYear().toString().slice(-2),
-                m: (dateObj.getMonth() + 1).toString(),
-                day: dateObj.getDate().toString()
+                y: dateObj.getFullYear().toString().slice(-2), m: (dateObj.getMonth() + 1).toString(), day: dateObj.getDate().toString()
             };
 
-            await processPdf(storedFile1, "고", d, name, planner);
-            await new Promise(resolve => setTimeout(resolve, 600));
-            await processPdf(storedFile2, "동", d, name, planner);
+            // 두 파일을 순차적으로 저장 처리
+            await handleSave(storedFile1, `${name}_고.jpg`, d, name, planner);
+            await handleSave(storedFile2, `${name}_동.jpg`, d, name, planner);
 
             status.style.color = "#10b981";
-            status.innerText = "✅ " + name + "님의 서류 저장이 완료되었습니다.";
+            status.innerText = "✅ 모든 서류가 성공적으로 저장되었습니다.";
         } catch (err) {
             console.error(err);
-            status.innerText = "❌ 오류가 발생했습니다.";
+            status.innerText = "❌ 저장 취소 또는 오류 발생";
         }
     }
 
-    async function processPdf(file, suffix, d, name, planner) {
+    async function handleSave(file, fileName, d, name, planner) {
+        const canvas = document.getElementById('workingCanvas');
+        await renderToCanvas(file, canvas, fileName.includes('고') ? '고' : '동', d, name, planner);
+        
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
+
+        // 파일 저장 창 띄우기 (지원되는 브라우저용)
+        if (window.showSaveFilePicker) {
+            const handle = await window.showSaveFilePicker({
+                suggestedName: fileName,
+                types: [{ description: 'JPEG Image', accept: {'image/jpeg': ['.jpg']} }],
+            });
+            const writable = await handle.createWritable();
+            await writable.write(blob);
+            await writable.close();
+        } else {
+            // 미지원 브라우저용 강제 다운로드
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            link.click();
+        }
+    }
+
+    async function renderToCanvas(file, canvas, suffix, d, name, planner) {
         const arrayBuffer = await file.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
         const page = await pdf.getPage(1);
-        
         const viewport = page.getViewport({ scale: 2.0 });
-        const canvas = document.getElementById('workingCanvas');
         const ctx = canvas.getContext('2d');
         canvas.width = viewport.width;
         canvas.height = viewport.height;
 
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-
         await page.render({ canvasContext: ctx, viewport: viewport }).promise;
 
         const s = 2.0; const h = viewport.height;
-
         const draw = (txt, x, pdfY, size = 13) => {
             ctx.font = `${size * s}px 'Malgun Gothic'`;
             ctx.fillStyle = "black";
@@ -194,7 +164,6 @@
             ctx.textBaseline = "alphabetic";
             ctx.fillText(txt, x * s, h - (pdfY * s));
         };
-
         const check = (x, pdfY) => {
             ctx.font = `bold ${22 * s}px Arial`;
             ctx.fillStyle = "red";
@@ -216,14 +185,6 @@
             draw("미래전략사업단", 150, 58, 11);
             draw(planner, 416, 64); draw(planner, 500, 64);
         }
-
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-        const link = document.createElement('a');
-        link.href = dataUrl;
-        link.download = `${name}_${suffix}.jpg`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
     }
 </script>
 
