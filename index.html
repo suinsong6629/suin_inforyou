@@ -23,8 +23,9 @@
         .btn-group { display: flex; flex-direction: column; gap: 12px; }
         .btn { width: 100%; padding: 16px; border: none; border-radius: 10px; font-size: 17px; font-weight: 700; cursor: pointer; transition: 0.3s; text-decoration: none; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
         .btn-secondary { background-color: #f1f5f9; color: var(--link-color); border: 1px solid #cbd5e1; }
-        .btn-primary { background-color: var(--primary-color); color: white; padding: 20px; font-size: 19px; }
-        #status { text-align: center; margin-top: 20px; font-weight: 600; font-size: 14px; }
+        .btn-primary { background-color: var(--primary-color); color: white; padding: 20px; font-size: 19px; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2); }
+        .btn-primary:hover { background-color: #1d4ed8; transform: translateY(-1px); }
+        #status { text-align: center; margin-top: 20px; font-weight: 600; font-size: 14px; min-height: 20px; }
         #workingCanvas { display: none; }
         .footer { text-align: center; margin-top: 30px; font-size: 12px; color: #94a3b8; }
     </style>
@@ -60,11 +61,10 @@
 
     <div class="btn-group">
         <a href="https://pcs.iaa.or.kr/comm/login.do" target="_blank" class="btn btn-secondary">🔗 비교확인서 바로가기</a>
-        <button class="btn btn-primary" onclick="startProcess()">📄 서류 생성 및 바탕화면 저장</button>
+        <button class="btn btn-primary" onclick="startProcess()">📤 서류 생성 및 드라이브 전송</button>
     </div>
 
     <div id="status"></div>
-    <p style="text-align:center; font-size:11px; color:#94a3b8; margin-top:10px;">* 저장 창이 뜨면 왼쪽 즐겨찾기에서 '바탕 화면'을 선택해 주세요.</p>
     <div class="footer">© 2025 미래전략 사업단 All Rights Reserved.</div>
 </div>
 
@@ -73,6 +73,9 @@
 <script>
     const pdfjsLib = window['pdfjs-dist/build/pdf'];
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    // 사용자가 제공한 구글 앱스 스크립트 URL
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwi2Cc3n57UaOUPsZAijahVbM5GB0p0IRVL9VR8EzqyYpNMcT7tgiLVwI6Qcv5gZtWFBg/exec';
 
     let storedFile1 = null;
     let storedFile2 = null;
@@ -99,48 +102,51 @@
 
         const status = document.getElementById('status');
         status.style.color = "#f59e0b";
-        status.innerText = "⏳ 저장 위치를 지정해 주세요...";
+        status.innerText = "⏳ 서류를 생성하여 드라이브로 전송 중입니다...";
 
         try {
             const dateObj = new Date(date);
             const d = {
-                y: dateObj.getFullYear().toString().slice(-2), m: (dateObj.getMonth() + 1).toString(), day: dateObj.getDate().toString()
+                y: dateObj.getFullYear().toString().slice(-2),
+                m: (dateObj.getMonth() + 1).toString(),
+                day: dateObj.getDate().toString()
             };
 
-            // 두 파일을 순차적으로 저장 처리
-            await handleSave(storedFile1, `${name}_고.jpg`, d, name, planner);
-            await handleSave(storedFile2, `${name}_동.jpg`, d, name, planner);
+            // 1. 이미지 데이터 생성 (Base64 형식)
+            const img1Data = await getRenderedImageData(storedFile1, "고", d, name, planner);
+            const img2Data = await getRenderedImageData(storedFile2, "동", d, name, planner);
 
+            // 2. 구글 앱스 스크립트로 전송 (POST)
+            // 브라우저 보안 정책(CORS)으로 인해 'no-cors' 모드를 사용하거나 
+            // 서버 응답 처리를 위해 일반 fetch를 사용합니다.
+            const response = await fetch(scriptURL, {
+                method: 'POST',
+                mode: 'no-cors', // 구글 스크립트 전용 설정
+                cache: 'no-cache',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    file1Data: img1Data,
+                    fileName1: `${name}_고.jpg`,
+                    file2Data: img2Data,
+                    fileName2: `${name}_동.jpg`
+                })
+            });
+
+            // no-cors 모드에서는 응답 내용을 읽을 수 없으므로 성공으로 간주하고 메시지 출력
             status.style.color = "#10b981";
-            status.innerText = "✅ 모든 서류가 성공적으로 저장되었습니다.";
+            status.innerText = "✅ 전송 완료! '고동비' 폴더를 확인해 주세요.";
+            
         } catch (err) {
             console.error(err);
-            status.innerText = "❌ 저장 취소 또는 오류 발생";
+            status.style.color = "#ef4444";
+            status.innerText = "❌ 전송 중 오류가 발생했습니다.";
         }
     }
 
-    async function handleSave(file, fileName, d, name, planner) {
+    async function getRenderedImageData(file, suffix, d, name, planner) {
         const canvas = document.getElementById('workingCanvas');
-        await renderToCanvas(file, canvas, fileName.includes('고') ? '고' : '동', d, name, planner);
-        
-        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
-
-        // 파일 저장 창 띄우기 (지원되는 브라우저용)
-        if (window.showSaveFilePicker) {
-            const handle = await window.showSaveFilePicker({
-                suggestedName: fileName,
-                types: [{ description: 'JPEG Image', accept: {'image/jpeg': ['.jpg']} }],
-            });
-            const writable = await handle.createWritable();
-            await writable.write(blob);
-            await writable.close();
-        } else {
-            // 미지원 브라우저용 강제 다운로드
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = fileName;
-            link.click();
-        }
+        await renderToCanvas(file, canvas, suffix, d, name, planner);
+        return canvas.toDataURL('image/jpeg', 0.9);
     }
 
     async function renderToCanvas(file, canvas, suffix, d, name, planner) {
