@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <title>미래전략 사업단</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Nanum+Gothic+Round:wght@400;700&display=swap');
+        /* 폰트 통일: 나눔고딕 라운드만 로드 */
+        @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic+Round:wght@400;700;800&display=swap');
 
         :root { 
             --primary-color: #3b82f6; 
@@ -26,22 +27,40 @@
             padding: 40px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); 
         }
 
-        h1 { font-family: 'Gaegu', cursive; color: var(--primary-color); text-align: center; font-size: 42px; margin-bottom: 30px; }
+        /* 상단 제목 폰트 통일 및 디자인 조정 */
+        h1 { 
+            font-family: 'Nanum Gothic Round', sans-serif; 
+            font-weight: 800;
+            color: var(--primary-color); 
+            text-align: center; 
+            font-size: 32px; 
+            margin-bottom: 30px; 
+            letter-spacing: -1px;
+        }
 
-        /* 입력 폼 및 버튼 스타일 (이전과 동일) */
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 30px; }
         .input-group { padding: 20px; border: 2px solid #f1f5f9; border-radius: 18px; }
         .section-title { font-size: 16px; font-weight: 700; margin-bottom: 15px; color: #475569; }
         label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: #94a3b8; }
         input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 10px; box-sizing: border-box; margin-bottom: 10px; font-family: 'Nanum Gothic Round'; }
+        
         .btn-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 30px; }
         .btn { width: 100%; padding: 16px; border: none; border-radius: 15px; font-size: 17px; font-weight: 700; cursor: pointer; transition: 0.3s; text-decoration: none; display: flex; align-items: center; justify-content: center; box-sizing: border-box; font-family: 'Nanum Gothic Round'; }
         .btn-primary { background-color: var(--primary-color); color: white; padding: 20px; font-size: 19px; }
         .btn-secondary { background-color: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
 
-        /* 캘린더 영역 */
         .calendar-section { margin-top: 40px; border-top: 3px dashed #e2e8f0; padding-top: 30px; }
-        .calendar-header h2 { font-family: 'Gaegu', cursive; font-size: 28px; color: #475569; text-align: center; margin-bottom: 20px; }
+        
+        /* 달력 년/월 폰트 통일 */
+        .calendar-header h2 { 
+            font-family: 'Nanum Gothic Round', sans-serif; 
+            font-weight: 800;
+            font-size: 24px; 
+            color: #475569; 
+            text-align: center; 
+            margin-bottom: 20px; 
+        }
+
         .calendar-table { width: 100%; border-collapse: separate; border-spacing: 4px; table-layout: fixed; }
         .calendar-table th { color: #64748b; font-size: 13px; padding: 10px; font-weight: bold; }
         .calendar-table td { height: 100px; vertical-align: top; padding: 8px; background: #fff; border: 1px solid #f1f5f9; border-radius: 12px; }
@@ -49,34 +68,27 @@
         .today { background-color: #eff6ff !important; border: 2px solid #bfdbfe !important; }
         .today .day-num { color: var(--primary-color); }
 
-        /* ⭐ 이벤트 정렬 핵심 수정 부분 ⭐ */
         .event-item { 
-            display: flex;            /* 별표와 텍스트를 가로로 배치 */
-            align-items: flex-start;  /* 줄바꿈 시에도 상단 정렬 유지 */
-            font-size: 11px; 
-            color: #1e40af; 
-            line-height: 1.4; 
-            margin-top: 5px; 
-            font-weight: 700; 
-            white-space: normal; 
-            word-break: keep-all;
+            display: flex; align-items: flex-start; 
+            font-size: 11px; color: #1e40af; line-height: 1.4; 
+            margin-top: 5px; font-weight: 700; 
+            white-space: normal; word-break: keep-all;
         }
-
-        .event-star {
-            color: var(--accent-red); 
-            font-size: 11px;
-            margin-right: 4px;        /* 별표와 글자 사이 간격 */
-            flex-shrink: 0;           /* 별표가 찌그러지지 않게 고정 */
-            margin-top: 1px;          /* 글자와 수평 맞추기 */
-        }
-
-        .event-text {
-            flex: 1;                  /* 남은 공간을 글자가 꽉 채움 */
-        }
+        .event-star { color: var(--accent-red); font-size: 11px; margin-right: 4px; flex-shrink: 0; margin-top: 1px; }
+        .event-text { flex: 1; }
         
         #status { text-align: center; margin-top: 15px; font-weight: 600; font-size: 14px; min-height: 20px; }
         #workingCanvas { display: none; }
-        .footer { text-align: center; margin-top: 30px; font-size: 16px; color: #94a3b8; font-family: 'Gaegu'; }
+        
+        /* 하단 문구 폰트 통일 */
+        .footer { 
+            text-align: center; 
+            margin-top: 30px; 
+            font-size: 14px; 
+            color: #94a3b8; 
+            font-family: 'Nanum Gothic Round', sans-serif; 
+            font-weight: 700;
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
@@ -134,7 +146,6 @@
 <canvas id="workingCanvas"></canvas>
 
 <script>
-    // --- [사용자 설정: 이벤트 입력] ---
     const eventData = {
         '2025-12-10': ['윤성님 휴가', '재원 생보시험'],
         '2025-12-23': ['하경 휴가'],
@@ -187,7 +198,6 @@
 
                     if (eventData[dateStr]) {
                         eventData[dateStr].forEach(task => {
-                            // 구조 수정: 별표와 텍스트를 분리하여 flex 정렬
                             cell.innerHTML += `
                                 <div class="event-item">
                                     <span class="event-star">★</span>
@@ -206,7 +216,6 @@
 
     window.onload = generateCalendar;
 
-    // ... (이하 서류 처리 로직 생략 - 이전과 동일)
     async function startProcess() {
         const dateInput = document.getElementById('cDate').value;
         const name = document.getElementById('uName').value;
@@ -257,4 +266,3 @@
 </script>
 </body>
 </html>
-
