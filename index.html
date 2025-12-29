@@ -10,8 +10,9 @@
             --bg-color: #f8fafc;
             --card-bg: #ffffff;
             --border-color: #e2e8f0;
+            --accent-red: #ef4444;
         }
-        body { font-family: 'Malgun Gothic', sans-serif; background-color: var(--bg-color); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; color: #1e293b; }
+        body { font-family: 'Malgun Gothic', sans-serif; background-color: var(--bg-color); display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; padding: 40px 20px; color: #1e293b; }
         .container { width: 100%; max-width: 700px; background: var(--card-bg); padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
         h1 { color: var(--primary-color); text-align: center; font-size: 32px; margin-bottom: 30px; letter-spacing: -1.5px; font-weight: 900; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 30px; }
@@ -20,12 +21,27 @@
         label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px; color: #64748b; }
         input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; margin-bottom: 10px; }
         .file-status { font-size: 11px; color: #10b981; font-weight: bold; margin-bottom: 10px; display: none; }
-        .btn-group { display: flex; flex-direction: column; gap: 12px; }
+        
+        /* 버튼 영역 */
+        .btn-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 30px; }
         .btn { width: 100%; padding: 16px; border: none; border-radius: 10px; font-size: 17px; font-weight: 700; cursor: pointer; transition: 0.3s; text-decoration: none; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
-        .btn-secondary { background-color: #f1f5f9; color: var(--link-color); border: 1px solid #cbd5e1; }
         .btn-primary { background-color: var(--primary-color); color: white; padding: 20px; font-size: 19px; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2); }
         .btn-primary:hover { background-color: #1d4ed8; transform: translateY(-1px); }
-        #status { text-align: center; margin-top: 20px; font-weight: 600; font-size: 14px; min-height: 20px; }
+        .btn-secondary { background-color: #f1f5f9; color: var(--link-color); border: 1px solid #cbd5e1; }
+        .btn-secondary:hover { background-color: #e2e8f0; }
+
+        /* 캘린더 스타일 */
+        .calendar-section { margin-top: 40px; border-top: 2px solid var(--bg-color); pt: 30px; }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .calendar-header h2 { font-size: 18px; color: #334155; margin: 0; }
+        .calendar-table { width: 100%; border-collapse: collapse; background: #fff; }
+        .calendar-table th { background: #f1f5f9; color: #64748b; font-size: 12px; padding: 10px; border: 1px solid var(--border-color); }
+        .calendar-table td { width: 14.28%; height: 80px; vertical-align: top; padding: 5px; border: 1px solid var(--border-color); font-size: 12px; position: relative; }
+        .day-num { font-weight: bold; margin-bottom: 4px; display: block; }
+        .event-item { font-size: 10px; color: var(--accent-red); line-height: 1.2; margin-top: 2px; font-weight: bold; }
+        .today { background-color: #eff6ff; }
+        
+        #status { text-align: center; margin-top: 15px; font-weight: 600; font-size: 14px; min-height: 20px; }
         #workingCanvas { display: none; }
         .footer { text-align: center; margin-top: 30px; font-size: 12px; color: #94a3b8; }
     </style>
@@ -60,21 +76,44 @@
     </div>
 
     <div class="btn-group">
-        <a href="https://pcs.iaa.or.kr/comm/login.do" target="_blank" class="btn btn-secondary">🔗 비교확인서 바로가기</a>
         <button class="btn btn-primary" onclick="startProcess()">📤 서류 생성 및 드라이브 전송</button>
+        <div id="status"></div>
+        <a href="https://pcs.iaa.or.kr/comm/login.do" target="_blank" class="btn btn-secondary">🔗 비교확인서 바로가기</a>
     </div>
 
-    <div id="status"></div>
+    <div class="calendar-section">
+        <div class="calendar-header">
+            <h2 id="calendar-title">2025년 12월</h2>
+        </div>
+        <table class="calendar-table" id="calendar-body">
+            <thead>
+                <tr>
+                    <th style="color:red">일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th style="color:blue">토</th>
+                </tr>
+            </thead>
+            <tbody>
+                </tbody>
+        </table>
+    </div>
+
     <div class="footer">© 2025 미래전략 사업단 All Rights Reserved.</div>
 </div>
 
 <canvas id="workingCanvas"></canvas>
 
 <script>
+    // --- [사용자 설정: 이벤트 입력] ---
+    // 형식: 'YYYY-MM-DD': '이벤트내용'
+    const eventData = {
+        '2025-12-25': '크리스마스',
+        '2025-12-31': '수인 휴가',
+        '2026-01-01': '신정 휴무'
+    };
+    // --------------------------------
+
     const pdfjsLib = window['pdfjs-dist/build/pdf'];
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-    // 배포하신 구글 앱스 스크립트 URL
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwi2Cc3n57UaOUPsZAijahVbM5GB0p0IRVL9VR8EzqyYpNMcT7tgiLVwI6Qcv5gZtWFBg/exec';
 
     let storedFile1 = null;
@@ -90,53 +129,86 @@
         }
     }
 
+    // --- 캘린더 생성 로직 ---
+    function generateCalendar() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth();
+        
+        document.getElementById('calendar-title').innerText = `${year}년 ${month + 1}월`;
+        
+        const firstDay = new Date(year, month, 1).getDay();
+        const lastDate = new Date(year, month + 1, 0).getDate();
+        const tbody = document.querySelector('#calendar-body tbody');
+        tbody.innerHTML = '';
+
+        let date = 1;
+        for (let i = 0; i < 6; i++) {
+            let row = document.createElement('tr');
+            for (let j = 0; j < 7; j++) {
+                let cell = document.createElement('td');
+                if (i === 0 && j < firstDay) {
+                    // 빈 칸
+                } else if (date > lastDate) {
+                    // 빈 칸
+                } else {
+                    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+                    cell.innerHTML = `<span class="day-num">${date}</span>`;
+                    
+                    // 오늘 날짜 표시
+                    if (date === now.getDate()) cell.classList.add('today');
+
+                    // 이벤트 표시 (빨간 별표 + 내용)
+                    if (eventData[dateStr]) {
+                        cell.innerHTML += `<div class="event-item">★ ${eventData[dateStr]}</div>`;
+                    }
+                    date++;
+                }
+                row.appendChild(cell);
+            }
+            tbody.appendChild(row);
+            if (date > lastDate) break;
+        }
+    }
+
+    // 페이지 로드 시 캘린더 실행
+    window.onload = generateCalendar;
+
+    // --- 기존 프로세스 로직 ---
     async function startProcess() {
         const date = document.getElementById('cDate').value;
         const name = document.getElementById('uName').value;
         const planner = document.getElementById('pName').value;
 
         if (!storedFile1 || !storedFile2 || !date || !name || !planner) {
-            alert("양식 파일과 모든 정보를 입력해 주세요.");
-            return;
+            alert("양식 파일과 정보를 입력해 주세요."); return;
         }
 
         const status = document.getElementById('status');
         status.style.color = "#f59e0b";
-        status.innerText = "⏳ 드라이브로 전송 중입니다. 잠시만 기다려주세요...";
+        status.innerText = "⏳ 드라이브로 전송 중...";
 
         try {
             const dateObj = new Date(date);
-            const d = {
-                y: dateObj.getFullYear().toString().slice(-2),
-                m: (dateObj.getMonth() + 1).toString(),
-                day: dateObj.getDate().toString()
-            };
+            const d = { y: dateObj.getFullYear().toString().slice(-2), m: (dateObj.getMonth() + 1).toString(), day: dateObj.getDate().toString() };
 
-            // 1. 이미지 데이터 생성 (Base64)
             const img1Data = await getRenderedImageData(storedFile1, "고", d, name, planner);
             const img2Data = await getRenderedImageData(storedFile2, "동", d, name, planner);
 
-            // 2. 구글 앱스 스크립트로 전송 (로컬 다운로드 기능은 완전히 삭제됨)
             await fetch(scriptURL, {
-                method: 'POST',
-                mode: 'no-cors',
+                method: 'POST', mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    file1Data: img1Data,
-                    fileName1: `${name}_고.jpg`,
-                    file2Data: img2Data,
-                    fileName2: `${name}_동.jpg`
+                    file1Data: img1Data, fileName1: `${name}_고.jpg`,
+                    file2Data: img2Data, fileName2: `${name}_동.jpg`
                 })
             });
 
-            // 성공 메시지 표시
             status.style.color = "#10b981";
-            status.innerText = "✅ 전송 완료! '고동비' 폴더에 저장되었습니다.";
-            
+            status.innerText = "✅ 전송 완료! 이제 아래 버튼을 눌러 비교확인서를 작성하세요.";
         } catch (err) {
-            console.error(err);
             status.style.color = "#ef4444";
-            status.innerText = "❌ 전송 오류가 발생했습니다.";
+            status.innerText = "❌ 전송 오류 발생";
         }
     }
 
@@ -152,37 +224,21 @@
         const page = await pdf.getPage(1);
         const viewport = page.getViewport({ scale: 2.0 });
         const ctx = canvas.getContext('2d');
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        canvas.width = viewport.width; canvas.height = viewport.height;
+        ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
         await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-
         const s = 2.0; const h = viewport.height;
-        const draw = (txt, x, pdfY, size = 13) => {
-            ctx.font = `${size * s}px 'Malgun Gothic'`;
-            ctx.fillStyle = "black";
-            ctx.textAlign = "start";
-            ctx.textBaseline = "alphabetic";
-            ctx.fillText(txt, x * s, h - (pdfY * s));
-        };
-        const check = (x, pdfY) => {
-            ctx.font = `bold ${22 * s}px Arial`;
-            ctx.fillStyle = "red";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.fillText("v", x * s, h - (pdfY * s));
-        };
+        const draw = (t, x, y, sz=13) => { ctx.font=`${sz*s}px 'Malgun Gothic'`; ctx.fillStyle="black"; ctx.fillText(t,x*s,h-(y*s)); };
+        const ck = (x, y) => { ctx.font=`bold ${22*s}px Arial`; ctx.fillStyle="red"; ctx.textAlign="center"; ctx.fillText("v",x*s,h-(y*s)); ctx.textAlign="start"; };
 
         if (suffix === "고") {
-            [612, 579, 548, 504, 445, 385, 340, 310, 273].forEach(y => check(500, y));
+            [612, 579, 548, 504, 445, 385, 340, 310, 273].forEach(y => ck(500, y));
             draw(d.y, 199, 209); draw(d.m, 230, 209); draw(d.day, 256, 209);
             draw(name, 431, 209); draw(name, 500, 209);
             draw(d.y, 200, 96); draw(d.m, 225, 96); draw(d.day, 250, 96);
             draw(planner, 430, 96); draw(planner, 505, 96);
         } else {
-            [640, 545, 428, 310, 234].forEach(y => check(522, y));
+            [640, 545, 428, 310, 234].forEach(y => ck(522, y));
             draw(d.y, 254, 138); draw(d.m, 300, 138); draw(d.day, 341, 138);
             draw(name, 150, 107); draw(name, 239, 107);
             draw("미래전략사업단", 150, 58, 11);
