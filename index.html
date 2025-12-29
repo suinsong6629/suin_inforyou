@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <title>미래전략 사업단</title>
     <style>
-        /* 부드러운 느낌의 구글 폰트 로드 */
-        @import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Nanum+Gothic+Coding&family=Nanum+Gothic+Round:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Nanum+Gothic+Round:wght@400;700&display=swap');
 
         :root { 
             --primary-color: #3b82f6; 
@@ -13,25 +12,25 @@
             --bg-color: #f0f4f8;
             --card-bg: #ffffff;
             --border-color: #e2e8f0;
-            --accent-pink: #f472b6;
             --event-bg: #eff6ff;
+            --text-dark: #334155; /* 진한 글자색 */
         }
 
         body { 
             font-family: 'Nanum Gothic Round', sans-serif; 
             background-color: var(--bg-color); 
             display: flex; justify-content: center; align-items: flex-start; 
-            min-height: 100vh; margin: 0; padding: 40px 20px; color: #334155; 
+            min-height: 100vh; margin: 0; padding: 40px 20px; color: var(--text-dark); 
         }
 
         .container { 
             width: 100%; max-width: 700px; background: var(--card-bg); 
-            padding: 40px; border-radius: 24px; /* 더 둥글게 */
+            padding: 40px; border-radius: 24px; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.03); 
         }
 
         h1 { 
-            font-family: 'Gaegu', cursive; /* 제목은 더 귀엽게 */
+            font-family: 'Gaegu', cursive; 
             color: var(--primary-color); text-align: center; 
             font-size: 42px; margin-bottom: 30px; letter-spacing: -1px; 
         }
@@ -48,31 +47,44 @@
         .btn-primary:hover { background-color: #2563eb; transform: scale(1.02); }
         .btn-secondary { background-color: #f8fafc; color: var(--link-color); border: 1px solid #e2e8f0; }
 
-        /* 캘린더 디자인 개선 */
+        /* 캘린더 개선 디자인 */
         .calendar-section { margin-top: 40px; border-top: 3px dashed #e2e8f0; padding-top: 30px; }
         .calendar-header h2 { font-family: 'Gaegu', cursive; font-size: 28px; color: #475569; text-align: center; margin-bottom: 20px; }
         .calendar-table { width: 100%; border-collapse: separate; border-spacing: 4px; table-layout: fixed; }
-        .calendar-table th { color: #94a3b8; font-size: 13px; padding: 10px; font-weight: 400; }
-        .calendar-table td { height: 95px; vertical-align: top; padding: 8px; background: #fff; border: 1px solid #f1f5f9; border-radius: 12px; font-size: 12px; transition: 0.2s; }
-        .calendar-table td:hover { border-color: var(--primary-color); }
+        .calendar-table th { color: #64748b; font-size: 13px; padding: 10px; font-weight: bold; }
         
-        .day-num { font-weight: 700; margin-bottom: 6px; display: block; color: #cbd5e1; }
+        .calendar-table td { 
+            height: 100px; /* 높이 약간 증가 */
+            vertical-align: top; padding: 8px; 
+            background: #fff; border: 1px solid #f1f5f9; 
+            border-radius: 12px; font-size: 12px; 
+        }
+        
+        /* 날짜 숫자 색상 진하게 수정 */
+        .day-num { 
+            font-weight: 800; margin-bottom: 6px; display: block; 
+            color: #475569; /* 흐린 회색에서 진한 회색으로 변경 */
+        }
         .today .day-num { color: var(--primary-color); }
-        .today { background-color: #eff6ff !important; border: 1px solid #bfdbfe !important; }
+        .today { background-color: #eff6ff !important; border: 2px solid #bfdbfe !important; }
 
-        /* 귀여운 이벤트 라벨 스타일 */
+        /* 이벤트 텍스트 잘림 방지 및 스타일 수정 */
         .event-item { 
-            font-size: 11px; color: #1e40af; line-height: 1.4; 
-            margin-top: 3px; font-weight: 700; 
-            background: var(--event-bg); padding: 2px 6px; 
-            border-radius: 6px; white-space: nowrap; 
-            overflow: hidden; text-overflow: ellipsis;
+            font-size: 10.5px; color: #1e40af; line-height: 1.3; 
+            margin-top: 4px; font-weight: 700; 
+            background: var(--event-bg); padding: 3px 6px; 
+            border-radius: 6px; 
+            
+            /* 잘림 방지 설정 */
+            white-space: normal;      /* 줄바꿈 허용 */
+            word-break: keep-all;     /* 단어 단위로 끊기 */
+            display: block;           /* 박스 형태로 표시 */
             border-left: 3px solid var(--primary-color);
         }
         
         #status { text-align: center; margin-top: 15px; font-weight: 600; font-size: 14px; min-height: 20px; }
         #workingCanvas { display: none; }
-        .footer { text-align: center; margin-top: 30px; font-size: 12px; color: #cbd5e1; font-family: 'Gaegu'; font-size: 16px; }
+        .footer { text-align: center; margin-top: 30px; font-size: 16px; color: #94a3b8; font-family: 'Gaegu'; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
@@ -112,7 +124,7 @@
 
     <div class="calendar-section">
         <div class="calendar-header">
-            <h2 id="calendar-title">2025년 12월</h2>
+            <h2 id="calendar-title"></h2>
         </div>
         <table class="calendar-table" id="calendar-body">
             <thead>
@@ -124,13 +136,12 @@
         </table>
     </div>
 
-    <div class="footer">행복한 하루 되세요! © 2025 미래전략 사업단</div>
+    <div class="footer">오늘도 힘내세요! © 2025 미래전략 사업단</div>
 </div>
 
 <canvas id="workingCanvas"></canvas>
 
 <script>
-    // --- [사용자 설정: 이벤트 입력] ---
     const eventData = {
         '2025-12-10': ['윤성님 휴가', '재원 생보시험'],
         '2025-12-23': ['하경 휴가'],
@@ -209,12 +220,12 @@
         const planner = document.getElementById('pName').value;
 
         if (!storedFile1 || !storedFile2 || !dateInput || !name || !planner) {
-            alert("양식 파일과 정보를 입력해 주세요."); return;
+            alert("정보를 모두 입력해 주세요."); return;
         }
 
         const status = document.getElementById('status');
         status.style.color = "#3b82f6";
-        status.innerText = "✨ 드라이브로 예쁘게 전송 중...";
+        status.innerText = "✨ 전송 중입니다...";
 
         try {
             const dateObj = new Date(dateInput);
@@ -231,10 +242,10 @@
             });
 
             status.style.color = "#10b981";
-            status.innerText = "✅ 전송 완료! 이제 비교확인서를 작성하러 가볼까요?";
+            status.innerText = "✅ 전송 완료! 비교확인서를 작성해 주세요.";
         } catch (err) {
             status.style.color = "#ef4444";
-            status.innerText = "❌ 전송 중 오류가 발생했어요.";
+            status.innerText = "❌ 전송 오류가 발생했어요.";
         }
     }
 
