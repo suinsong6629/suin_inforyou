@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <title>미래전략 사업단</title>
     <style>
-        /* 필요한 폰트 로드: 나눔고딕 라운드(기본), 고운 돋움(제목용) */
-        @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Nanum+Gothic+Round:wght@300;400;700&display=swap');
+        /* 고운 돋움 폰트 로드 */
+        @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap');
 
         :root { 
             --primary-color: #3b82f6; 
@@ -14,12 +14,15 @@
             --border-color: #e2e8f0;
             --accent-red: #ef4444;
             --ios-green: #34C759;
-            --text-dark-gray: #475569; /* 이벤트용 진한 회색 */
+            --text-dark-gray: #475569;
+        }
+
+        /* 모든 요소에 고운 돋움 적용 */
+        * {
+            font-family: 'Gowun Dodum', sans-serif !important;
         }
 
         body { 
-            font-family: 'Nanum Gothic Round', sans-serif; 
-            font-weight: 400;
             background-color: var(--bg-color); 
             display: flex; justify-content: center; align-items: flex-start; 
             min-height: 100vh; margin: 0; padding: 40px 20px; color: #334155; 
@@ -30,9 +33,7 @@
             padding: 40px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); 
         }
 
-        /* 1. 주요 폰트 Gowun Dodum 적용 */
         h1 { 
-            font-family: 'Gowun Dodum', sans-serif;
             font-weight: 700; color: var(--primary-color); 
             text-align: center; font-size: 28px; margin-bottom: 30px; 
         }
@@ -45,37 +46,30 @@
         input { 
             width: 100%; padding: 12px; border: 1px solid var(--border-color); 
             border-radius: 10px; box-sizing: border-box; margin-bottom: 10px; 
-            font-family: 'Nanum Gothic Round'; font-weight: 300; 
+            font-size: 14px;
         }
         
         .btn-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 30px; }
         .btn { 
             width: 100%; padding: 16px; border: none; border-radius: 15px; 
-            font-size: 16px; font-weight: 400; cursor: pointer; transition: 0.3s; 
+            font-size: 16px; cursor: pointer; transition: 0.3s; 
             text-decoration: none; display: flex; align-items: center; justify-content: center; 
-            box-sizing: border-box; font-family: 'Nanum Gothic Round'; 
+            box-sizing: border-box; 
         }
         .btn-primary { background-color: var(--primary-color); color: white; font-weight: 700; }
-        
-        /* 비교확인서 버튼 iOS 그린 적용 */
         .btn-secondary { background-color: var(--ios-green); color: white; font-weight: 700; }
 
         .calendar-section { margin-top: 40px; border-top: 2px dashed #f1f5f9; padding-top: 30px; }
+        .calendar-header h2 { font-weight: 700; font-size: 22px; color: #475569; text-align: center; margin-bottom: 20px; }
         
-        /* 1. 달력 년/월 Gowun Dodum 적용 */
-        .calendar-header h2 { 
-            font-family: 'Gowun Dodum', sans-serif;
-            font-weight: 700; font-size: 22px; color: #475569; text-align: center; margin-bottom: 20px; 
-        }
-
         .calendar-table { width: 100%; border-collapse: separate; border-spacing: 4px; table-layout: fixed; }
         .calendar-table th { color: #94a3b8; font-size: 12px; padding: 10px; font-weight: 400; }
         .calendar-table td { height: 90px; vertical-align: top; padding: 8px; background: #fff; border: 1px solid #f8fafc; border-radius: 12px; }
+        
         .day-num { font-weight: 400; margin-bottom: 6px; display: block; color: #64748b; }
         .today { background-color: #f0f7ff !important; border: 1px solid #dbeafe !important; }
         .today .day-num { color: var(--primary-color); font-weight: 700; }
 
-        /* 2. 이벤트 텍스트 색상 진한 회색(#475569) 수정 */
         .event-item { 
             display: flex; align-items: flex-start; 
             font-size: 11px; color: var(--text-dark-gray); line-height: 1.4; 
@@ -87,7 +81,7 @@
         
         #status { text-align: center; margin-top: 15px; font-weight: 400; font-size: 13px; min-height: 20px; }
         #workingCanvas { display: none; }
-        .footer { text-align: center; margin-top: 30px; font-size: 13px; color: #cbd5e1; font-weight: 300; }
+        .footer { text-align: center; margin-top: 30px; font-size: 13px; color: #cbd5e1; font-weight: 400; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
