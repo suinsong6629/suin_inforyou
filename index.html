@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <title>미래전략 사업단</title>
     <style>
-        /* 폰트 통일: 나눔고딕 라운드만 로드 */
-        @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic+Round:wght@400;700;800&display=swap');
+        /* 나눔고딕 라운드 - 다양한 굵기 로드 (300: Light, 400: Regular, 700: Bold) */
+        @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic+Round:wght@300;400;700&display=swap');
 
         :root { 
             --primary-color: #3b82f6; 
@@ -13,13 +13,15 @@
             --card-bg: #ffffff;
             --border-color: #e2e8f0;
             --accent-red: #ef4444;
+            --text-main: #475569;
         }
 
         body { 
             font-family: 'Nanum Gothic Round', sans-serif; 
+            font-weight: 400; /* 전체적으로 기본 굵기 적용 */
             background-color: var(--bg-color); 
             display: flex; justify-content: center; align-items: flex-start; 
-            min-height: 100vh; margin: 0; padding: 40px 20px; color: #334155; 
+            min-height: 100vh; margin: 0; padding: 40px 20px; color: var(--text-main); 
         }
 
         .container { 
@@ -27,67 +29,78 @@
             padding: 40px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); 
         }
 
-        /* 상단 제목 폰트 통일 및 디자인 조정 */
         h1 { 
-            font-family: 'Nanum Gothic Round', sans-serif; 
-            font-weight: 800;
+            font-weight: 700;
             color: var(--primary-color); 
             text-align: center; 
-            font-size: 32px; 
+            font-size: 28px; 
             margin-bottom: 30px; 
-            letter-spacing: -1px;
+            letter-spacing: -0.5px;
         }
 
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 30px; }
-        .input-group { padding: 20px; border: 2px solid #f1f5f9; border-radius: 18px; }
-        .section-title { font-size: 16px; font-weight: 700; margin-bottom: 15px; color: #475569; }
-        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: #94a3b8; }
-        input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 10px; box-sizing: border-box; margin-bottom: 10px; font-family: 'Nanum Gothic Round'; }
+        .input-group { padding: 20px; border: 1px solid #f1f5f9; border-radius: 18px; }
+        .section-title { font-size: 15px; font-weight: 700; margin-bottom: 15px; color: #64748b; }
+        
+        /* 라벨과 인풋 폰트 무게를 가볍게 */
+        label { display: block; margin-bottom: 5px; font-weight: 400; font-size: 13px; color: #94a3b8; }
+        input { 
+            width: 100%; padding: 12px; border: 1px solid var(--border-color); 
+            border-radius: 10px; box-sizing: border-box; margin-bottom: 10px; 
+            font-family: 'Nanum Gothic Round'; font-weight: 300; 
+        }
         
         .btn-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 30px; }
-        .btn { width: 100%; padding: 16px; border: none; border-radius: 15px; font-size: 17px; font-weight: 700; cursor: pointer; transition: 0.3s; text-decoration: none; display: flex; align-items: center; justify-content: center; box-sizing: border-box; font-family: 'Nanum Gothic Round'; }
-        .btn-primary { background-color: var(--primary-color); color: white; padding: 20px; font-size: 19px; }
+        .btn { 
+            width: 100%; padding: 16px; border: none; border-radius: 15px; 
+            font-size: 16px; font-weight: 400; cursor: pointer; transition: 0.3s; 
+            text-decoration: none; display: flex; align-items: center; justify-content: center; 
+            box-sizing: border-box; font-family: 'Nanum Gothic Round'; 
+        }
+        .btn-primary { background-color: var(--primary-color); color: white; font-weight: 700; }
         .btn-secondary { background-color: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
 
-        .calendar-section { margin-top: 40px; border-top: 3px dashed #e2e8f0; padding-top: 30px; }
+        .calendar-section { margin-top: 40px; border-top: 2px dashed #f1f5f9; padding-top: 30px; }
         
-        /* 달력 년/월 폰트 통일 */
         .calendar-header h2 { 
-            font-family: 'Nanum Gothic Round', sans-serif; 
-            font-weight: 800;
-            font-size: 24px; 
+            font-weight: 700;
+            font-size: 22px; 
             color: #475569; 
             text-align: center; 
             margin-bottom: 20px; 
         }
 
         .calendar-table { width: 100%; border-collapse: separate; border-spacing: 4px; table-layout: fixed; }
-        .calendar-table th { color: #64748b; font-size: 13px; padding: 10px; font-weight: bold; }
-        .calendar-table td { height: 100px; vertical-align: top; padding: 8px; background: #fff; border: 1px solid #f1f5f9; border-radius: 12px; }
-        .day-num { font-weight: 800; margin-bottom: 6px; display: block; color: #475569; }
-        .today { background-color: #eff6ff !important; border: 2px solid #bfdbfe !important; }
-        .today .day-num { color: var(--primary-color); }
+        .calendar-table th { color: #94a3b8; font-size: 12px; padding: 10px; font-weight: 400; }
+        .calendar-table td { 
+            height: 90px; vertical-align: top; padding: 8px; 
+            background: #fff; border: 1px solid #f8fafc; border-radius: 12px; 
+        }
+        
+        /* 날짜 숫자를 적당한 굵기로 조정 */
+        .day-num { font-weight: 400; margin-bottom: 6px; display: block; color: #64748b; }
+        .today { background-color: #f0f7ff !important; border: 1px solid #dbeafe !important; }
+        .today .day-num { color: var(--primary-color); font-weight: 700; }
 
+        /* 이벤트 텍스트 굵기를 Light하게 변경 */
         .event-item { 
             display: flex; align-items: flex-start; 
-            font-size: 11px; color: #1e40af; line-height: 1.4; 
-            margin-top: 5px; font-weight: 700; 
+            font-size: 11px; color: #3b82f6; line-height: 1.4; 
+            margin-top: 4px; font-weight: 400; /* 700에서 400으로 변경 */
             white-space: normal; word-break: keep-all;
         }
-        .event-star { color: var(--accent-red); font-size: 11px; margin-right: 4px; flex-shrink: 0; margin-top: 1px; }
+        .event-star { color: var(--accent-red); font-size: 10px; margin-right: 4px; flex-shrink: 0; margin-top: 2px; }
         .event-text { flex: 1; }
         
-        #status { text-align: center; margin-top: 15px; font-weight: 600; font-size: 14px; min-height: 20px; }
+        #status { text-align: center; margin-top: 15px; font-weight: 400; font-size: 13px; min-height: 20px; }
         #workingCanvas { display: none; }
         
-        /* 하단 문구 폰트 통일 */
         .footer { 
             text-align: center; 
             margin-top: 30px; 
-            font-size: 14px; 
-            color: #94a3b8; 
-            font-family: 'Nanum Gothic Round', sans-serif; 
-            font-weight: 700;
+            font-size: 13px; 
+            color: #cbd5e1; 
+            font-weight: 300; /* 아주 가볍게 */
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -95,18 +108,18 @@
 <body>
 
 <div class="container">
-    <h1>🏢 미래전략 사업단</h1>
+    <h1>미래전략 사업단</h1>
     
     <div class="grid">
         <div class="input-group">
             <div class="section-title">📂 양식 파일 유지</div>
             <label>고지의무 이행확인서</label>
             <input type="file" id="file1" accept=".pdf" onchange="keepFile(1)">
-            <div id="file1-msg" style="display:none; color:#10b981; font-size:11px; font-weight:bold;">✓ 로드완료</div>
+            <div id="file1-msg" style="display:none; color:#10b981; font-size:11px;">✓ 로드완료</div>
             
             <label>필수 동의서</label>
             <input type="file" id="file2" accept=".pdf" onchange="keepFile(2)">
-            <div id="file2-msg" style="display:none; color:#10b981; font-size:11px; font-weight:bold;">✓ 로드완료</div>
+            <div id="file2-msg" style="display:none; color:#10b981; font-size:11px;">✓ 로드완료</div>
         </div>
 
         <div class="input-group">
@@ -133,7 +146,7 @@
         <table class="calendar-table" id="calendar-body">
             <thead>
                 <tr>
-                    <th style="color:#f87171">일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th style="color:#60a5fa">토</th>
+                    <th style="color:#fca5a5">일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th style="color:#93c5fd">토</th>
                 </tr>
             </thead>
             <tbody></tbody>
