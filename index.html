@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <title>미래전략 사업단</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic+Round:wght@300;400;700&display=swap');
+        /* 필요한 폰트 로드: 나눔고딕 라운드(기본), 고운 돋움(제목용) */
+        @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Nanum+Gothic+Round:wght@300;400;700&display=swap');
 
         :root { 
             --primary-color: #3b82f6; 
@@ -12,7 +13,8 @@
             --card-bg: #ffffff;
             --border-color: #e2e8f0;
             --accent-red: #ef4444;
-            --ios-green: #34C759; /* iOS 시스템 그린 */
+            --ios-green: #34C759;
+            --text-dark-gray: #475569; /* 이벤트용 진한 회색 */
         }
 
         body { 
@@ -28,7 +30,9 @@
             padding: 40px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); 
         }
 
+        /* 1. 주요 폰트 Gowun Dodum 적용 */
         h1 { 
+            font-family: 'Gowun Dodum', sans-serif;
             font-weight: 700; color: var(--primary-color); 
             text-align: center; font-size: 28px; margin-bottom: 30px; 
         }
@@ -37,7 +41,6 @@
         .input-group { padding: 20px; border: 1px solid #f1f5f9; border-radius: 18px; }
         .section-title { font-size: 15px; font-weight: 700; margin-bottom: 15px; color: #000000; }
         
-        /* 모든 입력 필드 라벨 텍스트 검정색 수정 */
         label { display: block; margin-bottom: 5px; font-weight: 400; font-size: 13px; color: #000000; }
         input { 
             width: 100%; padding: 12px; border: 1px solid var(--border-color); 
@@ -58,7 +61,13 @@
         .btn-secondary { background-color: var(--ios-green); color: white; font-weight: 700; }
 
         .calendar-section { margin-top: 40px; border-top: 2px dashed #f1f5f9; padding-top: 30px; }
-        .calendar-header h2 { font-weight: 700; font-size: 22px; color: #475569; text-align: center; margin-bottom: 20px; }
+        
+        /* 1. 달력 년/월 Gowun Dodum 적용 */
+        .calendar-header h2 { 
+            font-family: 'Gowun Dodum', sans-serif;
+            font-weight: 700; font-size: 22px; color: #475569; text-align: center; margin-bottom: 20px; 
+        }
+
         .calendar-table { width: 100%; border-collapse: separate; border-spacing: 4px; table-layout: fixed; }
         .calendar-table th { color: #94a3b8; font-size: 12px; padding: 10px; font-weight: 400; }
         .calendar-table td { height: 90px; vertical-align: top; padding: 8px; background: #fff; border: 1px solid #f8fafc; border-radius: 12px; }
@@ -66,10 +75,10 @@
         .today { background-color: #f0f7ff !important; border: 1px solid #dbeafe !important; }
         .today .day-num { color: var(--primary-color); font-weight: 700; }
 
-        /* 이벤트 텍스트 색상 진한 파란색(#1e40af) 복구 */
+        /* 2. 이벤트 텍스트 색상 진한 회색(#475569) 수정 */
         .event-item { 
             display: flex; align-items: flex-start; 
-            font-size: 11px; color: #1e40af; line-height: 1.4; 
+            font-size: 11px; color: var(--text-dark-gray); line-height: 1.4; 
             margin-top: 4px; font-weight: 400;
             white-space: normal; word-break: keep-all;
         }
@@ -113,7 +122,7 @@
     <div class="btn-group">
         <button class="btn btn-primary" onclick="startProcess()">📤 서류 생성 및 드라이브 전송</button>
         <div id="status"></div>
-        <a href="https://pcs.iaa.or.kr/comm/login.do" target="_blank" class="btn btn-secondary">🔗 비교확인서 바로가기</a>
+        <a href="https://pcs.iaa.or.kr/comm/login.do" target="_blank" class="btn btn-secondary">✔ 비교확인서 바로가기</a>
     </div>
 
     <div class="calendar-section">
