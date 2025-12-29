@@ -4,44 +4,75 @@
     <meta charset="UTF-8">
     <title>미래전략 사업단</title>
     <style>
+        /* 부드러운 느낌의 구글 폰트 로드 */
+        @import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Nanum+Gothic+Coding&family=Nanum+Gothic+Round:wght@400;700&display=swap');
+
         :root { 
-            --primary-color: #2563eb; 
-            --link-color: #475569;
-            --bg-color: #f8fafc;
+            --primary-color: #3b82f6; 
+            --link-color: #64748b;
+            --bg-color: #f0f4f8;
             --card-bg: #ffffff;
             --border-color: #e2e8f0;
-            --accent-red: #ef4444;
+            --accent-pink: #f472b6;
+            --event-bg: #eff6ff;
         }
-        body { font-family: 'Malgun Gothic', sans-serif; background-color: var(--bg-color); display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; padding: 40px 20px; color: #1e293b; }
-        .container { width: 100%; max-width: 700px; background: var(--card-bg); padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        h1 { color: var(--primary-color); text-align: center; font-size: 32px; margin-bottom: 30px; letter-spacing: -1.5px; font-weight: 900; }
+
+        body { 
+            font-family: 'Nanum Gothic Round', sans-serif; 
+            background-color: var(--bg-color); 
+            display: flex; justify-content: center; align-items: flex-start; 
+            min-height: 100vh; margin: 0; padding: 40px 20px; color: #334155; 
+        }
+
+        .container { 
+            width: 100%; max-width: 700px; background: var(--card-bg); 
+            padding: 40px; border-radius: 24px; /* 더 둥글게 */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03); 
+        }
+
+        h1 { 
+            font-family: 'Gaegu', cursive; /* 제목은 더 귀엽게 */
+            color: var(--primary-color); text-align: center; 
+            font-size: 42px; margin-bottom: 30px; letter-spacing: -1px; 
+        }
+
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 30px; }
-        .input-group { padding: 20px; border: 1px solid var(--border-color); border-radius: 12px; }
-        .section-title { font-size: 15px; font-weight: 700; margin-bottom: 15px; color: #334155; }
-        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px; color: #64748b; }
-        input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; margin-bottom: 10px; }
-        .file-status { font-size: 11px; color: #10b981; font-weight: bold; margin-bottom: 10px; display: none; }
+        .input-group { padding: 20px; border: 2px solid #f1f5f9; border-radius: 18px; }
+        .section-title { font-size: 16px; font-weight: 700; margin-bottom: 15px; color: #475569; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: #94a3b8; }
+        input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 10px; box-sizing: border-box; margin-bottom: 10px; font-family: 'Nanum Gothic Round'; }
         
         .btn-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 30px; }
-        .btn { width: 100%; padding: 16px; border: none; border-radius: 10px; font-size: 17px; font-weight: 700; cursor: pointer; transition: 0.3s; text-decoration: none; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
-        .btn-primary { background-color: var(--primary-color); color: white; padding: 20px; font-size: 19px; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2); }
-        .btn-primary:hover { background-color: #1d4ed8; transform: translateY(-1px); }
-        .btn-secondary { background-color: #f1f5f9; color: var(--link-color); border: 1px solid #cbd5e1; }
-        .btn-secondary:hover { background-color: #e2e8f0; }
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 15px; font-size: 17px; font-weight: 700; cursor: pointer; transition: 0.3s; text-decoration: none; display: flex; align-items: center; justify-content: center; box-sizing: border-box; font-family: 'Nanum Gothic Round'; }
+        .btn-primary { background-color: var(--primary-color); color: white; padding: 20px; font-size: 19px; }
+        .btn-primary:hover { background-color: #2563eb; transform: scale(1.02); }
+        .btn-secondary { background-color: #f8fafc; color: var(--link-color); border: 1px solid #e2e8f0; }
 
-        .calendar-section { margin-top: 40px; border-top: 2px solid var(--bg-color); padding-top: 30px; }
-        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .calendar-header h2 { font-size: 18px; color: #334155; margin: 0; }
-        .calendar-table { width: 100%; border-collapse: collapse; background: #fff; table-layout: fixed; }
-        .calendar-table th { background: #f1f5f9; color: #64748b; font-size: 12px; padding: 10px; border: 1px solid var(--border-color); }
-        .calendar-table td { height: 90px; vertical-align: top; padding: 5px; border: 1px solid var(--border-color); font-size: 12px; position: relative; overflow: hidden; }
-        .day-num { font-weight: bold; margin-bottom: 4px; display: block; }
-        .event-item { font-size: 10px; color: var(--accent-red); line-height: 1.3; margin-top: 2px; font-weight: bold; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
-        .today { background-color: #eff6ff; }
+        /* 캘린더 디자인 개선 */
+        .calendar-section { margin-top: 40px; border-top: 3px dashed #e2e8f0; padding-top: 30px; }
+        .calendar-header h2 { font-family: 'Gaegu', cursive; font-size: 28px; color: #475569; text-align: center; margin-bottom: 20px; }
+        .calendar-table { width: 100%; border-collapse: separate; border-spacing: 4px; table-layout: fixed; }
+        .calendar-table th { color: #94a3b8; font-size: 13px; padding: 10px; font-weight: 400; }
+        .calendar-table td { height: 95px; vertical-align: top; padding: 8px; background: #fff; border: 1px solid #f1f5f9; border-radius: 12px; font-size: 12px; transition: 0.2s; }
+        .calendar-table td:hover { border-color: var(--primary-color); }
+        
+        .day-num { font-weight: 700; margin-bottom: 6px; display: block; color: #cbd5e1; }
+        .today .day-num { color: var(--primary-color); }
+        .today { background-color: #eff6ff !important; border: 1px solid #bfdbfe !important; }
+
+        /* 귀여운 이벤트 라벨 스타일 */
+        .event-item { 
+            font-size: 11px; color: #1e40af; line-height: 1.4; 
+            margin-top: 3px; font-weight: 700; 
+            background: var(--event-bg); padding: 2px 6px; 
+            border-radius: 6px; white-space: nowrap; 
+            overflow: hidden; text-overflow: ellipsis;
+            border-left: 3px solid var(--primary-color);
+        }
         
         #status { text-align: center; margin-top: 15px; font-weight: 600; font-size: 14px; min-height: 20px; }
         #workingCanvas { display: none; }
-        .footer { text-align: center; margin-top: 30px; font-size: 12px; color: #94a3b8; }
+        .footer { text-align: center; margin-top: 30px; font-size: 12px; color: #cbd5e1; font-family: 'Gaegu'; font-size: 16px; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
@@ -55,11 +86,11 @@
             <div class="section-title">📂 양식 파일 유지</div>
             <label>고지의무 이행확인서</label>
             <input type="file" id="file1" accept=".pdf" onchange="keepFile(1)">
-            <div id="file1-msg" class="file-status">✓ 고지양식 로드완료</div>
+            <div id="file1-msg" class="file-status" style="display:none; color:#10b981; font-size:11px; font-weight:bold;">✓ 로드완료</div>
             
             <label>필수 동의서</label>
             <input type="file" id="file2" accept=".pdf" onchange="keepFile(2)">
-            <div id="file2-msg" class="file-status">✓ 필수양식 로드완료</div>
+            <div id="file2-msg" class="file-status" style="display:none; color:#10b981; font-size:11px; font-weight:bold;">✓ 로드완료</div>
         </div>
 
         <div class="input-group">
@@ -86,31 +117,30 @@
         <table class="calendar-table" id="calendar-body">
             <thead>
                 <tr>
-                    <th style="color:red">일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th style="color:blue">토</th>
+                    <th style="color:#f87171">일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th style="color:#60a5fa">토</th>
                 </tr>
             </thead>
             <tbody></tbody>
         </table>
     </div>
 
-    <div class="footer">© 2025 미래전략 사업단 All Rights Reserved.</div>
+    <div class="footer">행복한 하루 되세요! © 2025 미래전략 사업단</div>
 </div>
 
 <canvas id="workingCanvas"></canvas>
 
 <script>
     // --- [사용자 설정: 이벤트 입력] ---
-    // 동일 날짜에 여러 이벤트를 넣으려면 [ ] 대괄호 안에 쉼표로 구분하여 입력하세요.
     const eventData = {
-        '2025-12-10': ['윤성님 휴무', '재원 생보시험'],
-        '2025-12-23': ['하경 휴무'],
+        '2025-12-10': ['윤성님 휴가', '재원 생보시험'],
+        '2025-12-23': ['하경 휴가'],
         '2025-12-25': ['크리스마스'],
-        '2025-12-26': ['세희 휴무', '화재경보기 설치'],
+        '2025-12-26': ['세희 휴가', '화재경보기 설치'],
         '2025-12-31': ['수인 휴가'],
         '2026-01-01': ['신정'],
         '2026-01-02': ['전체미팅'],
-        '2026-01-16': ['수인 휴무'],
-        '2026-01-23': ['수인 휴무'],
+        '2026-01-16': ['수인 휴가'],
+        '2026-01-23': ['수인 휴가']
     };
 
     const pdfjsLib = window['pdfjs-dist/build/pdf'];
@@ -118,8 +148,7 @@
 
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwi2Cc3n57UaOUPsZAijahVbM5GB0p0IRVL9VR8EzqyYpNMcT7tgiLVwI6Qcv5gZtWFBg/exec';
 
-    let storedFile1 = null;
-    let storedFile2 = null;
+    let storedFile1 = null; let storedFile2 = null;
 
     function keepFile(num) {
         const fileInput = document.getElementById('file' + num);
@@ -160,7 +189,7 @@
 
                     if (eventData[dateStr]) {
                         eventData[dateStr].forEach(task => {
-                            cell.innerHTML += `<div class="event-item">★ ${task}</div>`;
+                            cell.innerHTML += `<div class="event-item">📎 ${task}</div>`;
                         });
                     }
                     date++;
@@ -184,19 +213,17 @@
         }
 
         const status = document.getElementById('status');
-        status.style.color = "#f59e0b";
-        status.innerText = "⏳ 드라이브로 전송 중...";
+        status.style.color = "#3b82f6";
+        status.innerText = "✨ 드라이브로 예쁘게 전송 중...";
 
         try {
             const dateObj = new Date(dateInput);
             const d = { y: dateObj.getFullYear().toString().slice(-2), m: (dateObj.getMonth() + 1).toString(), day: dateObj.getDate().toString() };
-
             const img1Data = await getRenderedImageData(storedFile1, "고", d, name, planner);
             const img2Data = await getRenderedImageData(storedFile2, "동", d, name, planner);
 
             await fetch(scriptURL, {
                 method: 'POST', mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     file1Data: img1Data, fileName1: `${name}_고.jpg`,
                     file2Data: img2Data, fileName2: `${name}_동.jpg`
@@ -204,10 +231,10 @@
             });
 
             status.style.color = "#10b981";
-            status.innerText = "✅ 전송 완료! 이제 아래 버튼을 눌러 비교확인서를 작성하세요.";
+            status.innerText = "✅ 전송 완료! 이제 비교확인서를 작성하러 가볼까요?";
         } catch (err) {
-            status.style.color = "#accent-red";
-            status.innerText = "❌ 전송 오류 발생";
+            status.style.color = "#ef4444";
+            status.innerText = "❌ 전송 중 오류가 발생했어요.";
         }
     }
 
@@ -247,4 +274,3 @@
 </script>
 </body>
 </html>
-
