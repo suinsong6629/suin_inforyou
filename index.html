@@ -8,31 +8,27 @@
 
         :root { 
             --primary-color: #3b82f6; 
-            --link-color: #64748b;
             --bg-color: #f0f4f8;
             --card-bg: #ffffff;
             --border-color: #e2e8f0;
-            --event-bg: #eff6ff;
-            --text-dark: #334155; /* 진한 글자색 */
+            --accent-red: #ef4444; /* 별표 및 강조용 빨간색 */
         }
 
         body { 
             font-family: 'Nanum Gothic Round', sans-serif; 
             background-color: var(--bg-color); 
             display: flex; justify-content: center; align-items: flex-start; 
-            min-height: 100vh; margin: 0; padding: 40px 20px; color: var(--text-dark); 
+            min-height: 100vh; margin: 0; padding: 40px 20px; color: #334155; 
         }
 
         .container { 
             width: 100%; max-width: 700px; background: var(--card-bg); 
-            padding: 40px; border-radius: 24px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03); 
+            padding: 40px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); 
         }
 
         h1 { 
-            font-family: 'Gaegu', cursive; 
-            color: var(--primary-color); text-align: center; 
-            font-size: 42px; margin-bottom: 30px; letter-spacing: -1px; 
+            font-family: 'Gaegu', cursive; color: var(--primary-color); 
+            text-align: center; font-size: 42px; margin-bottom: 30px; 
         }
 
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 30px; }
@@ -44,42 +40,38 @@
         .btn-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 30px; }
         .btn { width: 100%; padding: 16px; border: none; border-radius: 15px; font-size: 17px; font-weight: 700; cursor: pointer; transition: 0.3s; text-decoration: none; display: flex; align-items: center; justify-content: center; box-sizing: border-box; font-family: 'Nanum Gothic Round'; }
         .btn-primary { background-color: var(--primary-color); color: white; padding: 20px; font-size: 19px; }
-        .btn-primary:hover { background-color: #2563eb; transform: scale(1.02); }
-        .btn-secondary { background-color: #f8fafc; color: var(--link-color); border: 1px solid #e2e8f0; }
+        .btn-secondary { background-color: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
 
-        /* 캘린더 개선 디자인 */
         .calendar-section { margin-top: 40px; border-top: 3px dashed #e2e8f0; padding-top: 30px; }
         .calendar-header h2 { font-family: 'Gaegu', cursive; font-size: 28px; color: #475569; text-align: center; margin-bottom: 20px; }
         .calendar-table { width: 100%; border-collapse: separate; border-spacing: 4px; table-layout: fixed; }
         .calendar-table th { color: #64748b; font-size: 13px; padding: 10px; font-weight: bold; }
         
         .calendar-table td { 
-            height: 100px; /* 높이 약간 증가 */
-            vertical-align: top; padding: 8px; 
-            background: #fff; border: 1px solid #f1f5f9; 
-            border-radius: 12px; font-size: 12px; 
+            height: 100px; vertical-align: top; padding: 8px; 
+            background: #fff; border: 1px solid #f1f5f9; border-radius: 12px; 
         }
         
-        /* 날짜 숫자 색상 진하게 수정 */
-        .day-num { 
-            font-weight: 800; margin-bottom: 6px; display: block; 
-            color: #475569; /* 흐린 회색에서 진한 회색으로 변경 */
-        }
-        .today .day-num { color: var(--primary-color); }
+        .day-num { font-weight: 800; margin-bottom: 6px; display: block; color: #475569; }
         .today { background-color: #eff6ff !important; border: 2px solid #bfdbfe !important; }
+        .today .day-num { color: var(--primary-color); }
 
-        /* 이벤트 텍스트 잘림 방지 및 스타일 수정 */
+        /* 이벤트 아이템 스타일 수정 (빨간 별표 반영) */
         .event-item { 
-            font-size: 10.5px; color: #1e40af; line-height: 1.3; 
-            margin-top: 4px; font-weight: 700; 
-            background: var(--event-bg); padding: 3px 6px; 
-            border-radius: 6px; 
-            
-            /* 잘림 방지 설정 */
-            white-space: normal;      /* 줄바꿈 허용 */
-            word-break: keep-all;     /* 단어 단위로 끊기 */
-            display: block;           /* 박스 형태로 표시 */
-            border-left: 3px solid var(--primary-color);
+            font-size: 11px; 
+            color: #1e40af; /* 텍스트는 가독성을 위해 진한 파랑 */
+            line-height: 1.4; 
+            margin-top: 4px; 
+            font-weight: 700; 
+            white-space: normal; 
+            word-break: keep-all;
+        }
+
+        /* 별표 전용 스타일 */
+        .event-star {
+            color: var(--accent-red); /* 별표만 빨간색 */
+            font-size: 12px;
+            margin-right: 2px;
         }
         
         #status { text-align: center; margin-top: 15px; font-weight: 600; font-size: 14px; min-height: 20px; }
@@ -136,7 +128,7 @@
         </table>
     </div>
 
-    <div class="footer">오늘도 힘내세요! © 2025 미래전략 사업단</div>
+    <div class="footer">행복한 하루 되세요! © 2025 미래전략 사업단</div>
 </div>
 
 <canvas id="workingCanvas"></canvas>
@@ -156,7 +148,6 @@
 
     const pdfjsLib = window['pdfjs-dist/build/pdf'];
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwi2Cc3n57UaOUPsZAijahVbM5GB0p0IRVL9VR8EzqyYpNMcT7tgiLVwI6Qcv5gZtWFBg/exec';
 
     let storedFile1 = null; let storedFile2 = null;
@@ -175,9 +166,7 @@
         const now = new Date();
         const year = now.getFullYear();
         const month = now.getMonth();
-        
         document.getElementById('calendar-title').innerText = `${year}년 ${month + 1}월`;
-        
         const firstDay = new Date(year, month, 1).getDay();
         const lastDate = new Date(year, month + 1, 0).getDate();
         const tbody = document.querySelector('#calendar-body tbody');
@@ -193,14 +182,12 @@
                 } else {
                     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
                     cell.innerHTML = `<span class="day-num">${date}</span>`;
-                    
-                    if (date === now.getDate() && month === now.getMonth() && year === now.getFullYear()) {
-                        cell.classList.add('today');
-                    }
+                    if (date === now.getDate() && month === now.getMonth() && year === now.getFullYear()) cell.classList.add('today');
 
                     if (eventData[dateStr]) {
                         eventData[dateStr].forEach(task => {
-                            cell.innerHTML += `<div class="event-item">📎 ${task}</div>`;
+                            // 빨간 별표(★) 추가
+                            cell.innerHTML += `<div class="event-item"><span class="event-star">★</span>${task}</div>`;
                         });
                     }
                     date++;
@@ -214,39 +201,22 @@
 
     window.onload = generateCalendar;
 
+    // ... (이하 startProcess 및 render 로직은 동일)
     async function startProcess() {
         const dateInput = document.getElementById('cDate').value;
         const name = document.getElementById('uName').value;
         const planner = document.getElementById('pName').value;
-
-        if (!storedFile1 || !storedFile2 || !dateInput || !name || !planner) {
-            alert("정보를 모두 입력해 주세요."); return;
-        }
-
+        if (!storedFile1 || !storedFile2 || !dateInput || !name || !planner) { alert("정보를 모두 입력해 주세요."); return; }
         const status = document.getElementById('status');
-        status.style.color = "#3b82f6";
-        status.innerText = "✨ 전송 중입니다...";
-
+        status.style.color = "#3b82f6"; status.innerText = "✨ 전송 중입니다...";
         try {
             const dateObj = new Date(dateInput);
             const d = { y: dateObj.getFullYear().toString().slice(-2), m: (dateObj.getMonth() + 1).toString(), day: dateObj.getDate().toString() };
             const img1Data = await getRenderedImageData(storedFile1, "고", d, name, planner);
             const img2Data = await getRenderedImageData(storedFile2, "동", d, name, planner);
-
-            await fetch(scriptURL, {
-                method: 'POST', mode: 'no-cors',
-                body: JSON.stringify({
-                    file1Data: img1Data, fileName1: `${name}_고.jpg`,
-                    file2Data: img2Data, fileName2: `${name}_동.jpg`
-                })
-            });
-
-            status.style.color = "#10b981";
-            status.innerText = "✅ 전송 완료! 비교확인서를 작성해 주세요.";
-        } catch (err) {
-            status.style.color = "#ef4444";
-            status.innerText = "❌ 전송 오류가 발생했어요.";
-        }
+            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ file1Data: img1Data, fileName1: `${name}_고.jpg`, file2Data: img2Data, fileName2: `${name}_동.jpg` }) });
+            status.style.color = "#10b981"; status.innerText = "✅ 전송 완료! 비교확인서를 작성해 주세요.";
+        } catch (err) { status.style.color = "#ef4444"; status.innerText = "❌ 오류가 발생했어요."; }
     }
 
     async function getRenderedImageData(file, suffix, d, name, planner) {
@@ -267,7 +237,6 @@
         const s = 2.0; const h = viewport.height;
         const draw = (t, x, y, sz=13) => { ctx.font=`${sz*s}px 'Malgun Gothic'`; ctx.fillStyle="black"; ctx.fillText(t,x*s,h-(y*s)); };
         const ck = (x, y) => { ctx.font=`bold ${22*s}px Arial`; ctx.fillStyle="red"; ctx.textAlign="center"; ctx.fillText("v",x*s,h-(y*s)); ctx.textAlign="start"; };
-
         if (suffix === "고") {
             [612, 579, 548, 504, 445, 385, 340, 310, 273].forEach(y => ck(500, y));
             draw(d.y, 199, 209); draw(d.m, 230, 209); draw(d.day, 256, 209);
