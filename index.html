@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>미래전략 사업단</title>
     <style>
-        /* 고운 돋움 폰트 로드 */
         @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap');
 
         :root { 
@@ -17,7 +16,6 @@
             --text-dark-gray: #475569;
         }
 
-        /* 모든 요소에 고운 돋움 적용 */
         * {
             font-family: 'Gowun Dodum', sans-serif !important;
         }
@@ -61,11 +59,9 @@
 
         .calendar-section { margin-top: 40px; border-top: 2px dashed #f1f5f9; padding-top: 30px; }
         .calendar-header h2 { font-weight: 700; font-size: 22px; color: #475569; text-align: center; margin-bottom: 20px; }
-        
         .calendar-table { width: 100%; border-collapse: separate; border-spacing: 4px; table-layout: fixed; }
         .calendar-table th { color: #94a3b8; font-size: 12px; padding: 10px; font-weight: 400; }
         .calendar-table td { height: 90px; vertical-align: top; padding: 8px; background: #fff; border: 1px solid #f8fafc; border-radius: 12px; }
-        
         .day-num { font-weight: 400; margin-bottom: 6px; display: block; color: #64748b; }
         .today { background-color: #f0f7ff !important; border: 1px solid #dbeafe !important; }
         .today .day-num { color: var(--primary-color); font-weight: 700; }
@@ -106,10 +102,12 @@
             <div class="section-title">👤 기재 정보</div>
             <label>계약 체결일</label>
             <input type="date" id="cDate">
-            <label>계약자 성명</label>
-            <input type="text" id="uName" placeholder="성함 입력">
+            
             <label>담당 설계사</label>
             <input type="text" id="pName" placeholder="설계사 성함">
+
+            <label>계약자 성명</label>
+            <input type="text" id="uName" placeholder="성함 입력">
         </div>
     </div>
 
@@ -133,7 +131,7 @@
         </table>
     </div>
 
-    <div class="footer">모두 감기 조심! © 2025 미래전략 사업단</div>
+    <div class="footer">새해 복 많이 받으세요! © 2025 미래전략 사업단</div>
 </div>
 
 <canvas id="workingCanvas"></canvas>
