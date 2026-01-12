@@ -183,26 +183,38 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
-    // --- 🌤️ 실시간 서울 날씨 API 연동 ---
-    const API_KEY = '8e87483d92f39281a8c067e41180f968'; 
-    const CITY = 'Seoul';
+    // --- 🌤️ 실시간 서울 날씨 API 연동 (안정화 버전) ---
+const API_KEY = '8e87483d92f39281a8c067e41180f968'; 
+const CITY = 'Seoul';
 
-    async function fetchWeather() {
-        try {
-            const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${CITY}&appid=${API_KEY}&units=metric&lang=kr`);
-            const data = await response.json();
-            const temp = Math.round(data.main.temp);
-            const desc = data.weather[0].description;
-            const iconCode = data.weather[0].icon;
+async function fetchWeather() {
+    const descElement = document.getElementById('weather-desc');
+    const tempElement = document.getElementById('weather-temp-now');
 
-            document.getElementById('weather-temp-now').innerText = `${temp}°C`;
-            document.getElementById('weather-desc').innerText = desc;
-            
-            updateForecastUI(temp, iconCode);
-        } catch (e) {
-            document.getElementById('weather-desc').innerText = "날씨 로드 실패";
+    try {
+        // 보안 연결(https)을 명시적으로 사용
+        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${CITY}&appid=${API_KEY}&units=metric&lang=kr`);
+        
+        if (!response.ok) {
+            if (response.status === 401) throw new Error("API 키 활성화 대기 중");
+            throw new Error("서버 응답 오류");
         }
+
+        const data = await response.json();
+        const temp = Math.round(data.main.temp);
+        const desc = data.weather[0].description;
+        const iconCode = data.weather[0].icon;
+
+        tempElement.innerText = `${temp}°C`;
+        descElement.innerText = desc;
+        
+        updateForecastUI(temp, iconCode);
+    } catch (e) {
+        console.error("날씨 로드 오류:", e.message);
+        descElement.innerText = e.message; // 사용자에게 구체적인 실패 원인 표시
+        tempElement.innerText = "!!";
     }
+}
 
     function updateForecastUI(currentTemp, iconCode) {
         const forecastContainer = document.getElementById('forecast');
@@ -332,3 +344,4 @@
 </script>
 </body>
 </html>
+
