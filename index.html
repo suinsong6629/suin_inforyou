@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>미래전략 사업단 V7</title>
+    <title>미래전략 사업단 V8</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400;700&display=swap');
         :root { --primary: #3b82f6; --bg: #f0f4f8; --card: #ffffff; --border: #e2e8f0; --red: #ef4444; --green: #34C759; --gray: #475569; }
@@ -33,9 +33,11 @@
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 30px; }
         .input-group { padding: 20px; border: 1px solid #f1f5f9; border-radius: 18px; }
         .section-title { font-size: 15px; font-weight: 700; margin-bottom: 15px; color: #000; }
-        label { display: block; margin-bottom: 5px; font-size: 13px; }
-        input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; }
+        label { display: block; margin-bottom: 5px; font-size: 13px; font-weight: 700; }
+        input, select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 12px; font-size: 14px; }
+        input:focus, select:focus { outline: none; border-color: var(--primary); }
         .btn-primary { width: 100%; padding: 20px; border: none; border-radius: 15px; font-size: 18px; cursor: pointer; background: var(--primary); color: white; font-weight: 700; transition: 0.3s; }
+        .btn-primary:hover { filter: brightness(1.05); transform: translateY(-2px); }
         
         /* Calendar */
         .calendar-section { margin-top: 40px; border-top: 2px dashed #f1f5f9; padding-top: 30px; }
@@ -79,18 +81,41 @@
 <div class="container">
     <h1>🏢 미래전략 사업단</h1>
     <div class="grid">
-        <div class="input-group">
-            <div class="section-title">📂 양식 파일 유지</div>
-            <label>고지의무 이행확인서</label><input type="file" id="f1" accept=".pdf" onchange="keepFile(1)"><div id="f1-msg" style="display:none; color:var(--green); font-size:11px;">✓ 로드완료</div>
-            <label>필수 동의서</label><input type="file" id="f2" accept=".pdf" onchange="keepFile(2)"><div id="f2-msg" style="display:none; color:var(--green); font-size:11px;">✓ 로드완료</div>
-        </div>
-        <div class="input-group">
-            <div class="section-title">👤 기재 정보</div>
-            <label>계약 체결일</label><input type="date" id="cDate">
-            <label>담당 설계사</label><input type="text" id="pName" placeholder="설계사 성함">
-            <label>계약자 성명</label><input type="text" id="uName" placeholder="성함 입력">
+    <div class="input-group">
+        <div class="section-title">📂 양식 파일 유지</div>
+        
+        <label>고지의무 이행확인서</label>
+        <input type="file" id="f1" accept=".pdf" onchange="keepFile(1)">
+        <div id="f1-msg" style="display:none; color:var(--green); font-size:11px; margin-bottom:10px;">✓ 로드완료</div>
+        
+        <label>필수 동의서</label>
+        <input type="file" id="f2" accept=".pdf" onchange="keepFile(2)">
+        <div id="f2-msg" style="display:none; color:var(--green); font-size:11px; margin-bottom:10px;">✓ 로드완료</div>
+
+        <div style="position: relative; margin-top: 15px; border: 1px dashed var(--border); padding: 10px; border-radius: 12px; overflow: hidden;">
+            <div style="filter: blur(2px); pointer-events: none; user-select: none;">
+                <label>비교확인안내서</label>
+                <input type="file" id="f3" accept=".pdf">
+                
+                <label>보험사 선택</label>
+                <select id="selCompany"><option>데이터 로딩 중...</option></select>
+                
+                <label>상품 선택</label>
+                <select id="selProduct"><option>데이터 로딩 중...</option></select>
+            </div>
+            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.4); z-index: 2;">
+                <span style="background: var(--primary); color: white; padding: 5px 15px; border-radius: 20px; font-size: 13px; font-weight: 700; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">🛠️ 시트 연동 준비 중</span>
+            </div>
         </div>
     </div>
+
+    <div class="input-group">
+        <div class="section-title">👤 기재 정보</div>
+        <label>계약 체결일</label><input type="date" id="cDate">
+        <label>담당 설계사</label><input type="text" id="pName" placeholder="설계사 성함">
+        <label>계약자 성명</label><input type="text" id="uName" placeholder="성함 입력">
+    </div>
+</div>
     <button class="btn-primary" onclick="startProcess()">📤 서류 생성 및 드라이브 전송</button>
     <div id="status"></div>
     <div class="calendar-section"><div class="calendar-header"><h2 id="cal-title"></h2></div><table class="calendar-table" id="cal-body"><thead><tr><th style="color:var(--red)">일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th style="color:var(--primary)">토</th></tr></thead><tbody></tbody></table></div>
@@ -104,7 +129,6 @@
     const API_KEY = 'e9e4b4788a9cb01857b3d430b6551c24';
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwi2Cc3n57UaOUPsZAijahVbM5GB0p0IRVL9VR8EzqyYpNMcT7tgiLVwI6Qcv5gZtWFBg/exec';
     
-    // 📅 이벤트 데이터 (12일 삭제, 19일 추가 완료)
     const eventData = {
         '2026-01-01': ['신정'], '2026-01-02': ['전체미팅'],
         '2026-01-16': ['수인 휴가'], '2026-01-19': ['하경 휴가'], '2026-01-23': ['수인 휴가'],
@@ -128,7 +152,6 @@
     async function fetchWeather() {
         try {
             const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Seoul&appid=${API_KEY}&units=metric&lang=kr`);
-            if (!res.ok) throw new Error();
             const d = await res.json();
             const temp = Math.round(d.main.temp);
             $('we-temp').innerText = `${temp}°C`;
@@ -149,7 +172,7 @@
 
     function drawCal() {
         const n = new Date();
-        const y = 2026, m = 0; // 2026년 1월 고정
+        const y = 2026, m = 0;
         $('cal-title').innerText = `${y}년 ${m + 1}월`;
         const start = new Date(y, m, 1).getDay();
         const end = new Date(y, m + 1, 0).getDate();
@@ -157,9 +180,8 @@
 
         for(let i=0; i<42; i++) {
             if (i > 0 && i % 7 === 0) html += '</tr><tr>';
-            if (i < start || date > end) {
-                html += '<td></td>';
-            } else {
+            if (i < start || date > end) html += '<td></td>';
+            else {
                 const key = `${y}-${pad(m+1)}-${pad(date)}`;
                 const isToday = (date === n.getDate() && m === n.getMonth() && n.getFullYear() === y) ? 'today' : '';
                 let evHtml = '';
@@ -172,19 +194,37 @@
         document.querySelector('#cal-body tbody').innerHTML = html + '</tr>';
     }
 
-    let files = [null, null];
-    function keepFile(n) { const f = $('f'+n).files[0]; if(f){ files[n-1]=f; $('f'+n+'-msg').style.display='block'; } }
+    let files = [null, null, null];
+    function keepFile(n) { 
+        const f = $('f'+n).files[0]; 
+        if(f){ 
+            files[n-1]=f; 
+            $('f'+n+'-msg').style.display='block'; 
+        } 
+    }
 
     async function startProcess() {
         const d = $('cDate').value, n = $('uName').value, p = $('pName').value;
-        if (!files[0] || !files[1] || !d || !n || !p) return alert("모든 정보를 입력해 주세요.");
+        if (!files[0] || !files[1] || !d || !n || !p) return alert("필수 정보를 모두 입력해 주세요.");
+        
         const st = $('status'); st.style.color = "var(--primary)"; st.innerText = "✨ 전송 중...";
         try {
             const dt = new Date(d);
             const dy = { y: dt.getFullYear().toString().slice(-2), m: (dt.getMonth()+1).toString(), day: dt.getDate().toString() };
+            
             const i1 = await render(files[0], "고", dy, n, p);
             const i2 = await render(files[1], "동", dy, n, p);
-            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ file1Data: i1, fileName1: `${n}_고.jpg`, file2Data: i2, fileName2: `${n}_동.jpg` }) });
+            
+            const payload = { file1Data: i1, fileName1: `${n}_고.jpg`, file2Data: i2, fileName2: `${n}_동.jpg` };
+            
+            // 3번 파일(비교안내표)이 업로드 되었을 경우에만 전송 데이터에 추가
+            if(files[2]) {
+                const i3 = await render(files[2], "비", dy, n, p);
+                payload.file3Data = i3;
+                payload.fileName3 = `${n}_비.jpg`;
+            }
+
+            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
             st.style.color = "var(--green)"; st.innerText = "✅ 전송 완료!";
         } catch (e) { st.style.color = "var(--red)"; st.innerText = "❌ 전송 오류 발생"; }
     }
@@ -207,10 +247,15 @@
             [612,579,548,504,445,385,340,310,273].forEach(y => ck(500,y));
             dr(dy.y,199,209); dr(dy.m,230,209); dr(dy.day,256,209); dr(n,431,209); dr(n,500,209);
             dr(dy.y,200,96); dr(dy.m,225,96); dr(dy.day,250,96); dr(p,430,96); dr(p,505,96);
-        } else {
+        } else if(type === "동") {
             [640,545,428,310,234].forEach(y => ck(522,y));
             dr(dy.y,254,138); dr(dy.m,300,138); dr(dy.day,341,138); dr(n,150,107); dr(n,239,107);
             dr("미래전략사업단",150,58); dr(p,416,64); dr(p,500,64);
+        } else if(type === "비") {
+            // 비교확인안내서용 좌표 (준비 중 - 현재는 하단에 기본 정보만 출력)
+            dr(`${dy.y}년 ${dy.m}월 ${dy.day}일`, 300, 50, 15);
+            dr(n, 500, 50, 15);
+            dr(p, 100, 50, 15);
         }
         return cvs.toDataURL('image/jpeg', 0.9);
     }
