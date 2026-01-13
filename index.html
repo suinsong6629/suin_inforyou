@@ -8,23 +8,34 @@
         @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400;700&display=swap');
         
         :root {
-            --primary: #3182f6;
+            /* Light Mode Variables */
             --bg-gradient: linear-gradient(135deg, #dce4ff 0%, #f1f5f9 50%, #ffe4e6 100%);
             --glass: rgba(255, 255, 255, 0.65);
             --glass-border: rgba(255, 255, 255, 0.4);
             --text-main: #191f28;
             --text-sub: #4e5968;
+            --primary: #3182f6;
             --red: #fb7185;
             --shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
 
-            /* 버튼 파스텔 컬러 */
+            /* Pastel Buttons */
             --c-purple: rgba(168, 85, 247, 0.15);
             --c-orange: rgba(249, 115, 22, 0.15);
             --c-blue: rgba(59, 130, 246, 0.15);
             --c-green: rgba(16, 185, 129, 0.15);
         }
 
-        * { font-family: 'Gowun Dodum', sans-serif !important; box-sizing: border-box; }
+        /* Dark Mode Variables */
+        body.dark-mode {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            --glass: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        * { font-family: 'Gowun Dodum', sans-serif !important; box-sizing: border-box; transition: background 0.3s, color 0.3s; }
         body { 
             background: var(--bg-gradient); 
             background-attachment: fixed; 
@@ -32,83 +43,92 @@
             display: flex; justify-content: center; color: var(--text-main);
         }
 
-        .main-container { display: flex; flex-direction: column; gap: 20px; max-width: 1200px; width: 100%; }
+        .main-container { display: flex; flex-direction: column; gap: 20px; max-width: 1200px; width: 100%; position: relative; }
 
-        /* 📏 상단 레이아웃: 모든 섹션 높이 동일 (Stretch) */
-        .horizontal-section { 
-            display: grid; 
-            grid-template-columns: 280px 1fr 145px; 
-            gap: 20px; 
-            align-items: stretch; 
+        /* 📱 iOS Style Toggle Switch */
+        .mode-toggle-wrapper {
+            position: absolute; top: -10px; right: 10px;
+            display: flex; align-items: center; gap: 10px;
         }
+        .switch {
+            position: relative; display: inline-block; width: 50px; height: 28px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #e2e8f0; transition: .4s; border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 22px; width: 22px; left: 3px; bottom: 3px;
+            background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        input:checked + .slider { background-color: #34C759; }
+        input:checked + .slider:before { transform: translateX(22px); }
 
+        /* Layout & Cards */
+        .horizontal-section { display: grid; grid-template-columns: 280px 1fr 145px; gap: 20px; align-items: stretch; }
         .horizontal-section-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .glass-card { background: var(--glass); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 22px; box-shadow: var(--shadow); }
 
-        .glass-card { 
-            background: var(--glass); 
-            backdrop-filter: blur(20px); 
-            border: 1px solid var(--glass-border); 
-            border-radius: 24px; padding: 22px; 
-            box-shadow: var(--shadow); 
-        }
-
-        /* 🕒 날씨/시간 섹션 */
-        .weather-info { 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            gap: 15px; text-align: center; height: 100%; 
-        }
-        #we-icon { font-size: 45px; margin-bottom: -5px; }
-
-        /* 🔘 정사각형 버튼 섹션 */
+        /* Weather & Buttons */
+        .weather-info { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px; text-align: center; height: 100%; }
+        #we-icon { font-size: 45px; }
         .shortcut-group { display: flex; flex-direction: column; gap: 8px; height: 100%; }
         .side-btn { 
-            width: 135px; flex: 1; border-radius: 24px; 
-            text-decoration: none; font-size: 15px; font-weight: 700; 
-            display: flex; align-items: center; justify-content: center; 
-            transition: 0.2s; border: 1px solid rgba(255,255,255,0.4);
-            backdrop-filter: blur(10px);
+            width: 135px; flex: 1; border-radius: 24px; text-decoration: none; font-size: 15px; font-weight: 700; 
+            display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2);
         }
-        .btn-erp { background: var(--c-purple); color: #7c3aed; }
+        .btn-erp { background: var(--c-purple); color: var(--primary); }
         .btn-gap { background: var(--c-orange); color: #ea580c; }
-        .btn-check { background: var(--c-green); color: #059669; }
-        .btn-mohom { background: var(--c-blue); color: #2563eb; }
-        .side-btn:hover { transform: scale(1.02); filter: brightness(0.95); }
+        .btn-check { background: var(--c-green); color: #10b981; }
+        .btn-mohom { background: var(--c-blue); color: #3b82f6; }
 
-        /* 🗓️ 캘린더 */
-        .calendar-table { width: 100%; border-collapse: collapse; table-layout: fixed; background: rgba(255,255,255,0.2); border-radius: 15px; overflow: hidden; }
-        .calendar-td { height: 85px; vertical-align: top; padding: 8px; border: 0.5px solid rgba(0,0,0,0.05); position: relative; }
-        .day-num { font-weight: 700; font-size: 12px; position: relative; z-index: 5; }
-        
+        /* Calendar Today Refined (Rounded) */
+        .calendar-table { width: 100%; border-collapse: separate; border-spacing: 2px; table-layout: fixed; background: rgba(255,255,255,0.1); border-radius: 15px; overflow: hidden; }
+        .calendar-td { height: 85px; vertical-align: top; padding: 8px; border: 0.5px solid rgba(125,125,125,0.1); position: relative; border-radius: 8px; }
+        .day-num { font-weight: 700; font-size: 12px; }
         .event-bar {
-            position: absolute; left: -0.5px; right: -0.5px; top: 32px; height: 20px; 
+            position: absolute; left: -1px; right: -1px; top: 32px; height: 20px; 
             background: rgba(251, 113, 133, 0.25); border-bottom: 2.5px solid var(--red);
             font-size: 11px; font-weight: 700; color: #b91c1c;
-            display: flex; align-items: center; justify-content: center; z-index: 2; pointer-events: none;
+            display: flex; align-items: center; justify-content: center; z-index: 2;
         }
-        .event-bar.start { left: 5px; border-radius: 10px 0 0 10px; }
-        .event-bar.end { right: 5px; border-radius: 0 10px 10px 0; }
-        .today { background: rgba(49, 130, 246, 0.1) !important; outline: 2px solid var(--primary); outline-offset: -2px; z-index: 1; }
+        .event-bar.start { border-radius: 10px 0 0 10px; margin-left: 5px; }
+        .event-bar.end { border-radius: 0 10px 10px 0; margin-right: 5px; }
+        .today { 
+            background: rgba(49, 130, 246, 0.15) !important; border-radius: 12px !important; 
+            outline: 2px solid var(--primary) !important; outline-offset: -2px; z-index: 1;
+        }
+        body.dark-mode .event-bar { color: #fff; }
 
-        /* 하단 폼 */
-        .section-title { font-size: 16px; font-weight: 700; margin-bottom: 18px; }
-        input { width: 100%; padding: 12px; border: 1px solid rgba(0,0,0,0.05); border-radius: 12px; margin-bottom: 15px; background: rgba(255,255,255,0.6); outline: none; transition: 0.2s; }
-        input:focus { border-color: var(--primary); background: rgba(255,255,255,0.9); }
-        .btn-submit { width: 100%; background: #3182f6; color: white; border: none; padding: 18px; border-radius: 18px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 20px; transition: 0.2s; }
-        .btn-submit:hover { background: #1b64da; }
-
-        #status { text-align: center; margin-top: 10px; font-weight: 700; font-size: 14px; min-height: 20px; }
+        /* Inputs & Prep */
+        .prep-box { position: relative; border-radius: 18px; overflow: hidden; background: rgba(0,0,0,0.03); padding: 12px; margin-top: 10px; }
+        .prep-blur { filter: blur(3px); opacity: 0.5; }
+        .prep-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; z-index: 10; }
+        .prep-badge { background: var(--primary); color: white; padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        input, select { width: 100%; padding: 12px; border: 1px solid rgba(0,0,0,0.05); border-radius: 12px; margin-bottom: 12px; background: rgba(255,255,255,0.4); outline: none; color: inherit; }
+        .btn-submit { width: 100%; background: var(--primary); color: white; border: none; padding: 18px; border-radius: 18px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div class="main-container">
-    <h1 style="font-size: 26px; margin-bottom: 15px;">미래전략 사업단</h1>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h1 style="font-size: 26px; margin-bottom: 15px;">미래전략 사업단</h1>
+        <div class="mode-toggle-wrapper">
+            <span style="font-size: 12px; font-weight: 700;">다크 모드</span>
+            <label class="switch">
+                <input type="checkbox" id="darkToggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
 
     <div class="horizontal-section">
         <div class="glass-card">
             <div class="weather-info">
                 <div id="cur-date" style="font-size: 14px; color: var(--text-sub);"></div>
-                <div id="cur-time" style="font-size: 38px; font-weight: 800; color: var(--primary);"></div>
+                <div id="cur-time" style="font-size: 38px; font-weight: 800; color: var(--primary); margin: 5px 0;"></div>
                 <div style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
                     <div id="we-icon"></div> 
                     <span id="we-temp" style="font-weight: 700; font-size: 24px;">--°C</span>
@@ -142,13 +162,21 @@
             <h3 class="section-title">📂 서류 업로드</h3>
             <label>고지의무 이행확인서</label><input type="file" id="f1" accept=".pdf" onchange="keepFile(1)">
             <label>필수 동의서</label><input type="file" id="f2" accept=".pdf" onchange="keepFile(2)">
+            <div class="prep-box">
+                <div class="prep-blur">
+                    <label>비교확인안내서</label><input type="file" disabled>
+                    <div style="display:flex; gap:10px;"><select disabled style="flex:1;"><option>보험사 선택</option></select><select disabled style="flex:1;"><option>상품 선택</option></select></div>
+                </div>
+                <div class="prep-overlay"><span class="prep-badge">🛠️ 시트 연동 준비 중</span></div>
+            </div>
         </div>
+
         <div class="glass-card">
             <h3 class="section-title">👤 기재 정보 & 전송</h3>
             <label>계약 체결일</label><input type="date" id="cDate">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-                <input type="text" id="pName" placeholder="담당 설계사">
-                <input type="text" id="uName" placeholder="계약자 성명">
+                <div><label>담당 설계사</label><input type="text" id="pName" placeholder="성함"></div>
+                <div><label>계약자 성명</label><input type="text" id="uName" placeholder="성함"></div>
             </div>
             <button class="btn-submit" onclick="startProcess()">📤 서류 생성 및 드라이브 전송</button>
             <div id="status"></div>
@@ -157,88 +185,115 @@
 </div>
 
 <canvas id="canvas" style="display:none;"></canvas>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
 <script>
     const API_KEY = 'e9e4b4788a9cb01857b3d430b6551c24';
-    
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwi2Cc3n57UaOUPsZAijahVbM5GB0p0IRVL9VR8EzqyYpNMcT7tgiLVwI6Qcv5gZtWFBg/exec';
+
+    // 다크모드 토글 로직
+    const darkToggle = document.getElementById('darkToggle');
+    darkToggle.addEventListener('change', () => {
+        document.body.classList.toggle('dark-mode');
+        localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+    });
+
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+        darkToggle.checked = true;
+    }
+
     const events = [
         { start: '2026-01-01', end: '2026-01-01', text: '신정' },
-        { start: '2026-01-02', end: '2026-01-02', text: '전체미팅' },
         { start: '2026-01-16', end: '2026-01-16', text: '수인 휴가' },
-        { start: '2026-01-23', end: '2026-01-23', text: '수인 휴가' },
-        { start: '2026-01-19', end: '2026-01-19', text: '하경 휴가' },
         { start: '2026-01-26', end: '2026-01-30', text: '하경 휴가' },
         { start: '2026-01-31', end: '2026-01-31', text: '하경 퇴사' }
     ];
 
-    const $ = id => document.getElementById(id);
-
     function updateClock() {
         const n = new Date();
         const days = ["일", "월", "화", "수", "목", "금", "토"];
-        $('cur-date').innerText = `${n.getFullYear()}년 ${n.getMonth()+1}월 ${n.getDate()}일 (${days[n.getDay()]})`;
-        $('cur-time').innerText = `${n.getHours() >= 12 ? 'PM':'AM'} ${n.getHours()%12||12}:${String(n.getMinutes()).padStart(2,'0')}`;
+        document.getElementById('cur-date').innerText = `${n.getFullYear()}년 ${n.getMonth()+1}월 ${n.getDate()}일 (${days[n.getDay()]})`;
+        document.getElementById('cur-time').innerText = `${n.getHours() >= 12 ? 'PM':'AM'} ${n.getHours()%12||12}:${String(n.getMinutes()).padStart(2,'0')}`;
     }
 
     async function fetchWeather() {
         try {
             const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Seoul&appid=${API_KEY}&units=metric&lang=kr`);
             const d = await res.json();
-            $('we-temp').innerText = `${Math.round(d.main.temp)}°C`;
-            $('weather-desc').innerText = d.weather[0].description;
-
+            document.getElementById('we-temp').innerText = `${Math.round(d.main.temp)}°C`;
+            document.getElementById('weather-desc').innerText = d.weather[0].description;
             const icon = d.weather[0].icon;
             let emoji = '☀️';
-            if (icon.includes('02')) emoji = '🌤️';
-            else if (icon.includes('03') || icon.includes('04')) emoji = '☁️';
-            else if (icon.includes('09')) emoji = '🌦️';
-            else if (icon.includes('10')) emoji = '🌧️';
-            else if (icon.includes('11')) emoji = '⚡';
-            else if (icon.includes('13')) emoji = '❄️';
-            else if (icon.includes('50')) emoji = '🌫️';
-            $('we-icon').innerText = emoji;
-        } catch (e) { console.error("날씨 로드 실패"); }
+            if (icon.includes('02')) emoji = '🌤️'; else if (icon.includes('03') || icon.includes('04')) emoji = '☁️'; else if (icon.includes('09')) emoji = '🌦️'; else if (icon.includes('10')) emoji = '🌧️'; else if (icon.includes('11')) emoji = '⚡'; else if (icon.includes('13')) emoji = '❄️'; else if (icon.includes('50')) emoji = '🌫️';
+            document.getElementById('we-icon').innerText = emoji;
+        } catch (e) {}
     }
 
     function drawCal() {
-        const y = 2026, m = 0;
-        const n = new Date();
-        $('cal-title').innerText = `${y}년 ${m + 1}월`;
-        const firstDay = new Date(y, m, 1).getDay();
-        const lastDate = new Date(y, m + 1, 0).getDate();
-        
+        const y = 2026, m = 0; const n = new Date();
+        document.getElementById('cal-title').innerText = `${y}년 ${m + 1}월`;
+        const firstDay = new Date(y, m, 1).getDay(); const lastDate = new Date(y, m + 1, 0).getDate();
         let html = '<tr>';
         for(let i=0; i<firstDay; i++) html += '<td class="calendar-td"></td>';
-        
         for(let d=1; d<=lastDate; d++) {
             const curIdx = (firstDay + d - 1) % 7;
             if (d > 1 && curIdx === 0) html += '</tr><tr>';
             const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
             const isToday = (d === n.getDate() && m === n.getMonth() && y === n.getFullYear()) ? 'today' : '';
-            
             let eventHtml = '';
             events.forEach(ev => {
                 if (dateStr >= ev.start && dateStr <= ev.end) {
-                    const isStart = dateStr === ev.start;
-                    const isEnd = dateStr === ev.end;
-                    const text = (isStart || curIdx === 0) ? ev.text : '';
-                    eventHtml += `<div class="event-bar ${isStart?'start':''} ${isEnd?'end':''}">${text}</div>`;
+                    const isStart = dateStr === ev.start; const isSunday = curIdx === 0;
+                    const text = (isStart || isSunday) ? ev.text : '';
+                    eventHtml += `<div class="event-bar ${isStart?'start':''} ${dateStr===ev.end?'end':''}">${text}</div>`;
                 }
             });
             html += `<td class="calendar-td ${isToday}"><span class="day-num">${d}</span>${eventHtml}</td>`;
         }
-        $('cal-body-content').innerHTML = html + '</tr>';
+        document.getElementById('cal-body-content').innerHTML = html + '</tr>';
     }
 
     let files = [null, null];
-    function keepFile(n) { const f = $('f'+n).files[0]; if(f) files[n-1] = f; }
+    function keepFile(n) { const f = document.getElementById('f'+n).files[0]; if(f) files[n-1] = f; }
 
-    window.onload = () => {
-        updateClock();
-        setInterval(updateClock, 1000);
-        fetchWeather();
-        drawCal();
-    };
+    window.onload = () => { updateClock(); setInterval(updateClock, 1000); fetchWeather(); drawCal(); };
+
+    // startProcess & render functions remain same as V10.8
+    async function startProcess() {
+        const d = document.getElementById('cDate').value, n = document.getElementById('uName').value, p = document.getElementById('pName').value;
+        if (!files[0] || !files[1] || !d || !n || !p) return alert("필수 정보를 입력하세요.");
+        document.getElementById('status').innerText = "🚀 전송 중...";
+        try {
+            const dt = new Date(d);
+            const dy = { y: dt.getFullYear().toString().slice(-2), m: (dt.getMonth()+1).toString(), day: dt.getDate().toString() };
+            const i1 = await render(files[0], "고", dy, n, p);
+            const i2 = await render(files[1], "동", dy, n, p);
+            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ file1Data: i1, fileName1: `${n}_고.jpg`, file2Data: i2, fileName2: `${n}_동.jpg` }) });
+            document.getElementById('status').innerText = "✅ 전송 완료!";
+        } catch (e) { document.getElementById('status').innerText = "❌ 전송 오류"; }
+    }
+
+    async function render(file, type, dy, n, p) {
+        const cvs = document.createElement('canvas');
+        const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+        const pg = await pdf.getPage(1); const vp = pg.getViewport({ scale: 2.0 }); const ctx = cvs.getContext('2d');
+        cvs.width = vp.width; cvs.height = vp.height; ctx.fillStyle = "#fff"; ctx.fillRect(0,0,cvs.width,cvs.height);
+        await pg.render({ canvasContext: ctx, viewport: vp }).promise;
+        const s = 2.0, h = vp.height;
+        const dr = (t, x, y, sz=13) => { ctx.font=`${sz*s}px 'Malgun Gothic'`; ctx.fillStyle="#000"; ctx.fillText(t,x*s,h-(y*s)); };
+        const ck = (x, y) => { ctx.font=`bold ${22*s}px Arial`; ctx.fillStyle="red"; ctx.textAlign="center"; ctx.fillText("v",x*s,h-(y*s)); ctx.textAlign="start"; };
+        if(type === "고") {
+            [612,579,548,504,445,385,340,310,273].forEach(y => ck(500,y));
+            dr(dy.y,199,209); dr(dy.m,230,209); dr(dy.day,256,209); dr(n,431,209); dr(n,500,209);
+            dr(dy.y,200,96); dr(dy.m,225,96); dr(dy.day,250,96); dr(p,430,96); dr(p,505,96);
+        } else {
+            [640,545,428,310,234].forEach(y => ck(522,y));
+            dr(dy.y,254,138); dr(dy.m,300,138); dr(dy.day,341,138); dr(n,150,107); dr(n,239,107);
+            dr("미래전략사업단",150,58); dr(p,416,64); dr(p,500,64);
+        }
+        return cvs.toDataURL('image/jpeg', 0.9);
+    }
 </script>
 </body>
 </html>
