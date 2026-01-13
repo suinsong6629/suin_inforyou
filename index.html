@@ -1,287 +1,569 @@
 <!DOCTYPE html>
+
 <html lang="ko">
+
 <head>
-    <meta charset="UTF-8">
-    <title>미래전략 사업단</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400;700&display=swap');
 
-        :root { 
-            --primary-color: #3b82f6; 
-            --bg-color: #f0f4f8;
-            --card-bg: #ffffff;
-            --border-color: #e2e8f0;
-            --accent-red: #ef4444;
-            --ios-green: #34C759;
-            --text-dark-gray: #475569;
-        }
+    <meta charset="UTF-8">
 
-        * { font-family: 'Gowun Dodum', sans-serif !important; }
+    <title>미래전략 사업단</title>
 
-        body { 
-            background-color: var(--bg-color); 
-            display: flex; justify-content: center; align-items: flex-start; 
-            min-height: 100vh; margin: 0; padding: 40px 20px; color: #334155; 
-        }
+    <style>
 
-        .weather-sidebar {
-            position: fixed; left: 30px; top: 100px; width: 200px;
-            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px);
-            padding: 20px; border-radius: 24px; box-shadow: 0 8px 25px rgba(0,0,0,0.05);
-            box-sizing: border-box; z-index: 1000;
-        }
-        .dash-left .date-text { font-size: 12px; color: #64748b; margin-bottom: 5px; line-height: 1.4; }
-        .dash-left .time-text { font-size: 22px; font-weight: 700; color: var(--primary-color); margin-bottom: 15px; }
-        
-        .weather-main { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .weather-city { font-size: 14px; font-weight: 700; }
-        .weather-temp-now { font-size: 16px; font-weight: 700; color: var(--text-dark-gray); }
+        @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400;700&display=swap');
 
-        .hourly-forecast { 
-            display: flex; flex-direction: column; gap: 12px; 
-            padding-top: 15px; border-top: 1px solid rgba(0,0,0,0.05);
-        }
-        .forecast-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-        .forecast-time { font-size: 11px; color: #94a3b8; width: 60px; }
-        .forecast-icon { font-size: 16px; }
-        .forecast-temp { font-size: 13px; font-weight: 700; color: var(--text-dark-gray); width: 30px; text-align: right; }
 
-        .sidebar {
-            position: fixed; right: 30px; top: 100px; width: 180px;
-            display: flex; flex-direction: column; gap: 12px; z-index: 1000;
-        }
-        .side-btn {
-            padding: 18px 15px; border-radius: 16px; text-decoration: none;
-            font-size: 15px; font-weight: 700; color: white; text-align: center;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.1); transition: 0.3s;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
-        .side-btn:hover { transform: translateX(-8px); filter: brightness(1.1); }
-        .bg-erp { background-color: #6366f1; }
-        .bg-gap { background-color: #f59e0b; }
-        .bg-ios-green { background-color: var(--ios-green); }
 
-        .container { 
-            width: 100%; max-width: 700px; background: var(--card-bg); 
-            padding: 40px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); 
-            box-sizing: border-box; margin-bottom: 40px;
-        }
+        :root { 
 
-        h1 { font-weight: 700; color: var(--primary-color); text-align: center; font-size: 28px; margin-bottom: 30px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 30px; }
-        .input-group { padding: 20px; border: 1px solid #f1f5f9; border-radius: 18px; }
-        .section-title { font-size: 15px; font-weight: 700; margin-bottom: 15px; color: #000000; }
-        label { display: block; margin-bottom: 5px; font-weight: 400; font-size: 13px; color: #000000; }
-        input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 10px; box-sizing: border-box; margin-bottom: 10px; font-size: 14px; }
-        
-        .btn-primary { 
-            width: 100%; padding: 20px; border: none; border-radius: 15px; 
-            font-size: 18px; cursor: pointer; transition: 0.3s; 
-            background-color: var(--primary-color); color: white; font-weight: 700;
-        }
+            --primary-color: #3b82f6; 
 
-        .calendar-section { margin-top: 40px; border-top: 2px dashed #f1f5f9; padding-top: 30px; }
-        .calendar-header h2 { font-weight: 700; font-size: 22px; color: #475569; text-align: center; margin-bottom: 20px; }
-        .calendar-table { width: 100%; border-collapse: separate; border-spacing: 4px; table-layout: fixed; }
-        .calendar-table th { color: #94a3b8; font-size: 12px; padding: 10px; font-weight: 400; }
-        .calendar-table td { height: 95px; vertical-align: top; padding: 8px; background: #fff; border: 1px solid #f8fafc; border-radius: 12px; }
-        .day-num { font-weight: 400; margin-bottom: 6px; display: block; color: #64748b; }
-        .today { background-color: #f0f7ff !important; border: 1px solid #dbeafe !important; }
-        .today .day-num { color: var(--primary-color); font-weight: 700; }
+            --bg-color: #f0f4f8;
 
-        .event-item { display: flex; align-items: flex-start; font-size: 11px; color: var(--text-dark-gray); line-height: 1.4; margin-top: 4px; font-weight: 400; white-space: normal; word-break: keep-all; }
-        .event-star { color: var(--accent-red); font-size: 10px; margin-right: 4px; flex-shrink: 0; margin-top: 2px; }
-        
-        #status { text-align: center; margin-top: 15px; font-weight: 400; font-size: 13px; min-height: 20px; }
-        .footer { text-align: center; margin-top: 30px; font-size: 13px; color: #cbd5e1; font-weight: 400; }
+            --card-bg: #ffffff;
 
-        @media (max-width: 1250px) {
-            body { align-items: center; padding-top: 20px; }
-            .weather-sidebar, .sidebar { position: static; width: 100%; max-width: 700px; margin-bottom: 15px; }
-            .sidebar { flex-direction: row; }
-            .side-btn { flex: 1; font-size: 12px; }
-            .hourly-forecast { flex-direction: row; overflow-x: auto; scrollbar-width: none; }
-            .forecast-item { flex-direction: column; min-width: 50px; }
-        }
-    </style>
+            --border-color: #e2e8f0;
+
+            --accent-red: #ef4444;
+
+            --ios-green: #34C759;
+
+            --text-dark-gray: #475569;
+
+        }
+
+
+
+        * { font-family: 'Gowun Dodum', sans-serif !important; }
+
+
+
+        body { 
+
+            background-color: var(--bg-color); 
+
+            display: flex; justify-content: center; align-items: flex-start; 
+
+            min-height: 100vh; margin: 0; padding: 40px 20px; color: #334155; 
+
+        }
+
+
+
+        .weather-sidebar {
+
+            position: fixed; left: 30px; top: 100px; width: 200px;
+
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px);
+
+            padding: 20px; border-radius: 24px; box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+
+            box-sizing: border-box; z-index: 1000;
+
+        }
+
+        .dash-left .date-text { font-size: 12px; color: #64748b; margin-bottom: 5px; line-height: 1.4; }
+
+        .dash-left .time-text { font-size: 22px; font-weight: 700; color: var(--primary-color); margin-bottom: 15px; }
+
+        
+
+        .weather-main { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+
+        .weather-city { font-size: 14px; font-weight: 700; }
+
+        .weather-temp-now { font-size: 16px; font-weight: 700; color: var(--text-dark-gray); }
+
+
+
+        .hourly-forecast { 
+
+            display: flex; flex-direction: column; gap: 12px; 
+
+            padding-top: 15px; border-top: 1px solid rgba(0,0,0,0.05);
+
+        }
+
+        .forecast-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+
+        .forecast-time { font-size: 11px; color: #94a3b8; width: 60px; }
+
+        .forecast-icon { font-size: 16px; }
+
+        .forecast-temp { font-size: 13px; font-weight: 700; color: var(--text-dark-gray); width: 30px; text-align: right; }
+
+
+
+        .sidebar {
+
+            position: fixed; right: 30px; top: 100px; width: 180px;
+
+            display: flex; flex-direction: column; gap: 12px; z-index: 1000;
+
+        }
+
+        .side-btn {
+
+            padding: 18px 15px; border-radius: 16px; text-decoration: none;
+
+            font-size: 15px; font-weight: 700; color: white; text-align: center;
+
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1); transition: 0.3s;
+
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+
+        }
+
+        .side-btn:hover { transform: translateX(-8px); filter: brightness(1.1); }
+
+        .bg-erp { background-color: #6366f1; }
+
+        .bg-gap { background-color: #f59e0b; }
+
+        .bg-ios-green { background-color: var(--ios-green); }
+
+
+
+        .container { 
+
+            width: 100%; max-width: 700px; background: var(--card-bg); 
+
+            padding: 40px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); 
+
+            box-sizing: border-box; margin-bottom: 40px;
+
+        }
+
+
+
+        h1 { font-weight: 700; color: var(--primary-color); text-align: center; font-size: 28px; margin-bottom: 30px; }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 30px; }
+
+        .input-group { padding: 20px; border: 1px solid #f1f5f9; border-radius: 18px; }
+
+        .section-title { font-size: 15px; font-weight: 700; margin-bottom: 15px; color: #000000; }
+
+        label { display: block; margin-bottom: 5px; font-weight: 400; font-size: 13px; color: #000000; }
+
+        input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 10px; box-sizing: border-box; margin-bottom: 10px; font-size: 14px; }
+
+        
+
+        .btn-primary { 
+
+            width: 100%; padding: 20px; border: none; border-radius: 15px; 
+
+            font-size: 18px; cursor: pointer; transition: 0.3s; 
+
+            background-color: var(--primary-color); color: white; font-weight: 700;
+
+        }
+
+
+
+        .calendar-section { margin-top: 40px; border-top: 2px dashed #f1f5f9; padding-top: 30px; }
+
+        .calendar-header h2 { font-weight: 700; font-size: 22px; color: #475569; text-align: center; margin-bottom: 20px; }
+
+        .calendar-table { width: 100%; border-collapse: separate; border-spacing: 4px; table-layout: fixed; }
+
+        .calendar-table th { color: #94a3b8; font-size: 12px; padding: 10px; font-weight: 400; }
+
+        .calendar-table td { height: 95px; vertical-align: top; padding: 8px; background: #fff; border: 1px solid #f8fafc; border-radius: 12px; }
+
+        .day-num { font-weight: 400; margin-bottom: 6px; display: block; color: #64748b; }
+
+        .today { background-color: #f0f7ff !important; border: 1px solid #dbeafe !important; }
+
+        .today .day-num { color: var(--primary-color); font-weight: 700; }
+
+
+
+        .event-item { display: flex; align-items: flex-start; font-size: 11px; color: var(--text-dark-gray); line-height: 1.4; margin-top: 4px; font-weight: 400; white-space: normal; word-break: keep-all; }
+
+        .event-star { color: var(--accent-red); font-size: 10px; margin-right: 4px; flex-shrink: 0; margin-top: 2px; }
+
+        
+
+        #status { text-align: center; margin-top: 15px; font-weight: 400; font-size: 13px; min-height: 20px; }
+
+        .footer { text-align: center; margin-top: 30px; font-size: 13px; color: #cbd5e1; font-weight: 400; }
+
+
+
+        @media (max-width: 1250px) {
+
+            body { align-items: center; padding-top: 20px; }
+
+            .weather-sidebar, .sidebar { position: static; width: 100%; max-width: 700px; margin-bottom: 15px; }
+
+            .sidebar { flex-direction: row; }
+
+            .side-btn { flex: 1; font-size: 12px; }
+
+            .hourly-forecast { flex-direction: row; overflow-x: auto; scrollbar-width: none; }
+
+            .forecast-item { flex-direction: column; min-width: 50px; }
+
+        }
+
+    </style>
+
 </head>
+
 <body>
 
+
+
 <div class="weather-sidebar">
-    <div class="dash-left">
-        <div id="current-date" class="date-text"></div>
-        <div id="current-time" class="time-text"></div>
-    </div>
-    <div class="weather-main">
-        <span class="weather-city">서울</span>
-        <span id="weather-temp-now" class="weather-temp-now">--°C</span>
-    </div>
-    <div id="weather-desc" style="font-size: 12px; color: #94a3b8; text-align: right; margin-bottom: 10px;">날씨 불러오는 중...</div>
-    <div class="hourly-forecast" id="forecast"></div>
+
+    <div class="dash-left">
+
+        <div id="current-date" class="date-text"></div>
+
+        <div id="current-time" class="time-text"></div>
+
+    </div>
+
+    <div class="weather-main">
+
+        <span class="weather-city">서울</span>
+
+        <span id="weather-temp-now" class="weather-temp-now">--°C</span>
+
+    </div>
+
+    <div id="weather-desc" style="font-size: 12px; color: #94a3b8; text-align: right; margin-bottom: 10px;">날씨 불러오는 중...</div>
+
+    <div class="hourly-forecast" id="forecast"></div>
+
 </div>
+
+
 
 <div class="sidebar">
-    <a href="https://infis-erp.co.kr/" target="_blank" class="side-btn bg-erp">💻 ERP 바로가기</a>
-    <a href="http://chrurck.com/?act=info.page&pcode=sub1_3" target="_blank" class="side-btn bg-gap">⚡ 초격차보험</a>
-    <a href="https://pcs.iaa.or.kr/comm/login.do" target="_blank" class="side-btn bg-ios-green">✔ 비교확인서</a>
+
+    <a href="https://infis-erp.co.kr/" target="_blank" class="side-btn bg-erp">💻 ERP 바로가기</a>
+
+    <a href="http://chrurck.com/?act=info.page&pcode=sub1_3" target="_blank" class="side-btn bg-gap">⚡ 초격차보험</a>
+
+    <a href="https://pcs.iaa.or.kr/comm/login.do" target="_blank" class="side-btn bg-ios-green">✔ 비교확인서</a>
+
 </div>
 
+
+
 <div class="container">
-    <h1>🏢 미래전략 사업단</h1>
-    <div class="grid">
-        <div class="input-group">
-            <div class="section-title">📂 양식 파일 유지</div>
-            <label>고지의무 이행확인서</label>
-            <input type="file" id="file1" accept=".pdf" onchange="keepFile(1)">
-            <div id="file1-msg" style="display:none; color:#10b981; font-size:11px;">✓ 로드완료</div>
-            <label>필수 동의서</label>
-            <input type="file" id="file2" accept=".pdf" onchange="keepFile(2)">
-            <div id="file2-msg" style="display:none; color:#10b981; font-size:11px;">✓ 로드완료</div>
-        </div>
-        <div class="input-group">
-            <div class="section-title">👤 기재 정보</div>
-            <label>계약 체결일</label>
-            <input type="date" id="cDate">
-            <label>담당 설계사</label>
-            <input type="text" id="pName" placeholder="설계사 성함">
-            <label>계약자 성명</label>
-            <input type="text" id="uName" placeholder="성함 입력">
-        </div>
-    </div>
-    <div class="btn-group">
-        <button class="btn-primary" onclick="startProcess()">📤 서류 생성 및 드라이브 전송</button>
-        <div id="status"></div>
-    </div>
-    <div class="calendar-section">
-        <div class="calendar-header"><h2 id="calendar-title"></h2></div>
-        <table class="calendar-table" id="calendar-body">
-            <thead><tr><th style="color:#fca5a5">일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th style="color:#93c5fd">토</th></tr></thead>
-            <tbody></tbody>
-        </table>
-    </div>
-    <div class="footer">모두 감기 조심! © 2025 미래전략 사업단</div>
+
+    <h1>🏢 미래전략 사업단</h1>
+
+    <div class="grid">
+
+        <div class="input-group">
+
+            <div class="section-title">📂 양식 파일 유지</div>
+
+            <label>고지의무 이행확인서</label>
+
+            <input type="file" id="file1" accept=".pdf" onchange="keepFile(1)">
+
+            <div id="file1-msg" style="display:none; color:#10b981; font-size:11px;">✓ 로드완료</div>
+
+            <label>필수 동의서</label>
+
+            <input type="file" id="file2" accept=".pdf" onchange="keepFile(2)">
+
+            <div id="file2-msg" style="display:none; color:#10b981; font-size:11px;">✓ 로드완료</div>
+
+        </div>
+
+        <div class="input-group">
+
+            <div class="section-title">👤 기재 정보</div>
+
+            <label>계약 체결일</label>
+
+            <input type="date" id="cDate">
+
+            <label>담당 설계사</label>
+
+            <input type="text" id="pName" placeholder="설계사 성함">
+
+            <label>계약자 성명</label>
+
+            <input type="text" id="uName" placeholder="성함 입력">
+
+        </div>
+
+    </div>
+
+    <div class="btn-group">
+
+        <button class="btn-primary" onclick="startProcess()">📤 서류 생성 및 드라이브 전송</button>
+
+        <div id="status"></div>
+
+    </div>
+
+    <div class="calendar-section">
+
+        <div class="calendar-header"><h2 id="calendar-title"></h2></div>
+
+        <table class="calendar-table" id="calendar-body">
+
+            <thead><tr><th style="color:#fca5a5">일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th style="color:#93c5fd">토</th></tr></thead>
+
+            <tbody></tbody>
+
+        </table>
+
+    </div>
+
+    <div class="footer">모두 감기 조심! © 2025 미래전략 사업단</div>
+
 </div>
+
+
 
 <canvas id="workingCanvas" style="display:none;"></canvas>
 
+
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
 <script>
-    // --- 🌤️ 실시간 날씨 로직 (개인 API 키 적용) ---
-    const API_KEY = 'e9e4b4788a9cb01857b3d430b6551c24'; 
-    const CITY = 'Seoul';
 
-    async function fetchWeather() {
-        const descEl = document.getElementById('weather-desc');
-        const tempEl = document.getElementById('weather-temp-now');
-        try {
-            const resp = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${CITY}&appid=${API_KEY}&units=metric&lang=kr`);
-            if (!resp.ok) throw new Error(resp.status === 401 ? "키 활성화 대기 중" : "로드 실패");
-            const data = await resp.json();
-            const temp = Math.round(data.main.temp);
-            const icon = data.weather[0].icon;
-            tempEl.innerText = `${temp}°C`;
-            descEl.innerText = data.weather[0].description;
-            updateForecastUI(temp, icon);
-        } catch (e) {
-            descEl.innerText = e.message;
-        }
-    }
+    // --- 🌤️ 실시간 날씨 로직 (개인 API 키 적용) ---
 
-    function updateForecastUI(currentTemp, iconCode) {
-        const container = document.getElementById('forecast');
-        container.innerHTML = '';
-        const nowHour = new Date().getHours();
-        const iconMap = { '01':'☀️','02':'🌤️','03':'☁️','04':'☁️','09':'🌧️','10':'🌦️','11':'⚡','13':'❄️','50':'🌫️' };
-        const emoji = iconMap[iconCode.substring(0,2)] || '☀️';
-        for (let i = 0; i < 6; i++) {
-            const h = (nowHour + i) % 24;
-            const ampm = h >= 12 ? '오후' : '오전';
-            const displayH = h % 12 || 12;
-            const item = document.createElement('div');
-            item.className = 'forecast-item';
-            item.innerHTML = `<span class="forecast-time">${i===0?'지금':ampm+' '+displayH+'시'}</span><span class="forecast-icon">${emoji}</span><span class="forecast-temp">${currentTemp}°</span>`;
-            container.appendChild(item);
-        }
-    }
+    const API_KEY = 'e9e4b4788a9cb01857b3d430b6551c24'; 
 
-    function updateClock() {
-        const now = new Date();
-        const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
-        let hours = now.getHours();
-        const ampm = hours >= 12 ? '오후' : '오전';
-        hours = hours % 12 || 12;
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        document.getElementById('current-date').innerText = `${now.getFullYear()}.${now.getMonth()+1}.${now.getDate()}(${dayNames[now.getDay()]})`;
-        document.getElementById('current-time').innerText = `${ampm} ${hours}:${minutes}`;
-    }
+    const CITY = 'Seoul';
 
-    const eventData = {
-        '2026-01-01': ['신정'], '2026-01-02': ['전체미팅'], '2026-01-12': ['수인 휴가'], '2026-01-16': ['수인 휴가'], '2026-01-19': ['하경 휴가'], '2026-01-23': ['수인 휴가']
-    };
 
-    function generateCalendar() {
-        const now = new Date(); const year = now.getFullYear(); const month = now.getMonth();
-        document.getElementById('calendar-title').innerText = `${year}년 ${month + 1}월`;
-        const firstDay = new Date(year, month, 1).getDay(); const lastDate = new Date(year, month + 1, 0).getDate();
-        const tbody = document.querySelector('#calendar-body tbody'); tbody.innerHTML = '';
-        let date = 1;
-        for (let i = 0; i < 6; i++) {
-            let row = document.createElement('tr');
-            for (let j = 0; j < 7; j++) {
-                let cell = document.createElement('td');
-                if (i === 0 && j < firstDay) {} else if (date > lastDate) {} else {
-                    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
-                    cell.innerHTML = `<span class="day-num">${date}</span>`;
-                    if (date === now.getDate() && month === now.getMonth() && year === now.getFullYear()) cell.classList.add('today');
-                    if (eventData[dateStr]) eventData[dateStr].forEach(task => { cell.innerHTML += `<div class="event-item"><span class="event-star">★</span><span class="event-text">${task}</span></div>`; });
-                    date++;
-                }
-                row.appendChild(cell);
-            }
-            tbody.appendChild(row); if (date > lastDate) break;
-        }
-    }
 
-    let storedFile1 = null, storedFile2 = null;
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbwi2Cc3n57UaOUPsZAijahVbM5GB0p0IRVL9VR8EzqyYpNMcT7tgiLVwI6Qcv5gZtWFBg/exec';
-    function keepFile(num) { const fileInput = document.getElementById('file' + num); if (fileInput.files[0]) { if (num === 1) storedFile1 = fileInput.files[0]; else storedFile2 = fileInput.files[0]; document.getElementById('file' + num + '-msg').style.display = 'block'; } }
+    async function fetchWeather() {
 
-    async function startProcess() {
-        const dateInput = document.getElementById('cDate').value, name = document.getElementById('uName').value, planner = document.getElementById('pName').value;
-        if (!storedFile1 || !storedFile2 || !dateInput || !name || !planner) { alert("정보를 모두 입력해 주세요."); return; }
-        const status = document.getElementById('status'); status.style.color = "#3b82f6"; status.innerText = "✨ 전송 중...";
-        try {
-            const dateObj = new Date(dateInput);
-            const d = { y: dateObj.getFullYear().toString().slice(-2), m: (dateObj.getMonth() + 1).toString(), day: dateObj.getDate().toString() };
-            const img1Data = await getRenderedImageData(storedFile1, "고", d, name, planner);
-            const img2Data = await getRenderedImageData(storedFile2, "동", d, name, planner);
-            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ file1Data: img1Data, fileName1: `${name}_고.jpg`, file2Data: img2Data, fileName2: `${name}_동.jpg` }) });
-            status.style.color = "#10b981"; status.innerText = "✅ 전송 완료!";
-        } catch (e) { status.style.color = "#ef4444"; status.innerText = "❌ 오류 발생"; }
-    }
+        const descEl = document.getElementById('weather-desc');
 
-    async function getRenderedImageData(file, suffix, d, name, planner) {
-        const canvas = document.getElementById('workingCanvas'); const pdfjsLib = window['pdfjs-dist/build/pdf'];
-        const arrayBuffer = await file.arrayBuffer(); const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        const page = await pdf.getPage(1); const viewport = page.getViewport({ scale: 2.0 });
-        const ctx = canvas.getContext('2d'); canvas.width = viewport.width; canvas.height = viewport.height;
-        ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-        await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-        const s = 2.0, h = viewport.height;
-        const draw = (t, x, y) => { ctx.font=`${13*s}px 'Malgun Gothic'`; ctx.fillStyle="black"; ctx.fillText(t,x*s,h-(y*s)); };
-        const ck = (x, y) => { ctx.font=`bold ${22*s}px Arial`; ctx.fillStyle="red"; ctx.textAlign="center"; ctx.fillText("v",x*s,h-(y*s)); ctx.textAlign="start"; };
-        if (suffix === "고") { [612, 579, 548, 504, 445, 385, 340, 310, 273].forEach(y => ck(500, y)); draw(d.y, 199, 209); draw(d.m, 230, 209); draw(d.day, 256, 209); draw(name, 431, 209); draw(name, 500, 209); draw(d.y, 200, 96); draw(d.m, 225, 96); draw(d.day, 250, 96); draw(planner, 430, 96); draw(planner, 505, 96); } 
-        else { [640, 545, 428, 310, 234].forEach(y => ck(522, y)); draw(d.y, 254, 138); draw(d.m, 300, 138); draw(d.day, 341, 138); draw(name, 150, 107); draw(name, 239, 107); draw("미래전략사업단", 150, 58); draw(planner, 416, 64); draw(planner, 500, 64); }
-        return canvas.toDataURL('image/jpeg', 0.9);
-    }
+        const tempEl = document.getElementById('weather-temp-now');
 
-    window.onload = () => {
-        updateClock(); setInterval(updateClock, 1000);
-        fetchWeather(); setInterval(fetchWeather, 1800000);
-        generateCalendar();
-    };
+        try {
+
+            const resp = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${CITY}&appid=${API_KEY}&units=metric&lang=kr`);
+
+            if (!resp.ok) throw new Error(resp.status === 401 ? "키 활성화 대기 중" : "로드 실패");
+
+            const data = await resp.json();
+
+            const temp = Math.round(data.main.temp);
+
+            const icon = data.weather[0].icon;
+
+            tempEl.innerText = `${temp}°C`;
+
+            descEl.innerText = data.weather[0].description;
+
+            updateForecastUI(temp, icon);
+
+        } catch (e) {
+
+            descEl.innerText = e.message;
+
+        }
+
+    }
+
+
+
+    function updateForecastUI(currentTemp, iconCode) {
+
+        const container = document.getElementById('forecast');
+
+        container.innerHTML = '';
+
+        const nowHour = new Date().getHours();
+
+        const iconMap = { '01':'☀️','02':'🌤️','03':'☁️','04':'☁️','09':'🌧️','10':'🌦️','11':'⚡','13':'❄️','50':'🌫️' };
+
+        const emoji = iconMap[iconCode.substring(0,2)] || '☀️';
+
+        for (let i = 0; i < 6; i++) {
+
+            const h = (nowHour + i) % 24;
+
+            const ampm = h >= 12 ? '오후' : '오전';
+
+            const displayH = h % 12 || 12;
+
+            const item = document.createElement('div');
+
+            item.className = 'forecast-item';
+
+            item.innerHTML = `<span class="forecast-time">${i===0?'지금':ampm+' '+displayH+'시'}</span><span class="forecast-icon">${emoji}</span><span class="forecast-temp">${currentTemp}°</span>`;
+
+            container.appendChild(item);
+
+        }
+
+    }
+
+
+
+    function updateClock() {
+
+        const now = new Date();
+
+        const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
+
+        let hours = now.getHours();
+
+        const ampm = hours >= 12 ? '오후' : '오전';
+
+        hours = hours % 12 || 12;
+
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+
+        document.getElementById('current-date').innerText = `${now.getFullYear()}.${now.getMonth()+1}.${now.getDate()}(${dayNames[now.getDay()]})`;
+
+        document.getElementById('current-time').innerText = `${ampm} ${hours}:${minutes}`;
+
+    }
+
+
+
+    const eventData = {
+
+        '2026-01-01': ['신정'], '2026-01-02': ['전체미팅'], '2026-01-12': ['수인 휴가'], '2026-01-16': ['수인 휴가'], '2026-01-23': ['수인 휴가']
+
+    };
+
+
+
+    function generateCalendar() {
+
+        const now = new Date(); const year = now.getFullYear(); const month = now.getMonth();
+
+        document.getElementById('calendar-title').innerText = `${year}년 ${month + 1}월`;
+
+        const firstDay = new Date(year, month, 1).getDay(); const lastDate = new Date(year, month + 1, 0).getDate();
+
+        const tbody = document.querySelector('#calendar-body tbody'); tbody.innerHTML = '';
+
+        let date = 1;
+
+        for (let i = 0; i < 6; i++) {
+
+            let row = document.createElement('tr');
+
+            for (let j = 0; j < 7; j++) {
+
+                let cell = document.createElement('td');
+
+                if (i === 0 && j < firstDay) {} else if (date > lastDate) {} else {
+
+                    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+
+                    cell.innerHTML = `<span class="day-num">${date}</span>`;
+
+                    if (date === now.getDate() && month === now.getMonth() && year === now.getFullYear()) cell.classList.add('today');
+
+                    if (eventData[dateStr]) eventData[dateStr].forEach(task => { cell.innerHTML += `<div class="event-item"><span class="event-star">★</span><span class="event-text">${task}</span></div>`; });
+
+                    date++;
+
+                }
+
+                row.appendChild(cell);
+
+            }
+
+            tbody.appendChild(row); if (date > lastDate) break;
+
+        }
+
+    }
+
+
+
+    let storedFile1 = null, storedFile2 = null;
+
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwi2Cc3n57UaOUPsZAijahVbM5GB0p0IRVL9VR8EzqyYpNMcT7tgiLVwI6Qcv5gZtWFBg/exec';
+
+    function keepFile(num) { const fileInput = document.getElementById('file' + num); if (fileInput.files[0]) { if (num === 1) storedFile1 = fileInput.files[0]; else storedFile2 = fileInput.files[0]; document.getElementById('file' + num + '-msg').style.display = 'block'; } }
+
+
+
+    async function startProcess() {
+
+        const dateInput = document.getElementById('cDate').value, name = document.getElementById('uName').value, planner = document.getElementById('pName').value;
+
+        if (!storedFile1 || !storedFile2 || !dateInput || !name || !planner) { alert("정보를 모두 입력해 주세요."); return; }
+
+        const status = document.getElementById('status'); status.style.color = "#3b82f6"; status.innerText = "✨ 전송 중...";
+
+        try {
+
+            const dateObj = new Date(dateInput);
+
+            const d = { y: dateObj.getFullYear().toString().slice(-2), m: (dateObj.getMonth() + 1).toString(), day: dateObj.getDate().toString() };
+
+            const img1Data = await getRenderedImageData(storedFile1, "고", d, name, planner);
+
+            const img2Data = await getRenderedImageData(storedFile2, "동", d, name, planner);
+
+            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ file1Data: img1Data, fileName1: `${name}_고.jpg`, file2Data: img2Data, fileName2: `${name}_동.jpg` }) });
+
+            status.style.color = "#10b981"; status.innerText = "✅ 전송 완료!";
+
+        } catch (e) { status.style.color = "#ef4444"; status.innerText = "❌ 오류 발생"; }
+
+    }
+
+
+
+    async function getRenderedImageData(file, suffix, d, name, planner) {
+
+        const canvas = document.getElementById('workingCanvas'); const pdfjsLib = window['pdfjs-dist/build/pdf'];
+
+        const arrayBuffer = await file.arrayBuffer(); const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+        const page = await pdf.getPage(1); const viewport = page.getViewport({ scale: 2.0 });
+
+        const ctx = canvas.getContext('2d'); canvas.width = viewport.width; canvas.height = viewport.height;
+
+        ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+
+        const s = 2.0, h = viewport.height;
+
+        const draw = (t, x, y) => { ctx.font=`${13*s}px 'Malgun Gothic'`; ctx.fillStyle="black"; ctx.fillText(t,x*s,h-(y*s)); };
+
+        const ck = (x, y) => { ctx.font=`bold ${22*s}px Arial`; ctx.fillStyle="red"; ctx.textAlign="center"; ctx.fillText("v",x*s,h-(y*s)); ctx.textAlign="start"; };
+
+        if (suffix === "고") { [612, 579, 548, 504, 445, 385, 340, 310, 273].forEach(y => ck(500, y)); draw(d.y, 199, 209); draw(d.m, 230, 209); draw(d.day, 256, 209); draw(name, 431, 209); draw(name, 500, 209); draw(d.y, 200, 96); draw(d.m, 225, 96); draw(d.day, 250, 96); draw(planner, 430, 96); draw(planner, 505, 96); } 
+
+        else { [640, 545, 428, 310, 234].forEach(y => ck(522, y)); draw(d.y, 254, 138); draw(d.m, 300, 138); draw(d.day, 341, 138); draw(name, 150, 107); draw(name, 239, 107); draw("미래전략사업단", 150, 58); draw(planner, 416, 64); draw(planner, 500, 64); }
+
+        return canvas.toDataURL('image/jpeg', 0.9);
+
+    }
+
+
+
+    window.onload = () => {
+
+        updateClock(); setInterval(updateClock, 1000);
+
+        fetchWeather(); setInterval(fetchWeather, 1800000);
+
+        generateCalendar();
+
+    };
+
 </script>
-</body>
-</html>
 
-일단 최종 코드 이거야. 수정할때 이 코드를 베이스로 해줘.
+</body>
+
+</html>
