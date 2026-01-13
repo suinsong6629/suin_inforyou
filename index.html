@@ -2,267 +2,241 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>미래전략 사업단 V8</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>미래전략 사업단</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400;700&display=swap');
-        :root { --primary: #3b82f6; --bg: #f0f4f8; --card: #ffffff; --border: #e2e8f0; --red: #ef4444; --green: #34C759; --gray: #475569; }
-        * { font-family: 'Gowun Dodum', sans-serif !important; box-sizing: border-box; }
-        body { background-color: var(--bg); display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; padding: 40px 20px; color: #334155; }
         
-        /* Layout */
-        .weather-sidebar, .sidebar { position: fixed; top: 100px; width: 200px; z-index: 1000; }
-        .weather-sidebar { left: 30px; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px); padding: 20px; border-radius: 24px; box-shadow: 0 8px 25px rgba(0,0,0,0.05); }
-        .sidebar { right: 30px; width: 180px; display: flex; flex-direction: column; gap: 12px; }
-        
-        /* Dashboard & Forecast */
-        .date-text { font-size: 12px; color: #64748b; margin-bottom: 5px; }
-        .time-text { font-size: 22px; font-weight: 700; color: var(--primary); margin-bottom: 15px; }
-        .weather-main { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; font-weight: 700; }
-        #weather-desc { font-size: 12px; color: #94a3b8; text-align: right; margin-bottom: 15px; }
-        .hourly-forecast { display: flex; flex-direction: column; gap: 10px; padding-top: 15px; border-top: 1px solid rgba(0,0,0,0.05); }
-        .forecast-item { display: flex; align-items: center; justify-content: space-between; font-size: 12px; }
-        
-        /* Sidebar Buttons */
-        .side-btn { padding: 16px 12px; border-radius: 16px; text-decoration: none; font-size: 14px; font-weight: 700; color: white; text-align: center; box-shadow: 0 6px 15px rgba(0,0,0,0.1); transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .side-btn:hover { transform: translateX(-8px); filter: brightness(1.1); }
-        .bg-erp { background-color: #6366f1; } .bg-gap { background-color: #f59e0b; } .bg-green { background-color: var(--green); } .bg-blue { background-color: #1e40af; }
-        
-        /* Main Container */
-        .container { width: 100%; max-width: 700px; background: var(--card); padding: 40px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-bottom: 40px; }
-        h1 { font-weight: 700; color: var(--primary); text-align: center; font-size: 28px; margin-bottom: 30px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 30px; }
-        .input-group { padding: 20px; border: 1px solid #f1f5f9; border-radius: 18px; }
-        .section-title { font-size: 15px; font-weight: 700; margin-bottom: 15px; color: #000; }
-        label { display: block; margin-bottom: 5px; font-size: 13px; font-weight: 700; }
-        input, select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 12px; font-size: 14px; }
-        input:focus, select:focus { outline: none; border-color: var(--primary); }
-        .btn-primary { width: 100%; padding: 20px; border: none; border-radius: 15px; font-size: 18px; cursor: pointer; background: var(--primary); color: white; font-weight: 700; transition: 0.3s; }
-        .btn-primary:hover { filter: brightness(1.05); transform: translateY(-2px); }
-        
-        /* Calendar */
-        .calendar-section { margin-top: 40px; border-top: 2px dashed #f1f5f9; padding-top: 30px; }
-        .calendar-header h2 { font-weight: 700; font-size: 22px; color: var(--gray); text-align: center; margin-bottom: 20px; }
-        .calendar-table { width: 100%; border-collapse: separate; border-spacing: 4px; table-layout: fixed; }
-        .calendar-table th { color: #94a3b8; font-size: 12px; padding: 10px; font-weight: 400; }
-        .calendar-table td { height: 95px; vertical-align: top; padding: 8px; background: #fff; border: 1px solid #f8fafc; border-radius: 12px; }
-        .day-num { font-weight: 400; margin-bottom: 6px; display: block; color: #64748b; }
-        .today { background-color: #f0f7ff !important; border: 1px solid #dbeafe !important; }
-        .today .day-num { color: var(--primary); font-weight: 700; }
-        .event-item { display: flex; align-items: flex-start; font-size: 11px; color: var(--gray); line-height: 1.4; margin-top: 4px; word-break: keep-all; }
-        .event-star { color: var(--red); font-size: 10px; margin-right: 4px; margin-top: 2px; }
-        
-        #status { text-align: center; margin-top: 15px; font-size: 13px; min-height: 20px; }
-        .footer { text-align: center; margin-top: 30px; font-size: 13px; color: #cbd5e1; }
+        :root {
+            --primary: #3182f6;
+            --bg-gradient: linear-gradient(135deg, #dce4ff 0%, #f1f5f9 50%, #ffe4e6 100%);
+            --glass: rgba(255, 255, 255, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --text-main: #191f28;
+            --text-sub: #4e5968;
+            --red: #fb7185;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
 
-        @media (max-width: 1250px) {
-            body { align-items: center; padding-top: 20px; }
-            .weather-sidebar, .sidebar { position: static; width: 100%; max-width: 700px; margin-bottom: 15px; }
-            .sidebar { flex-direction: row; flex-wrap: wrap; } .side-btn { flex: 1 1 45%; font-size: 12px; }
-            .hourly-forecast { flex-direction: row; overflow-x: auto; } .forecast-item { flex-direction: column; min-width: 60px; }
+            /* 버튼 파스텔 컬러 */
+            --c-purple: rgba(168, 85, 247, 0.15);
+            --c-orange: rgba(249, 115, 22, 0.15);
+            --c-blue: rgba(59, 130, 246, 0.15);
+            --c-green: rgba(16, 185, 129, 0.15);
         }
+
+        * { font-family: 'Gowun Dodum', sans-serif !important; box-sizing: border-box; }
+        body { 
+            background: var(--bg-gradient); 
+            background-attachment: fixed; 
+            min-height: 100vh; margin: 0; padding: 40px 20px; 
+            display: flex; justify-content: center; color: var(--text-main);
+        }
+
+        .main-container { display: flex; flex-direction: column; gap: 20px; max-width: 1200px; width: 100%; }
+
+        /* 📏 상단 레이아웃: 모든 섹션 높이 동일 (Stretch) */
+        .horizontal-section { 
+            display: grid; 
+            grid-template-columns: 280px 1fr 145px; 
+            gap: 20px; 
+            align-items: stretch; 
+        }
+
+        .horizontal-section-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+        .glass-card { 
+            background: var(--glass); 
+            backdrop-filter: blur(20px); 
+            border: 1px solid var(--glass-border); 
+            border-radius: 24px; padding: 22px; 
+            box-shadow: var(--shadow); 
+        }
+
+        /* 🕒 날씨/시간 섹션 */
+        .weather-info { 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            gap: 15px; text-align: center; height: 100%; 
+        }
+        #we-icon { font-size: 45px; margin-bottom: -5px; }
+
+        /* 🔘 정사각형 버튼 섹션 */
+        .shortcut-group { display: flex; flex-direction: column; gap: 8px; height: 100%; }
+        .side-btn { 
+            width: 135px; flex: 1; border-radius: 24px; 
+            text-decoration: none; font-size: 15px; font-weight: 700; 
+            display: flex; align-items: center; justify-content: center; 
+            transition: 0.2s; border: 1px solid rgba(255,255,255,0.4);
+            backdrop-filter: blur(10px);
+        }
+        .btn-erp { background: var(--c-purple); color: #7c3aed; }
+        .btn-gap { background: var(--c-orange); color: #ea580c; }
+        .btn-check { background: var(--c-green); color: #059669; }
+        .btn-mohom { background: var(--c-blue); color: #2563eb; }
+        .side-btn:hover { transform: scale(1.02); filter: brightness(0.95); }
+
+        /* 🗓️ 캘린더 */
+        .calendar-table { width: 100%; border-collapse: collapse; table-layout: fixed; background: rgba(255,255,255,0.2); border-radius: 15px; overflow: hidden; }
+        .calendar-td { height: 85px; vertical-align: top; padding: 8px; border: 0.5px solid rgba(0,0,0,0.05); position: relative; }
+        .day-num { font-weight: 700; font-size: 12px; position: relative; z-index: 5; }
+        
+        .event-bar {
+            position: absolute; left: -0.5px; right: -0.5px; top: 32px; height: 20px; 
+            background: rgba(251, 113, 133, 0.25); border-bottom: 2.5px solid var(--red);
+            font-size: 11px; font-weight: 700; color: #b91c1c;
+            display: flex; align-items: center; justify-content: center; z-index: 2; pointer-events: none;
+        }
+        .event-bar.start { left: 5px; border-radius: 10px 0 0 10px; }
+        .event-bar.end { right: 5px; border-radius: 0 10px 10px 0; }
+        .today { background: rgba(49, 130, 246, 0.1) !important; outline: 2px solid var(--primary); outline-offset: -2px; z-index: 1; }
+
+        /* 하단 폼 */
+        .section-title { font-size: 16px; font-weight: 700; margin-bottom: 18px; }
+        input { width: 100%; padding: 12px; border: 1px solid rgba(0,0,0,0.05); border-radius: 12px; margin-bottom: 15px; background: rgba(255,255,255,0.6); outline: none; transition: 0.2s; }
+        input:focus { border-color: var(--primary); background: rgba(255,255,255,0.9); }
+        .btn-submit { width: 100%; background: #3182f6; color: white; border: none; padding: 18px; border-radius: 18px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 20px; transition: 0.2s; }
+        .btn-submit:hover { background: #1b64da; }
+
+        #status { text-align: center; margin-top: 10px; font-weight: 700; font-size: 14px; min-height: 20px; }
     </style>
 </head>
 <body>
 
-<div class="weather-sidebar">
-    <div class="dash-left"><div id="cur-date" class="date-text"></div><div id="cur-time" class="time-text"></div></div>
-    <div class="weather-main"><span>서울</span><span id="we-temp">--°C</span></div>
-    <div id="weather-desc">날씨 확인 중...</div>
-    <div class="hourly-forecast" id="forecast"></div>
-</div>
+<div class="main-container">
+    <h1 style="font-size: 26px; margin-bottom: 15px;">미래전략 사업단</h1>
 
-<div class="sidebar">
-    <a href="https://infis-erp.co.kr/" target="_blank" class="side-btn bg-erp">💻 ERP 바로가기</a>
-    <a href="http://chrurck.com/?act=info.page&pcode=sub1_3" target="_blank" class="side-btn bg-gap">⚡ 초격차보험</a>
-    <a href="https://pcs.iaa.or.kr/comm/login.do" target="_blank" class="side-btn bg-green">✔ 비교확인서</a>
-    <a href="https://www.mohom.kr/" target="_blank" class="side-btn bg-blue">🏠 모홈 (청구)</a>
-</div>
-
-<div class="container">
-    <h1>🏢 미래전략 사업단</h1>
-    <div class="grid">
-    <div class="input-group">
-        <div class="section-title">📂 양식 파일 유지</div>
-        
-        <label>고지의무 이행확인서</label>
-        <input type="file" id="f1" accept=".pdf" onchange="keepFile(1)">
-        <div id="f1-msg" style="display:none; color:var(--green); font-size:11px; margin-bottom:10px;">✓ 로드완료</div>
-        
-        <label>필수 동의서</label>
-        <input type="file" id="f2" accept=".pdf" onchange="keepFile(2)">
-        <div id="f2-msg" style="display:none; color:var(--green); font-size:11px; margin-bottom:10px;">✓ 로드완료</div>
-
-        <div style="position: relative; margin-top: 15px; border: 1px dashed var(--border); padding: 10px; border-radius: 12px; overflow: hidden;">
-            <div style="filter: blur(2px); pointer-events: none; user-select: none;">
-                <label>비교확인안내서</label>
-                <input type="file" id="f3" accept=".pdf">
-                
-                <label>보험사 선택</label>
-                <select id="selCompany"><option>데이터 로딩 중...</option></select>
-                
-                <label>상품 선택</label>
-                <select id="selProduct"><option>데이터 로딩 중...</option></select>
+    <div class="horizontal-section">
+        <div class="glass-card">
+            <div class="weather-info">
+                <div id="cur-date" style="font-size: 14px; color: var(--text-sub);"></div>
+                <div id="cur-time" style="font-size: 38px; font-weight: 800; color: var(--primary);"></div>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                    <div id="we-icon"></div> 
+                    <span id="we-temp" style="font-weight: 700; font-size: 24px;">--°C</span>
+                    <div id="weather-desc" style="font-size: 14px; color: var(--text-sub);">날씨 확인 중</div>
+                </div>
             </div>
-            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.4); z-index: 2;">
-                <span style="background: var(--primary); color: white; padding: 5px 15px; border-radius: 20px; font-size: 13px; font-weight: 700; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">🛠️ 시트 연동 준비 중</span>
-            </div>
+        </div>
+        
+        <div class="glass-card" style="padding: 15px;">
+            <div id="cal-title" style="font-weight: 700; text-align: center; margin-bottom: 10px; font-size: 16px;"></div>
+            <table class="calendar-table">
+                <thead>
+                    <tr style="font-size: 11px; height: 30px;">
+                        <th style="color:var(--red)">일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th style="color:var(--primary)">토</th>
+                    </tr>
+                </thead>
+                <tbody id="cal-body-content"></tbody>
+            </table>
+        </div>
+
+        <div class="shortcut-group">
+            <a href="https://infis-erp.co.kr/" target="_blank" class="side-btn btn-erp">ERP</a>
+            <a href="http://chrurck.com/?act=info.page&pcode=sub1_3" target="_blank" class="side-btn btn-gap">초격차</a>
+            <a href="https://pcs.iaa.or.kr/comm/login.do" target="_blank" class="side-btn btn-check">비교확인</a>
+            <a href="https://www.mohom.kr/" target="_blank" class="side-btn btn-mohom">모홈</a>
         </div>
     </div>
 
-    <div class="input-group">
-        <div class="section-title">👤 기재 정보</div>
-        <label>계약 체결일</label><input type="date" id="cDate">
-        <label>담당 설계사</label><input type="text" id="pName" placeholder="설계사 성함">
-        <label>계약자 성명</label><input type="text" id="uName" placeholder="성함 입력">
+    <div class="horizontal-section-bottom">
+        <div class="glass-card">
+            <h3 class="section-title">📂 서류 업로드</h3>
+            <label>고지의무 이행확인서</label><input type="file" id="f1" accept=".pdf" onchange="keepFile(1)">
+            <label>필수 동의서</label><input type="file" id="f2" accept=".pdf" onchange="keepFile(2)">
+        </div>
+        <div class="glass-card">
+            <h3 class="section-title">👤 기재 정보 & 전송</h3>
+            <label>계약 체결일</label><input type="date" id="cDate">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                <input type="text" id="pName" placeholder="담당 설계사">
+                <input type="text" id="uName" placeholder="계약자 성명">
+            </div>
+            <button class="btn-submit" onclick="startProcess()">📤 서류 생성 및 드라이브 전송</button>
+            <div id="status"></div>
+        </div>
     </div>
-</div>
-    <button class="btn-primary" onclick="startProcess()">📤 서류 생성 및 드라이브 전송</button>
-    <div id="status"></div>
-    <div class="calendar-section"><div class="calendar-header"><h2 id="cal-title"></h2></div><table class="calendar-table" id="cal-body"><thead><tr><th style="color:var(--red)">일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th style="color:var(--primary)">토</th></tr></thead><tbody></tbody></table></div>
-    <div class="footer">모두 감기 조심! © 2026 미래전략 사업단</div>
 </div>
 
 <canvas id="canvas" style="display:none;"></canvas>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
     const API_KEY = 'e9e4b4788a9cb01857b3d430b6551c24';
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwi2Cc3n57UaOUPsZAijahVbM5GB0p0IRVL9VR8EzqyYpNMcT7tgiLVwI6Qcv5gZtWFBg/exec';
     
-    const eventData = {
-        '2026-01-01': ['신정'], '2026-01-02': ['전체미팅'],
-        '2026-01-16': ['수인 휴가'], '2026-01-19': ['하경 휴가'], '2026-01-23': ['수인 휴가'],
-        '2026-01-26': ['하'], '2026-01-27': ['경'], '2026-01-28': ['휴'], '2026-01-29': ['-'],
-        '2026-01-30': ['가'],'2026-01-31': ['하경퇴사']
-    };
+    const events = [
+        { start: '2026-01-01', end: '2026-01-01', text: '신정' },
+        { start: '2026-01-02', end: '2026-01-02', text: '전체미팅' },
+        { start: '2026-01-16', end: '2026-01-16', text: '수인 휴가' },
+        { start: '2026-01-23', end: '2026-01-23', text: '수인 휴가' },
+        { start: '2026-01-19', end: '2026-01-19', text: '하경 휴가' },
+        { start: '2026-01-26', end: '2026-01-30', text: '하경 휴가' },
+        { start: '2026-01-31', end: '2026-01-31', text: '하경 퇴사' }
+    ];
 
     const $ = id => document.getElementById(id);
-    const pad = n => String(n).padStart(2, '0');
 
     function updateClock() {
         const n = new Date();
         const days = ["일", "월", "화", "수", "목", "금", "토"];
-        let h = n.getHours();
-        const ampm = h >= 12 ? '오후' : '오전';
-        h = h % 12 || 12;
-        $('cur-date').innerText = `${n.getFullYear()}.${n.getMonth()+1}.${n.getDate()}(${days[n.getDay()]})`;
-        $('cur-time').innerText = `${ampm} ${h}:${pad(n.getMinutes())}`;
+        $('cur-date').innerText = `${n.getFullYear()}년 ${n.getMonth()+1}월 ${n.getDate()}일 (${days[n.getDay()]})`;
+        $('cur-time').innerText = `${n.getHours() >= 12 ? 'PM':'AM'} ${n.getHours()%12||12}:${String(n.getMinutes()).padStart(2,'0')}`;
     }
 
     async function fetchWeather() {
         try {
             const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Seoul&appid=${API_KEY}&units=metric&lang=kr`);
             const d = await res.json();
-            const temp = Math.round(d.main.temp);
-            $('we-temp').innerText = `${temp}°C`;
+            $('we-temp').innerText = `${Math.round(d.main.temp)}°C`;
             $('weather-desc').innerText = d.weather[0].description;
-            
-            const iconMap = { '01':'☀️','02':'🌤️','03':'☁️','04':'☁️','09':'🌧️','10':'🌦️','11':'⚡','13':'❄️','50':'🌫️' };
-            const emoji = iconMap[d.weather[0].icon.substring(0,2)] || '☀️';
-            
-            let hHtml = '';
-            const curH = new Date().getHours();
-            for(let i=0; i<6; i++) {
-                const h = (curH + i) % 24;
-                hHtml += `<div class="forecast-item"><span>${i===0?'지금':(h>=12?'오후 ':'오전 ')+(h%12||12)+'시'}</span><span>${emoji}</span><span style="width:30px; text-align:right">${temp}°</span></div>`;
-            }
-            $('forecast').innerHTML = hHtml;
-        } catch (e) { $('weather-desc').innerText = "날씨 활성화 대기 중"; }
+
+            const icon = d.weather[0].icon;
+            let emoji = '☀️';
+            if (icon.includes('02')) emoji = '🌤️';
+            else if (icon.includes('03') || icon.includes('04')) emoji = '☁️';
+            else if (icon.includes('09')) emoji = '🌦️';
+            else if (icon.includes('10')) emoji = '🌧️';
+            else if (icon.includes('11')) emoji = '⚡';
+            else if (icon.includes('13')) emoji = '❄️';
+            else if (icon.includes('50')) emoji = '🌫️';
+            $('we-icon').innerText = emoji;
+        } catch (e) { console.error("날씨 로드 실패"); }
     }
 
     function drawCal() {
-        const n = new Date();
         const y = 2026, m = 0;
+        const n = new Date();
         $('cal-title').innerText = `${y}년 ${m + 1}월`;
-        const start = new Date(y, m, 1).getDay();
-        const end = new Date(y, m + 1, 0).getDate();
-        let html = '<tr>', date = 1;
-
-        for(let i=0; i<42; i++) {
-            if (i > 0 && i % 7 === 0) html += '</tr><tr>';
-            if (i < start || date > end) html += '<td></td>';
-            else {
-                const key = `${y}-${pad(m+1)}-${pad(date)}`;
-                const isToday = (date === n.getDate() && m === n.getMonth() && n.getFullYear() === y) ? 'today' : '';
-                let evHtml = '';
-                if(eventData[key]) eventData[key].forEach(t => evHtml += `<div class="event-item"><span class="event-star">★</span>${t}</div>`);
-                html += `<td class="${isToday}"><span class="day-num">${date}</span>${evHtml}</td>`;
-                date++;
-            }
-            if (date > end && (i+1) % 7 === 0) break;
-        }
-        document.querySelector('#cal-body tbody').innerHTML = html + '</tr>';
-    }
-
-    let files = [null, null, null];
-    function keepFile(n) { 
-        const f = $('f'+n).files[0]; 
-        if(f){ 
-            files[n-1]=f; 
-            $('f'+n+'-msg').style.display='block'; 
-        } 
-    }
-
-    async function startProcess() {
-        const d = $('cDate').value, n = $('uName').value, p = $('pName').value;
-        if (!files[0] || !files[1] || !d || !n || !p) return alert("필수 정보를 모두 입력해 주세요.");
+        const firstDay = new Date(y, m, 1).getDay();
+        const lastDate = new Date(y, m + 1, 0).getDate();
         
-        const st = $('status'); st.style.color = "var(--primary)"; st.innerText = "✨ 전송 중...";
-        try {
-            const dt = new Date(d);
-            const dy = { y: dt.getFullYear().toString().slice(-2), m: (dt.getMonth()+1).toString(), day: dt.getDate().toString() };
-            
-            const i1 = await render(files[0], "고", dy, n, p);
-            const i2 = await render(files[1], "동", dy, n, p);
-            
-            const payload = { file1Data: i1, fileName1: `${n}_고.jpg`, file2Data: i2, fileName2: `${n}_동.jpg` };
-            
-            // 3번 파일(비교안내표)이 업로드 되었을 경우에만 전송 데이터에 추가
-            if(files[2]) {
-                const i3 = await render(files[2], "비", dy, n, p);
-                payload.file3Data = i3;
-                payload.fileName3 = `${n}_비.jpg`;
-            }
-
-            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            st.style.color = "var(--green)"; st.innerText = "✅ 전송 완료!";
-        } catch (e) { st.style.color = "var(--red)"; st.innerText = "❌ 전송 오류 발생"; }
-    }
-
-    async function render(file, type, dy, n, p) {
-        const cvs = $('canvas');
-        const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
-        const pg = await pdf.getPage(1);
-        const vp = pg.getViewport({ scale: 2.0 });
-        const ctx = cvs.getContext('2d');
-        cvs.width = vp.width; cvs.height = vp.height;
-        ctx.fillStyle = "#fff"; ctx.fillRect(0,0,cvs.width,cvs.height);
-        await pg.render({ canvasContext: ctx, viewport: vp }).promise;
+        let html = '<tr>';
+        for(let i=0; i<firstDay; i++) html += '<td class="calendar-td"></td>';
         
-        const s = 2.0, h = vp.height;
-        const dr = (t, x, y, sz=13) => { ctx.font=`${sz*s}px 'Malgun Gothic'`; ctx.fillStyle="#000"; ctx.fillText(t,x*s,h-(y*s)); };
-        const ck = (x, y) => { ctx.font=`bold ${22*s}px Arial`; ctx.fillStyle="red"; ctx.textAlign="center"; ctx.fillText("v",x*s,h-(y*s)); ctx.textAlign="start"; };
-
-        if(type === "고") {
-            [612,579,548,504,445,385,340,310,273].forEach(y => ck(500,y));
-            dr(dy.y,199,209); dr(dy.m,230,209); dr(dy.day,256,209); dr(n,431,209); dr(n,500,209);
-            dr(dy.y,200,96); dr(dy.m,225,96); dr(dy.day,250,96); dr(p,430,96); dr(p,505,96);
-        } else if(type === "동") {
-            [640,545,428,310,234].forEach(y => ck(522,y));
-            dr(dy.y,254,138); dr(dy.m,300,138); dr(dy.day,341,138); dr(n,150,107); dr(n,239,107);
-            dr("미래전략사업단",150,58); dr(p,416,64); dr(p,500,64);
-        } else if(type === "비") {
-            // 비교확인안내서용 좌표 (준비 중 - 현재는 하단에 기본 정보만 출력)
-            dr(`${dy.y}년 ${dy.m}월 ${dy.day}일`, 300, 50, 15);
-            dr(n, 500, 50, 15);
-            dr(p, 100, 50, 15);
+        for(let d=1; d<=lastDate; d++) {
+            const curIdx = (firstDay + d - 1) % 7;
+            if (d > 1 && curIdx === 0) html += '</tr><tr>';
+            const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            const isToday = (d === n.getDate() && m === n.getMonth() && y === n.getFullYear()) ? 'today' : '';
+            
+            let eventHtml = '';
+            events.forEach(ev => {
+                if (dateStr >= ev.start && dateStr <= ev.end) {
+                    const isStart = dateStr === ev.start;
+                    const isEnd = dateStr === ev.end;
+                    const text = (isStart || curIdx === 0) ? ev.text : '';
+                    eventHtml += `<div class="event-bar ${isStart?'start':''} ${isEnd?'end':''}">${text}</div>`;
+                }
+            });
+            html += `<td class="calendar-td ${isToday}"><span class="day-num">${d}</span>${eventHtml}</td>`;
         }
-        return cvs.toDataURL('image/jpeg', 0.9);
+        $('cal-body-content').innerHTML = html + '</tr>';
     }
+
+    let files = [null, null];
+    function keepFile(n) { const f = $('f'+n).files[0]; if(f) files[n-1] = f; }
 
     window.onload = () => {
-        updateClock(); setInterval(updateClock, 1000);
-        fetchWeather(); setInterval(fetchWeather, 1800000);
+        updateClock();
+        setInterval(updateClock, 1000);
+        fetchWeather();
         drawCal();
     };
 </script>
