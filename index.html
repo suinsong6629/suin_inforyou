@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>미래전략 사업단 V16.2</title>
+    <title>미래전략 사업단 V16.3</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400;700&display=swap');
         
@@ -272,7 +272,6 @@
         const lastDate = new Date(y, m + 1, 0).getDate();
         let html = '<tr>';
         
-        // 이전 버전의 모든 이벤트 리스트 복구
         const events = [
             { start: '2026-01-01', end: '2026-01-01', text: '신정' },
             { start: '2026-01-16', end: '2026-01-16', text: '수인 휴가' },
@@ -291,9 +290,7 @@
             
             let evHtml = '';
             events.forEach(ev => {
-                // 기간 검색 로직 복구 (V15.1 기준)
                 if (dateStr >= ev.start && dateStr <= ev.end) {
-                    // 시작일이거나 한 주의 시작(일요일)일 때만 텍스트 표시
                     const txt = (dateStr === ev.start || curIdx === 0) ? ev.text : '';
                     evHtml += `<div class="event-bar">${txt}</div>`;
                 }
@@ -311,17 +308,39 @@
         try {
             const res = await fetch(`${SCRIPT_URL}?action=search&name=${encodeURIComponent(name)}&key=${encodeURIComponent(sessionKey)}`);
             const results = await res.json();
+            
             if(results[0] && results[0].error === "SITE_LOCKED") { document.body.classList.add('is-locked'); return; }
             if(results[0] && results[0].error) { location.reload(); return; }
-            const tbody = $('resultTableBody'); tbody.innerHTML = '';
-            if(!results || results.length === 0) { $('searchStatus').innerText = `❌ 검색 결과가 없습니다.`; $('searchResultArea').style.display = 'none'; return; }
+            
+            const tbody = $('resultTableBody'); 
+            tbody.innerHTML = '';
+            
+            if(!results || results.length === 0) { 
+                $('searchStatus').innerText = `❌ 검색 결과가 없습니다.`; 
+                $('searchResultArea').style.display = 'none'; 
+                return; 
+            }
+
+            // 🛠️ 강화된 중복 필터링 로직: [이름 + 주민번호] 조합으로 동일인 판단
+            const filtered = [];
+            const seen = new Set();
             results.forEach(item => {
+                // 이름과 주민번호에서 공백을 제거하고 조합하여 고유 키 생성
+                const uniqueKey = `${item.name.replace(/\s/g, "")}_${item.residentId.replace(/\s/g, "")}`;
+                if (!seen.has(uniqueKey)) {
+                    seen.add(uniqueKey);
+                    filtered.push(item);
+                }
+            });
+
+            filtered.forEach(item => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `<td>${item.handler}</td><td style="font-weight:700;">${item.name}</td><td>${item.residentId}</td><td>${item.phone}</td><td>${item.address}</td><td>${item.job}</td><td>${item.account}</td>`;
                 tbody.appendChild(tr);
             });
+            
             $('searchResultArea').style.display = 'block';
-            $('searchStatus').innerText = `✅ 조회 완료`;
+            $('searchStatus').innerText = `✅ 조회 완료 (${filtered.length}건)`;
         } catch(e) { $('searchStatus').innerText = "❌ 조회 오류"; }
     }
 
