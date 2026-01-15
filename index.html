@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>미래전략 사업단 V16.3</title>
+    <title>미래전략 사업단 V16.7</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400;700&display=swap');
         
@@ -40,7 +40,7 @@
         }
         body.is-locked #lock-screen { display: flex; }
 
-        * { font-family: 'Gowun Dodum', sans-serif !important; box-sizing: border-box; transition: background 0.3s, color 0.3s; }
+        * { font-family: 'Gowun Dodum', sans-serif !important; box-sizing: border-box; transition: background 0.3s, color 0.3s, border 0.3s; }
         body { background: var(--bg-gradient); background-attachment: fixed; min-height: 100vh; margin: 0; display: flex; justify-content: center; align-items: flex-start; padding: 40px 20px; color: var(--text-main); }
 
         #main-wrapper { width: 100%; max-width: 1200px; display: flex; flex-direction: column; gap: 20px; }
@@ -59,16 +59,29 @@
         #main-app { display: none; flex-direction: column; gap: 20px; width: 100%; }
         .glass-card { background: var(--glass); border-radius: 24px; padding: 25px; box-shadow: var(--shadow); border: 1px solid var(--glass-border); backdrop-filter: blur(20px); }
         
-        /* 🌤️ 대시보드 UI */
-        .dashboard-grid { display: grid; grid-template-columns: 280px 1fr 145px; gap: 20px; align-items: stretch; }
+        /* 📱 iOS 스타일 온오프 스위치 */
+        .switch-container { display: flex; align-items: center; gap: 10px; }
+        .switch { position: relative; display: inline-block; width: 46px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #e2e8f0; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        input:checked + .slider { background-color: #4cd964; }
+        input:checked + .slider:before { transform: translateX(22px); }
+        body.dark-mode .slider { background-color: #334155; }
+        body.dark-mode input:checked + .slider { background-color: var(--primary); }
+
+        /* 🌤️ 하단 대시보드 레이아웃 (캘린더 너비 확장) */
+        .dashboard-grid { display: grid; grid-template-columns: 280px 1fr; gap: 20px; align-items: stretch; }
         .weather-info { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; text-align: center; height: 100%; }
         #we-icon { font-size: 55px; margin: 5px 0; }
         #cur-time { font-size: 38px; font-weight: 800; color: var(--primary); margin: 5px 0; }
         #cur-date { font-size: 15px; color: var(--text-sub); }
         #we-temp { font-size: 24px; font-weight: 700; }
 
-        .shortcut-group { display: flex; flex-direction: column; gap: 8px; }
-        .side-btn { width: 100%; flex: 1; border-radius: 20px; text-decoration: none; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2); }
+        /* 🔗 수평 버튼 그룹 */
+        .shortcut-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; width: 100%; }
+        .side-btn { height: 55px; border-radius: 16px; text-decoration: none; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+        .side-btn:hover { transform: translateY(-2px); }
         .btn-erp { background: var(--c-purple); color: #7c3aed; }
         .btn-gap { background: var(--c-orange); color: #ea580c; }
         .btn-check { background: var(--c-green); color: #10b981; }
@@ -117,58 +130,20 @@
     <div id="main-app">
         <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <h1 style="font-size: 26px; color: var(--primary); margin: 0;">미래전략 사업단 통합 시스템</h1>
-            <div style="display: flex; align-items: center; gap: 20px;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 12px; font-weight: 700;">다크 모드</span>
-                    <label class="switch"><input type="checkbox" id="darkToggle"><span class="slider"></span></label>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <!-- 🌙 다크모드 온오프 스위치 -->
+                <div class="switch-container">
+                    <span style="font-size: 12px; font-weight: 700; opacity: 0.8;">다크 모드</span>
+                    <label class="switch">
+                        <input type="checkbox" id="darkToggle">
+                        <span class="slider"></span>
+                    </label>
                 </div>
-                <button onclick="location.reload()" style="background:#eee; border:none; padding:8px 15px; border-radius:10px; cursor:pointer; font-size:12px; color: #333; font-weight: 700;">보안 로그아웃</button>
+                <button onclick="location.reload()" style="background:#eee; border:none; padding:12px 18px; border-radius:12px; cursor:pointer; font-size:12px; color: #333; font-weight: 700; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">보안 로그아웃</button>
             </div>
         </div>
 
-        <!-- 🗓️ 대시보드 -->
-        <div class="dashboard-grid">
-            <div class="glass-card">
-                <div class="weather-info">
-                    <div id="cur-date"></div>
-                    <div id="cur-time"></div>
-                    <div id="we-icon">☀️</div> 
-                    <span id="we-temp">--°C</span>
-                    <div id="weather-desc" style="font-size: 13px; color: var(--text-sub); margin-top: 5px;">날씨 불러오는 중...</div>
-                </div>
-            </div>
-            <div class="glass-card" style="padding: 18px;">
-                <div id="cal-title" style="font-weight: 800; text-align: center; margin-bottom: 12px; font-size: 16px;"></div>
-                <table class="calendar-table">
-                    <thead><tr style="font-size: 11px; height: 25px; text-align: center;"><th style="color:var(--red)">일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th style="color:var(--primary)">토</th></tr></thead>
-                    <tbody id="cal-body-content"></tbody>
-                </table>
-            </div>
-            <div class="shortcut-group">
-                <a href="https://infis-erp.co.kr/" target="_blank" class="side-btn btn-erp">ERP</a>
-                <a href="http://chrurck.com/?act=info.page&pcode=sub1_3" target="_blank" class="side-btn btn-gap">초격차</a>
-                <a href="https://pcs.iaa.or.kr/comm/login.do" target="_blank" class="side-btn btn-check">비교확인</a>
-                <a href="https://www.mohom.kr/" target="_blank" class="side-btn btn-mohom">모홈</a>
-            </div>
-        </div>
-
-        <!-- 🔍 통합 조회 -->
-        <div class="glass-card">
-            <div style="font-size:20px; font-weight:700; margin-bottom:15px; display: flex; align-items: center; gap: 8px;">🔍 통합 고객 조회</div>
-            <div style="display:grid; grid-template-columns: 1fr 150px; gap:12px;">
-                <input type="text" id="searchName" placeholder="고객 성함을 입력하세요" style="margin-bottom:0;" onkeypress="if(event.keyCode==13) findCustomer()">
-                <button class="btn-main" onclick="findCustomer()">데이터 조회</button>
-            </div>
-            <div id="searchStatus" style="margin-top:15px; font-weight:700; font-size:14px; color: var(--primary);">성함을 입력하고 조회를 누르세요.</div>
-            <div id="searchResultArea" style="display:none; overflow-x:auto;">
-                <table class="results-table">
-                    <thead><tr><th>취급자</th><th>이름</th><th>주민번호</th><th>연락처</th><th>주소</th><th>직업</th><th>계좌정보</th></tr></thead>
-                    <tbody id="resultTableBody"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- 📂 서류 생성 -->
+        <!-- 1️⃣ [TOP] 서류 생성 및 전송 -->
         <div class="two-cols">
             <div class="glass-card">
                 <div style="font-size:18px; font-weight:700; margin-bottom:15px;">📂 서류 업로드 (PDF)</div>
@@ -189,6 +164,51 @@
                 <div id="processStatus" style="text-align:center; margin-top:12px; font-weight:700; font-size:13px;"></div>
             </div>
         </div>
+
+        <!-- 2️⃣ [NEW] 수평 버튼 그룹 (비교확인-초격차-모홈-ERP) -->
+        <div class="shortcut-row">
+            <a href="https://pcs.iaa.or.kr/comm/login.do" target="_blank" class="side-btn btn-check">비교확인</a>
+            <a href="http://chrurck.com/?act=info.page&pcode=sub1_3" target="_blank" class="side-btn btn-gap">초격차</a>
+            <a href="https://www.mohom.kr/" target="_blank" class="side-btn btn-mohom">모홈</a>
+            <a href="https://infis-erp.co.kr/" target="_blank" class="side-btn btn-erp">ERP</a>
+        </div>
+
+        <!-- 3️⃣ [MIDDLE] 통합 고객 조회 -->
+        <div class="glass-card">
+            <div style="font-size:20px; font-weight:700; margin-bottom:15px; display: flex; align-items: center; gap: 8px;">🔍 통합 고객 조회</div>
+            <div style="display:grid; grid-template-columns: 1fr 150px; gap:12px;">
+                <input type="text" id="searchName" placeholder="고객 성함을 입력하세요" style="margin-bottom:0;" onkeypress="if(event.keyCode==13) findCustomer()">
+                <button class="btn-main" onclick="findCustomer()">데이터 조회</button>
+            </div>
+            <div id="searchStatus" style="margin-top:15px; font-weight:700; font-size:14px; color: var(--primary);">성함을 입력하고 조회를 누르세요.</div>
+            <div id="searchResultArea" style="display:none; overflow-x:auto;">
+                <table class="results-table">
+                    <thead><tr><th>취급자</th><th>이름</th><th>주민번호</th><th>연락처</th><th>주소</th><th>직업</th><th>계좌정보</th></tr></thead>
+                    <tbody id="resultTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 4️⃣ [BOTTOM] 대시보드 (날씨 & 확장된 캘린더) -->
+        <div class="dashboard-grid">
+            <div class="glass-card">
+                <div class="weather-info">
+                    <div id="cur-date"></div>
+                    <div id="cur-time"></div>
+                    <div id="we-icon">☀️</div> 
+                    <span id="we-temp">--°C</span>
+                    <div id="weather-desc" style="font-size: 13px; color: var(--text-sub); margin-top: 5px;">날씨 불러오는 중...</div>
+                </div>
+            </div>
+            <div class="glass-card" style="padding: 18px;">
+                <div id="cal-title" style="font-weight: 800; text-align: center; margin-bottom: 12px; font-size: 16px;"></div>
+                <table class="calendar-table">
+                    <thead><tr style="font-size: 11px; height: 25px; text-align: center;"><th style="color:var(--red)">일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th style="color:var(--primary)">토</th></tr></thead>
+                    <tbody id="cal-body-content"></tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -204,7 +224,9 @@
 
     window.onload = () => {
         const darkToggle = $('darkToggle');
-        darkToggle.addEventListener('change', () => document.body.classList.toggle('dark-mode'));
+        darkToggle.addEventListener('change', () => {
+            document.body.classList.toggle('dark-mode');
+        });
     };
 
     async function tryAccess() {
@@ -308,24 +330,14 @@
         try {
             const res = await fetch(`${SCRIPT_URL}?action=search&name=${encodeURIComponent(name)}&key=${encodeURIComponent(sessionKey)}`);
             const results = await res.json();
-            
             if(results[0] && results[0].error === "SITE_LOCKED") { document.body.classList.add('is-locked'); return; }
             if(results[0] && results[0].error) { location.reload(); return; }
-            
-            const tbody = $('resultTableBody'); 
-            tbody.innerHTML = '';
-            
-            if(!results || results.length === 0) { 
-                $('searchStatus').innerText = `❌ 검색 결과가 없습니다.`; 
-                $('searchResultArea').style.display = 'none'; 
-                return; 
-            }
+            const tbody = $('resultTableBody'); tbody.innerHTML = '';
+            if(!results || results.length === 0) { $('searchStatus').innerText = `❌ 검색 결과가 없습니다.`; $('searchResultArea').style.display = 'none'; return; }
 
-            // 🛠️ 강화된 중복 필터링 로직: [이름 + 주민번호] 조합으로 동일인 판단
             const filtered = [];
             const seen = new Set();
             results.forEach(item => {
-                // 이름과 주민번호에서 공백을 제거하고 조합하여 고유 키 생성
                 const uniqueKey = `${item.name.replace(/\s/g, "")}_${item.residentId.replace(/\s/g, "")}`;
                 if (!seen.has(uniqueKey)) {
                     seen.add(uniqueKey);
