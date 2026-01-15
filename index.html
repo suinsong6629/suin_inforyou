@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>미래전략 사업단 V16.0</title>
+    <title>미래전략 사업단 V16.2</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400;700&display=swap');
         
         :root {
-            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            --glass: rgba(255, 255, 255, 0.85);
-            --glass-border: rgba(255, 255, 255, 0.5);
+            --bg-gradient: linear-gradient(135deg, #dce4ff 0%, #f1f5f9 50%, #ffe4e6 100%);
+            --glass: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.4);
             --primary: #3182f6;
             --red: #fb7185;
             --text-main: #191f28;
@@ -31,81 +31,75 @@
             --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
-        /* 🚨 사이트 잠금 상태 (블러 처리) */
-        body.is-locked #main-wrapper {
-            filter: blur(20px);
-            pointer-events: none;
-        }
-
+        /* 🚨 사이트 잠금 레이어 */
+        body.is-locked #main-wrapper { filter: blur(25px); pointer-events: none; }
         #lock-screen {
-            display: none;
-            position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 20000;
-            flex-direction: column; align-items: center; justify-content: center;
-            color: white; text-align: center;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 20000; flex-direction: column; 
+            align-items: center; justify-content: center; color: white; text-align: center;
         }
         body.is-locked #lock-screen { display: flex; }
 
         * { font-family: 'Gowun Dodum', sans-serif !important; box-sizing: border-box; transition: background 0.3s, color 0.3s; }
-        body { background: var(--bg-gradient); background-attachment: fixed; min-height: 100vh; margin: 0; display: flex; justify-content: center; align-items: center; padding: 20px; color: var(--text-main); overflow-x: hidden; }
+        body { background: var(--bg-gradient); background-attachment: fixed; min-height: 100vh; margin: 0; display: flex; justify-content: center; align-items: flex-start; padding: 40px 20px; color: var(--text-main); }
 
-        #main-wrapper { width: 100%; display: flex; justify-content: center; align-items: center; }
+        #main-wrapper { width: 100%; max-width: 1200px; display: flex; flex-direction: column; gap: 20px; }
 
         /* 🔒 게이트키퍼 */
         #gatekeeper {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: inherit; display: flex; align-items: center; justify-content: center;
-            z-index: 10000;
+            background: var(--bg-gradient); display: flex; align-items: center; justify-content: center; z-index: 10000;
         }
         .lock-card {
             background: var(--glass); padding: 50px; border-radius: 30px;
             box-shadow: var(--shadow); text-align: center; width: 100%; max-width: 420px;
-            border: 1px solid var(--glass-border);
+            border: 1px solid var(--glass-border); backdrop-filter: blur(15px);
         }
 
-        #main-app { display: none; width: 100%; max-width: 1200px; flex-direction: column; gap: 20px; }
-        .glass-card { background: var(--glass); border-radius: 24px; padding: 25px; box-shadow: var(--shadow); border: 1px solid var(--glass-border); backdrop-filter: blur(10px); }
+        #main-app { display: none; flex-direction: column; gap: 20px; width: 100%; }
+        .glass-card { background: var(--glass); border-radius: 24px; padding: 25px; box-shadow: var(--shadow); border: 1px solid var(--glass-border); backdrop-filter: blur(20px); }
         
-        .mode-toggle-wrapper { display: flex; align-items: center; gap: 10px; }
-        .switch { position: relative; display: inline-block; width: 46px; height: 24px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #e2e8f0; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--primary); }
-        input:checked + .slider:before { transform: translateX(22px); }
+        /* 🌤️ 대시보드 UI */
+        .dashboard-grid { display: grid; grid-template-columns: 280px 1fr 145px; gap: 20px; align-items: stretch; }
+        .weather-info { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; text-align: center; height: 100%; }
+        #we-icon { font-size: 55px; margin: 5px 0; }
+        #cur-time { font-size: 38px; font-weight: 800; color: var(--primary); margin: 5px 0; }
+        #cur-date { font-size: 15px; color: var(--text-sub); }
+        #we-temp { font-size: 24px; font-weight: 700; }
 
-        .dashboard-grid { display: grid; grid-template-columns: 280px 1fr 145px; gap: 20px; }
         .shortcut-group { display: flex; flex-direction: column; gap: 8px; }
-        .side-btn { width: 100%; flex: 1; border-radius: 20px; text-decoration: none; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+        .side-btn { width: 100%; flex: 1; border-radius: 20px; text-decoration: none; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2); }
         .btn-erp { background: var(--c-purple); color: #7c3aed; }
         .btn-gap { background: var(--c-orange); color: #ea580c; }
         .btn-check { background: var(--c-green); color: #10b981; }
         .btn-mohom { background: var(--c-blue); color: #3b82f6; }
 
-        .calendar-table { width: 100%; border-collapse: separate; border-spacing: 2px; }
-        .calendar-td { height: 75px; vertical-align: top; padding: 6px; border: 1px solid rgba(125,125,125,0.1); border-radius: 8px; position: relative; }
-        .day-num { font-weight: 700; font-size: 11px; }
-        .event-bar { position: absolute; left: 0; right: 0; top: 28px; height: 18px; background: rgba(251, 113, 133, 0.2); border-bottom: 2px solid var(--red); font-size: 10px; color: #b91c1c; display: flex; align-items: center; justify-content: center; }
-        .today { background: rgba(49, 130, 246, 0.1) !important; outline: 2px solid var(--primary) !important; }
+        .calendar-table { width: 100%; border-collapse: separate; border-spacing: 2px; table-layout: fixed; }
+        .calendar-td { height: 80px; vertical-align: top; padding: 8px; border: 1px solid rgba(125,125,125,0.1); border-radius: 10px; position: relative; background: rgba(255,255,255,0.2); }
+        .day-num { font-weight: 700; font-size: 12px; }
+        .event-bar { position: absolute; left: 0; right: 0; top: 32px; height: 20px; background: rgba(251, 113, 133, 0.2); border-bottom: 2.5px solid var(--red); font-size: 11px; font-weight: 700; color: #b91c1c; display: flex; align-items: center; justify-content: center; overflow: hidden; white-space: nowrap; }
+        body.dark-mode .event-bar { color: #fff; }
+        .today { background: rgba(49, 130, 246, 0.15) !important; outline: 2px solid var(--primary) !important; outline-offset: -2px; }
 
-        input, select { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(125,125,125,0.2); margin-bottom: 12px; background: rgba(255,255,255,0.5); color: inherit; }
-        .btn-main { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; font-weight: 700; }
-        
+        input, select { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(125,125,125,0.2); margin-bottom: 12px; background: rgba(255,255,255,0.5); color: inherit; outline: none; }
+        input:focus { border-color: var(--primary); background: rgba(255,255,255,0.8); }
+        .btn-main { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 16px; }
+        .btn-main:hover { background: #1b64da; transform: translateY(-1px); }
+
         .results-table { width: 100%; border-collapse: collapse; min-width: 1000px; margin-top: 15px; }
-        .results-table th { background: rgba(0,0,0,0.05); padding: 12px; text-align: left; font-size: 13px; }
+        .results-table th { background: rgba(0,0,0,0.05); padding: 12px; text-align: left; font-size: 13px; color: var(--text-sub); }
         .results-table td { padding: 12px; border-bottom: 1px solid rgba(125,125,125,0.1); font-size: 14px; }
         
         .two-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .error-msg { background: #fff1f2; color: #be123c; padding: 12px; border-radius: 10px; font-size: 13px; margin-top: 15px; border-left: 4px solid #fb7185; }
+        .error-msg { background: #fff1f2; color: #be123c; padding: 14px; border-radius: 12px; font-size: 13px; margin-top: 15px; border-left: 4px solid #fb7185; font-weight: 700; }
     </style>
 </head>
 <body>
 
 <div id="lock-screen">
-    <h1 style="font-size: 60px;">🚫</h1>
-    <h2 style="font-size: 32px; margin-bottom: 10px;">사이트 잠김</h2>
-    <p style="font-size: 18px; opacity: 0.8;">보안 위험으로 인해 접근이 차단되었습니다.<br>관리자가 암호를 변경한 후에 접속할 수 있습니다.</p>
+    <div style="font-size: 80px; margin-bottom: 20px;">🔒</div>
+    <h1 style="font-size: 36px; margin-bottom: 15px;">사이트 잠김</h1>
+    <p style="font-size: 18px; line-height: 1.6; opacity: 0.9;">보안 정책에 따라 시스템 접근이 일시 차단되었습니다.<br>관리자가 암호를 변경한 후 다시 이용 가능합니다.</p>
 </div>
 
 <div id="main-wrapper">
@@ -113,7 +107,7 @@
         <div class="lock-card">
             <div style="font-size: 60px; margin-bottom: 20px;">🛡️</div>
             <h2 style="margin-bottom: 10px;">시스템 보안 인증</h2>
-            <p style="color:var(--text-sub); margin-bottom: 30px; font-size: 14px;">보안을 위해 접속 암호를 입력해 주세요.</p>
+            <p style="color:var(--text-sub); margin-bottom: 30px; font-size: 14px;">본 시스템은 승인된 사용자 전용입니다.</p>
             <input type="password" id="entry-pass" placeholder="비밀번호 입력" onkeypress="if(event.keyCode==13) tryAccess()">
             <button class="btn-main" style="width:100%" id="access-btn" onclick="tryAccess()">보안 접속 시작</button>
             <div id="lock-error-area"></div>
@@ -122,28 +116,29 @@
 
     <div id="main-app">
         <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <h1 style="font-size: 24px; color: var(--primary); margin: 0;">미래전략 사업단 통합 시스템</h1>
+            <h1 style="font-size: 26px; color: var(--primary); margin: 0;">미래전략 사업단 통합 시스템</h1>
             <div style="display: flex; align-items: center; gap: 20px;">
-                <div class="mode-toggle-wrapper">
+                <div style="display: flex; align-items: center; gap: 10px;">
                     <span style="font-size: 12px; font-weight: 700;">다크 모드</span>
                     <label class="switch"><input type="checkbox" id="darkToggle"><span class="slider"></span></label>
                 </div>
-                <button onclick="logout()" style="background:#eee; border:none; padding:8px 15px; border-radius:10px; cursor:pointer; font-size:12px; color: #333;">보안 로그아웃</button>
+                <button onclick="location.reload()" style="background:#eee; border:none; padding:8px 15px; border-radius:10px; cursor:pointer; font-size:12px; color: #333; font-weight: 700;">보안 로그아웃</button>
             </div>
         </div>
 
+        <!-- 🗓️ 대시보드 -->
         <div class="dashboard-grid">
             <div class="glass-card">
                 <div class="weather-info">
-                    <div id="cur-date" style="font-size: 14px; color: var(--text-sub);"></div>
-                    <div id="cur-time" style="font-size: 32px; font-weight: 800; color: var(--primary); margin: 2px 0;"></div>
+                    <div id="cur-date"></div>
+                    <div id="cur-time"></div>
                     <div id="we-icon">☀️</div> 
-                    <span id="we-temp" style="font-weight: 700; font-size: 20px;">--°C</span>
-                    <div id="weather-desc" style="font-size: 12px; color: var(--text-sub);">날씨 확인 중</div>
+                    <span id="we-temp">--°C</span>
+                    <div id="weather-desc" style="font-size: 13px; color: var(--text-sub); margin-top: 5px;">날씨 불러오는 중...</div>
                 </div>
             </div>
-            <div class="glass-card" style="padding: 15px;">
-                <div id="cal-title" style="font-weight: 700; text-align: center; margin-bottom: 10px; font-size: 15px;"></div>
+            <div class="glass-card" style="padding: 18px;">
+                <div id="cal-title" style="font-weight: 800; text-align: center; margin-bottom: 12px; font-size: 16px;"></div>
                 <table class="calendar-table">
                     <thead><tr style="font-size: 11px; height: 25px; text-align: center;"><th style="color:var(--red)">일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th style="color:var(--primary)">토</th></tr></thead>
                     <tbody id="cal-body-content"></tbody>
@@ -157,31 +152,38 @@
             </div>
         </div>
 
+        <!-- 🔍 통합 조회 -->
         <div class="glass-card">
-            <div style="font-size:18px; font-weight:700; margin-bottom:15px;">🔍 통합 고객 조회</div>
-            <div style="display:grid; grid-template-columns: 1fr 150px; gap:10px;">
-                <input type="text" id="searchName" placeholder="고객 성함 입력" onkeypress="if(event.keyCode==13) findCustomer()">
+            <div style="font-size:20px; font-weight:700; margin-bottom:15px; display: flex; align-items: center; gap: 8px;">🔍 통합 고객 조회</div>
+            <div style="display:grid; grid-template-columns: 1fr 150px; gap:12px;">
+                <input type="text" id="searchName" placeholder="고객 성함을 입력하세요" style="margin-bottom:0;" onkeypress="if(event.keyCode==13) findCustomer()">
                 <button class="btn-main" onclick="findCustomer()">데이터 조회</button>
             </div>
             <div id="searchStatus" style="margin-top:15px; font-weight:700; font-size:14px; color: var(--primary);">성함을 입력하고 조회를 누르세요.</div>
-            <div id="searchResultArea" style="display:none; overflow-x:auto;"><table class="results-table"><thead><tr><th>취급자</th><th>이름</th><th>주민번호</th><th>연락처</th><th>주소</th><th>직업</th><th>계좌정보</th></tr></thead><tbody id="resultTableBody"></tbody></table></div>
+            <div id="searchResultArea" style="display:none; overflow-x:auto;">
+                <table class="results-table">
+                    <thead><tr><th>취급자</th><th>이름</th><th>주민번호</th><th>연락처</th><th>주소</th><th>직업</th><th>계좌정보</th></tr></thead>
+                    <tbody id="resultTableBody"></tbody>
+                </table>
+            </div>
         </div>
 
+        <!-- 📂 서류 생성 -->
         <div class="two-cols">
             <div class="glass-card">
                 <div style="font-size:18px; font-weight:700; margin-bottom:15px;">📂 서류 업로드 (PDF)</div>
-                <label style="display:block; font-size:12px; font-weight:700;">고지의무 이행확인서</label>
+                <label style="display:block; font-size:12px; font-weight:700; margin-bottom: 5px;">고지의무 이행확인서</label>
                 <input type="file" id="f1" accept=".pdf" onchange="keepFile(1)">
-                <label style="display:block; margin-top:10px; font-size:12px; font-weight:700;">필수 동의서</label>
+                <label style="display:block; margin-top:10px; font-size:12px; font-weight:700; margin-bottom: 5px;">필수 동의서</label>
                 <input type="file" id="f2" accept=".pdf" onchange="keepFile(2)">
             </div>
             <div class="glass-card">
                 <div style="font-size:18px; font-weight:700; margin-bottom:15px;">👤 기재 정보 및 전송</div>
-                <label style="display:block; font-size:12px; font-weight:700;">계약 체결일</label>
+                <label style="display:block; font-size:12px; font-weight:700; margin-bottom: 5px;">계약 체결일</label>
                 <input type="date" id="cDate">
-                <div class="two-cols">
-                    <input type="text" id="pName" placeholder="담당 설계사">
-                    <input type="text" id="uName" placeholder="계약자 성명">
+                <div class="two-cols" style="margin-top: 5px;">
+                    <div><label style="font-size:11px; font-weight:700;">담당 설계사</label><input type="text" id="pName" placeholder="성함"></div>
+                    <div><label style="font-size:11px; font-weight:700;">계약자 성명</label><input type="text" id="uName" placeholder="성함"></div>
                 </div>
                 <button class="btn-main" style="width:100%; height:50px; margin-top:10px;" id="process-btn" onclick="startProcess()">📤 서류 생성 및 드라이브 전송</button>
                 <div id="processStatus" style="text-align:center; margin-top:12px; font-weight:700; font-size:13px;"></div>
@@ -215,9 +217,9 @@
             const res = await fetch(`${SCRIPT_URL}?action=auth&key=${encodeURIComponent(pass)}`);
             const data = await res.json();
             
-            // 🚨 잠금 상태 확인
             if(data[0] && data[0].error === "SITE_LOCKED") {
                 document.body.classList.add('is-locked');
+                $('gatekeeper').style.display = 'none';
                 return;
             }
 
@@ -241,8 +243,6 @@
         $('main-app').style.display = 'flex';
         updateClock(); setInterval(updateClock, 1000); fetchWeather(); drawCal();
     }
-
-    function logout() { location.reload(); }
 
     function updateClock() {
         const n = new Date();
@@ -271,15 +271,34 @@
         const firstDay = new Date(y, m, 1).getDay();
         const lastDate = new Date(y, m + 1, 0).getDate();
         let html = '<tr>';
+        
+        // 이전 버전의 모든 이벤트 리스트 복구
+        const events = [
+            { start: '2026-01-01', end: '2026-01-01', text: '신정' },
+            { start: '2026-01-16', end: '2026-01-16', text: '수인 휴가' },
+            { start: '2026-01-19', end: '2026-01-19', text: '하경 휴가' },
+            { start: '2026-01-23', end: '2026-01-23', text: '수인 휴가' },
+            { start: '2026-01-26', end: '2026-01-30', text: '하경 휴가' },
+            { start: '2026-01-31', end: '2026-01-31', text: '하경 퇴사' }
+        ];
+
         for(let i=0; i<firstDay; i++) html += '<td class="calendar-td"></td>';
         for(let d=1; d<=lastDate; d++) {
             const curIdx = (firstDay + d - 1) % 7;
             if (d > 1 && curIdx === 0) html += '</tr><tr>';
             const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
             const isToday = (d === n.getDate() && m === n.getMonth() && y === n.getFullYear()) ? 'today' : '';
-            const events = [{ start: '2026-01-16', end: '2026-01-16', text: '수인 휴가' }, { start: '2026-01-31', end: '2026-01-31', text: '하경 퇴사' }];
+            
             let evHtml = '';
-            events.forEach(ev => { if (dateStr >= ev.start && dateStr <= ev.end) evHtml += `<div class="event-bar">${ev.text}</div>`; });
+            events.forEach(ev => {
+                // 기간 검색 로직 복구 (V15.1 기준)
+                if (dateStr >= ev.start && dateStr <= ev.end) {
+                    // 시작일이거나 한 주의 시작(일요일)일 때만 텍스트 표시
+                    const txt = (dateStr === ev.start || curIdx === 0) ? ev.text : '';
+                    evHtml += `<div class="event-bar">${txt}</div>`;
+                }
+            });
+            
             html += `<td class="calendar-td ${isToday}"><span class="day-num">${d}</span>${evHtml}</td>`;
         }
         $('cal-body-content').innerHTML = html + '</tr>';
@@ -293,9 +312,9 @@
             const res = await fetch(`${SCRIPT_URL}?action=search&name=${encodeURIComponent(name)}&key=${encodeURIComponent(sessionKey)}`);
             const results = await res.json();
             if(results[0] && results[0].error === "SITE_LOCKED") { document.body.classList.add('is-locked'); return; }
-            if(results[0] && results[0].error) { logout(); return; }
+            if(results[0] && results[0].error) { location.reload(); return; }
             const tbody = $('resultTableBody'); tbody.innerHTML = '';
-            if(!results || results.length === 0) { $('searchStatus').innerText = `❌ 찾을 수 없음`; $('searchResultArea').style.display = 'none'; return; }
+            if(!results || results.length === 0) { $('searchStatus').innerText = `❌ 검색 결과가 없습니다.`; $('searchResultArea').style.display = 'none'; return; }
             results.forEach(item => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `<td>${item.handler}</td><td style="font-weight:700;">${item.name}</td><td>${item.residentId}</td><td>${item.phone}</td><td>${item.address}</td><td>${item.job}</td><td>${item.account}</td>`;
@@ -311,16 +330,16 @@
 
     async function startProcess() {
         const dVal = $('cDate').value; const uN = $('uName').value.trim(); const pN = $('pName').value.trim();
-        if (!uploadedFiles[0] || !uploadedFiles[1] || !dVal || !uN || !pN) return alert("필수 정보 누락");
-        $('process-btn').disabled = true; $('processStatus').innerText = "🚀 전송 중...";
+        if (!uploadedFiles[0] || !uploadedFiles[1] || !dVal || !uN || !pN) return alert("필수 정보가 누락되었습니다.");
+        $('process-btn').disabled = true; $('processStatus').innerText = "🚀 드라이브 전송 중...";
         try {
             const dt = new Date(dVal);
             const dObj = { y: dt.getFullYear().toString().slice(-2), m: (dt.getMonth()+1).toString(), day: dt.getDate().toString() };
             const i1 = await renderPdf(uploadedFiles[0], "고", dObj, uN, pN);
             const i2 = await renderPdf(uploadedFiles[1], "동", dObj, uN, pN);
             await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ file1Data: i1, fileName1: `${uN}_고.jpg`, file2Data: i2, fileName2: `${uN}_동.jpg` }) });
-            $('processStatus').innerText = "✅ 완료!";
-        } catch (e) { $('processStatus').innerText = "❌ 오류"; } finally { $('process-btn').disabled = false; }
+            $('processStatus').innerText = "✅ 전송 완료!";
+        } catch (e) { $('processStatus').innerText = "❌ 전송 실패"; } finally { $('process-btn').disabled = false; }
     }
 
     async function renderPdf(file, type, dy, n, p) {
