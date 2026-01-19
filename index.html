@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>미래전략 사업단 V16.7</title>
+    <title>미래전략 사업단 V16.9</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400;700&display=swap');
         
@@ -70,7 +70,7 @@
         body.dark-mode .slider { background-color: #334155; }
         body.dark-mode input:checked + .slider { background-color: var(--primary); }
 
-        /* 🌤️ 하단 대시보드 레이아웃 (캘린더 너비 확장) */
+        /* 🌤️ 하단 대시보드 (캘린더 너비 확장) */
         .dashboard-grid { display: grid; grid-template-columns: 280px 1fr; gap: 20px; align-items: stretch; }
         .weather-info { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; text-align: center; height: 100%; }
         #we-icon { font-size: 55px; margin: 5px 0; }
@@ -131,7 +131,6 @@
         <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <h1 style="font-size: 26px; color: var(--primary); margin: 0;">미래전략 사업단 통합 시스템</h1>
             <div style="display: flex; align-items: center; gap: 15px;">
-                <!-- 🌙 다크모드 온오프 스위치 -->
                 <div class="switch-container">
                     <span style="font-size: 12px; font-weight: 700; opacity: 0.8;">다크 모드</span>
                     <label class="switch">
@@ -165,7 +164,7 @@
             </div>
         </div>
 
-        <!-- 2️⃣ [NEW] 수평 버튼 그룹 (비교확인-초격차-모홈-ERP) -->
+        <!-- 2️⃣ [Shortcuts] 가로 버튼 그룹 (순서: 비교확인-초격차-모홈-ERP) -->
         <div class="shortcut-row">
             <a href="https://pcs.iaa.or.kr/comm/login.do" target="_blank" class="side-btn btn-check">비교확인</a>
             <a href="http://chrurck.com/?act=info.page&pcode=sub1_3" target="_blank" class="side-btn btn-gap">초격차</a>
@@ -173,7 +172,7 @@
             <a href="https://infis-erp.co.kr/" target="_blank" class="side-btn btn-erp">ERP</a>
         </div>
 
-        <!-- 3️⃣ [MIDDLE] 통합 고객 조회 -->
+        <!-- 3️⃣ [Middle] 통합 고객 조회 -->
         <div class="glass-card">
             <div style="font-size:20px; font-weight:700; margin-bottom:15px; display: flex; align-items: center; gap: 8px;">🔍 통합 고객 조회</div>
             <div style="display:grid; grid-template-columns: 1fr 150px; gap:12px;">
@@ -189,7 +188,7 @@
             </div>
         </div>
 
-        <!-- 4️⃣ [BOTTOM] 대시보드 (날씨 & 확장된 캘린더) -->
+        <!-- 4️⃣ [Bottom] 대시보드 (날씨 & 확장된 캘린더) -->
         <div class="dashboard-grid">
             <div class="glass-card">
                 <div class="weather-info">
@@ -224,9 +223,7 @@
 
     window.onload = () => {
         const darkToggle = $('darkToggle');
-        darkToggle.addEventListener('change', () => {
-            document.body.classList.toggle('dark-mode');
-        });
+        darkToggle.addEventListener('change', () => document.body.classList.toggle('dark-mode'));
     };
 
     async function tryAccess() {
@@ -249,7 +246,7 @@
                 sessionKey = pass;
                 unlockApp();
             } else {
-                $('lock-error-area').innerHTML = `<p class="error-msg">${data[0].error}</p>`;
+                $('lock-error-area').innerHTML = `<p class="error-msg">${data[0].error || "인증 실패"}</p>`;
                 $('entry-pass').value = "";
                 $('access-btn').disabled = false;
                 $('access-btn').innerText = "보안 접속 시작";
@@ -294,6 +291,7 @@
         const lastDate = new Date(y, m + 1, 0).getDate();
         let html = '<tr>';
         
+        // 🗓️ 모든 이벤트 목록 복구 (V15.1 기준)
         const events = [
             { start: '2026-01-01', end: '2026-01-01', text: '신정' },
             { start: '2026-01-16', end: '2026-01-16', text: '수인 휴가' },
@@ -330,11 +328,20 @@
         try {
             const res = await fetch(`${SCRIPT_URL}?action=search&name=${encodeURIComponent(name)}&key=${encodeURIComponent(sessionKey)}`);
             const results = await res.json();
+            
             if(results[0] && results[0].error === "SITE_LOCKED") { document.body.classList.add('is-locked'); return; }
             if(results[0] && results[0].error) { location.reload(); return; }
-            const tbody = $('resultTableBody'); tbody.innerHTML = '';
-            if(!results || results.length === 0) { $('searchStatus').innerText = `❌ 검색 결과가 없습니다.`; $('searchResultArea').style.display = 'none'; return; }
+            
+            const tbody = $('resultTableBody'); 
+            tbody.innerHTML = '';
+            
+            if(!results || results.length === 0) { 
+                $('searchStatus').innerText = `❌ 검색 결과가 없습니다.`; 
+                $('searchResultArea').style.display = 'none'; 
+                return; 
+            }
 
+            // 중복 필터링: 이름+주민번호 조합
             const filtered = [];
             const seen = new Set();
             results.forEach(item => {
@@ -368,7 +375,16 @@
             const dObj = { y: dt.getFullYear().toString().slice(-2), m: (dt.getMonth()+1).toString(), day: dt.getDate().toString() };
             const i1 = await renderPdf(uploadedFiles[0], "고", dObj, uN, pN);
             const i2 = await renderPdf(uploadedFiles[1], "동", dObj, uN, pN);
-            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ file1Data: i1, fileName1: `${uN}_고.jpg`, file2Data: i2, fileName2: `${uN}_동.jpg` }) });
+            
+            // 보안을 위해 key를 함께 전송 (V16.8 사양)
+            await fetch(SCRIPT_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({ 
+                    key: sessionKey,
+                    file1Data: i1, fileName1: `${uN}_고지의무.jpg`, 
+                    file2Data: i2, fileName2: `${uN}_동의서.jpg` 
+                }) 
+            });
             $('processStatus').innerText = "✅ 전송 완료!";
         } catch (e) { $('processStatus').innerText = "❌ 전송 실패"; } finally { $('process-btn').disabled = false; }
     }
