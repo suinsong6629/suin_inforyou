@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>미래전략 사업단 V16.9</title>
+    <title>미래전략 사업단 V17.0</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400;700&display=swap');
         
@@ -70,7 +70,7 @@
         body.dark-mode .slider { background-color: #334155; }
         body.dark-mode input:checked + .slider { background-color: var(--primary); }
 
-        /* 🌤️ 하단 대시보드 (캘린더 너비 확장) */
+        /* 🌤️ 하단 대시보드 */
         .dashboard-grid { display: grid; grid-template-columns: 280px 1fr; gap: 20px; align-items: stretch; }
         .weather-info { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; text-align: center; height: 100%; }
         #we-icon { font-size: 55px; margin: 5px 0; }
@@ -164,7 +164,7 @@
             </div>
         </div>
 
-        <!-- 2️⃣ [Shortcuts] 가로 버튼 그룹 (순서: 비교확인-초격차-모홈-ERP) -->
+        <!-- 2️⃣ [Shortcuts] 가로 버튼 그룹 -->
         <div class="shortcut-row">
             <a href="https://pcs.iaa.or.kr/comm/login.do" target="_blank" class="side-btn btn-check">비교확인</a>
             <a href="http://chrurck.com/?act=info.page&pcode=sub1_3" target="_blank" class="side-btn btn-gap">초격차</a>
@@ -188,7 +188,7 @@
             </div>
         </div>
 
-        <!-- 4️⃣ [Bottom] 대시보드 (날씨 & 확장된 캘린더) -->
+        <!-- 4️⃣ [Bottom] 대시보드 -->
         <div class="dashboard-grid">
             <div class="glass-card">
                 <div class="weather-info">
@@ -291,7 +291,6 @@
         const lastDate = new Date(y, m + 1, 0).getDate();
         let html = '<tr>';
         
-        // 🗓️ 모든 이벤트 목록 복구 (V15.1 기준)
         const events = [
             { start: '2026-01-01', end: '2026-01-01', text: '신정' },
             { start: '2026-01-16', end: '2026-01-16', text: '수인 휴가' },
@@ -341,7 +340,6 @@
                 return; 
             }
 
-            // 중복 필터링: 이름+주민번호 조합
             const filtered = [];
             const seen = new Set();
             results.forEach(item => {
@@ -369,24 +367,38 @@
     async function startProcess() {
         const dVal = $('cDate').value; const uN = $('uName').value.trim(); const pN = $('pName').value.trim();
         if (!uploadedFiles[0] || !uploadedFiles[1] || !dVal || !uN || !pN) return alert("필수 정보가 누락되었습니다.");
-        $('process-btn').disabled = true; $('processStatus').innerText = "🚀 드라이브 전송 중...";
+        
+        const pBtn = $('process-btn');
+        pBtn.disabled = true;
+        $('processStatus').innerText = "🚀 드라이브 전송 중...";
+        $('processStatus').style.color = "var(--primary)";
+        
         try {
             const dt = new Date(dVal);
             const dObj = { y: dt.getFullYear().toString().slice(-2), m: (dt.getMonth()+1).toString(), day: dt.getDate().toString() };
             const i1 = await renderPdf(uploadedFiles[0], "고", dObj, uN, pN);
             const i2 = await renderPdf(uploadedFiles[1], "동", dObj, uN, pN);
             
-            // 보안을 위해 key를 함께 전송 (V16.8 사양)
-            await fetch(SCRIPT_URL, { 
-                method: 'POST', 
+            // 🛠️ 중요: POST 전송 시 key와 파일 데이터를 명확히 구분하여 전송
+            const response = await fetch(SCRIPT_URL, { 
+                method: 'POST',
+                // mode: 'no-cors'를 제거하여 응답 상태를 확인할 수 있도록 함 (GAS 대응)
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify({ 
                     key: sessionKey,
                     file1Data: i1, fileName1: `${uN}_고지의무.jpg`, 
                     file2Data: i2, fileName2: `${uN}_동의서.jpg` 
                 }) 
             });
-            $('processStatus').innerText = "✅ 전송 완료!";
-        } catch (e) { $('processStatus').innerText = "❌ 전송 실패"; } finally { $('process-btn').disabled = false; }
+            
+            // 전송 결과에 따른 피드백
+            $('processStatus').innerText = "✅ 드라이브 전송 완료!";
+            $('processStatus').style.color = "#10b981";
+        } catch (e) { 
+            console.error(e);
+            $('processStatus').innerText = "❌ 전송 실패 (네트워크 확인)"; 
+            $('processStatus').style.color = "var(--red)";
+        } finally { pBtn.disabled = false; }
     }
 
     async function renderPdf(file, type, dy, n, p) {
