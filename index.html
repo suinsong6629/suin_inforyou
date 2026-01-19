@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>미래전략 사업단 V17.1</title>
+    <title>미래전략 사업단 V17.3</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400;700&display=swap');
-        
         :root {
             --bg-gradient: linear-gradient(135deg, #dce4ff 0%, #f1f5f9 50%, #ffe4e6 100%);
             --glass: rgba(255, 255, 255, 0.75);
@@ -21,7 +20,6 @@
             --c-blue: rgba(59, 130, 246, 0.15);
             --c-green: rgba(16, 185, 129, 0.15);
         }
-
         body.dark-mode {
             --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             --glass: rgba(30, 41, 59, 0.7);
@@ -30,55 +28,27 @@
             --text-sub: #94a3b8;
             --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
-
-        /* 🚨 사이트 잠금 레이어 */
         body.is-locked #main-wrapper { filter: blur(25px); pointer-events: none; }
-        #lock-screen {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 20000; flex-direction: column; 
-            align-items: center; justify-content: center; color: white; text-align: center;
-        }
+        #lock-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 20000; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; }
         body.is-locked #lock-screen { display: flex; }
-
         * { font-family: 'Gowun Dodum', sans-serif !important; box-sizing: border-box; transition: background 0.3s, color 0.3s, border 0.3s; }
         body { background: var(--bg-gradient); background-attachment: fixed; min-height: 100vh; margin: 0; display: flex; justify-content: center; align-items: flex-start; padding: 40px 20px; color: var(--text-main); }
-
         #main-wrapper { width: 100%; max-width: 1200px; display: flex; flex-direction: column; gap: 20px; }
-
-        /* 🔒 게이트키퍼 */
-        #gatekeeper {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-gradient); display: flex; align-items: center; justify-content: center; z-index: 10000;
-        }
-        .lock-card {
-            background: var(--glass); padding: 50px; border-radius: 30px;
-            box-shadow: var(--shadow); text-align: center; width: 100%; max-width: 420px;
-            border: 1px solid var(--glass-border); backdrop-filter: blur(15px);
-        }
-
+        #gatekeeper { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-gradient); display: flex; align-items: center; justify-content: center; z-index: 10000; }
+        .lock-card { background: var(--glass); padding: 50px; border-radius: 30px; box-shadow: var(--shadow); text-align: center; width: 100%; max-width: 420px; border: 1px solid var(--glass-border); backdrop-filter: blur(15px); }
         #main-app { display: none; flex-direction: column; gap: 20px; width: 100%; }
         .glass-card { background: var(--glass); border-radius: 24px; padding: 25px; box-shadow: var(--shadow); border: 1px solid var(--glass-border); backdrop-filter: blur(20px); }
-        
-        /* 📱 iOS 스타일 온오프 스위치 */
         .switch-container { display: flex; align-items: center; gap: 10px; }
         .switch { position: relative; display: inline-block; width: 46px; height: 24px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #e2e8f0; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: #4cd964; }
         input:checked + .slider:before { transform: translateX(22px); }
-        body.dark-mode .slider { background-color: #334155; }
-        body.dark-mode input:checked + .slider { background-color: var(--primary); }
-
-        /* 🌤️ 하단 대시보드 (캘린더 너비 확장) */
         .dashboard-grid { display: grid; grid-template-columns: 280px 1fr; gap: 20px; align-items: stretch; }
         .weather-info { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; text-align: center; height: 100%; }
-        #we-icon { font-size: 55px; margin: 5px 0; }
-        #cur-time { font-size: 38px; font-weight: 800; color: var(--primary); margin: 5px 0; }
-        #cur-date { font-size: 15px; color: var(--text-sub); }
-        #we-temp { font-size: 24px; font-weight: 700; }
-
-        /* 🔗 수평 버튼 그룹 */
+        #we-icon { font-size: 55px; }
+        #cur-time { font-size: 38px; font-weight: 800; color: var(--primary); }
         .shortcut-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; width: 100%; }
         .side-btn { height: 55px; border-radius: 16px; text-decoration: none; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
         .side-btn:hover { transform: translateY(-2px); }
@@ -86,303 +56,182 @@
         .btn-gap { background: var(--c-orange); color: #ea580c; }
         .btn-check { background: var(--c-green); color: #10b981; }
         .btn-mohom { background: var(--c-blue); color: #3b82f6; }
-
         .calendar-table { width: 100%; border-collapse: separate; border-spacing: 2px; table-layout: fixed; }
         .calendar-td { height: 80px; vertical-align: top; padding: 8px; border: 1px solid rgba(125,125,125,0.1); border-radius: 10px; position: relative; background: rgba(255,255,255,0.2); }
         .day-num { font-weight: 700; font-size: 12px; }
         .event-bar { position: absolute; left: 0; right: 0; top: 32px; height: 20px; background: rgba(251, 113, 133, 0.2); border-bottom: 2.5px solid var(--red); font-size: 11px; font-weight: 700; color: #b91c1c; display: flex; align-items: center; justify-content: center; overflow: hidden; white-space: nowrap; }
         body.dark-mode .event-bar { color: #fff; }
         .today { background: rgba(49, 130, 246, 0.15) !important; outline: 2px solid var(--primary) !important; outline-offset: -2px; }
-
         input, select { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(125,125,125,0.2); margin-bottom: 12px; background: rgba(255,255,255,0.5); color: inherit; outline: none; }
-        input:focus { border-color: var(--primary); background: rgba(255,255,255,0.8); }
         .btn-main { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 16px; }
-        .btn-main:hover { background: #1b64da; transform: translateY(-1px); }
-
         .results-table { width: 100%; border-collapse: collapse; min-width: 1000px; margin-top: 15px; }
-        .results-table th { background: rgba(0,0,0,0.05); padding: 12px; text-align: left; font-size: 13px; color: var(--text-sub); }
+        .results-table th { background: rgba(0,0,0,0.05); padding: 12px; text-align: left; font-size: 13px; }
         .results-table td { padding: 12px; border-bottom: 1px solid rgba(125,125,125,0.1); font-size: 14px; }
-        
         .two-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .error-msg { background: #fff1f2; color: #be123c; padding: 14px; border-radius: 12px; font-size: 13px; margin-top: 15px; border-left: 4px solid #fb7185; font-weight: 700; }
     </style>
 </head>
 <body>
-
-<div id="lock-screen">
-    <div style="font-size: 80px; margin-bottom: 20px;">🔒</div>
-    <h1 style="font-size: 36px; margin-bottom: 15px;">사이트 잠김</h1>
-    <p style="font-size: 18px; line-height: 1.6; opacity: 0.9;">보안 정책에 따라 시스템 접근이 일시 차단되었습니다.<br>관리자가 암호를 변경한 후 다시 이용 가능합니다.</p>
-</div>
-
+<div id="lock-screen"><div style="font-size: 80px; margin-bottom: 20px;">🔒</div><h1>사이트 잠김</h1><p>관리자가 암호를 변경한 후 다시 이용 가능합니다.</p></div>
 <div id="main-wrapper">
     <div id="gatekeeper">
         <div class="lock-card">
             <div style="font-size: 60px; margin-bottom: 20px;">🛡️</div>
-            <h2 style="margin-bottom: 10px;">시스템 보안 인증</h2>
-            <p style="color:var(--text-sub); margin-bottom: 30px; font-size: 14px;">본 시스템은 승인된 사용자 전용입니다.</p>
+            <h2>시스템 보안 인증</h2>
             <input type="password" id="entry-pass" placeholder="비밀번호 입력" onkeypress="if(event.keyCode==13) tryAccess()">
             <button class="btn-main" style="width:100%" id="access-btn" onclick="tryAccess()">보안 접속 시작</button>
             <div id="lock-error-area"></div>
         </div>
     </div>
-
     <div id="main-app">
         <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <h1 style="font-size: 26px; color: var(--primary); margin: 0;">미래전략 사업단 통합 시스템</h1>
             <div style="display: flex; align-items: center; gap: 15px;">
                 <div class="switch-container">
-                    <span style="font-size: 12px; font-weight: 700; opacity: 0.8;">다크 모드</span>
-                    <label class="switch">
-                        <input type="checkbox" id="darkToggle">
-                        <span class="slider"></span>
-                    </label>
+                    <span style="font-size: 12px; font-weight: 700;">다크 모드</span>
+                    <label class="switch"><input type="checkbox" id="darkToggle"><span class="slider"></span></label>
                 </div>
-                <button onclick="location.reload()" style="background:#eee; border:none; padding:12px 18px; border-radius:12px; cursor:pointer; font-size:12px; color: #333; font-weight: 700; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">보안 로그아웃</button>
+                <button onclick="location.reload()" style="background:#eee; border:none; padding:12px 18px; border-radius:12px; cursor:pointer; font-size:12px; font-weight: 700;">보안 로그아웃</button>
             </div>
         </div>
-
         <!-- 1️⃣ [TOP] 서류 생성 및 전송 -->
         <div class="two-cols">
             <div class="glass-card">
                 <div style="font-size:18px; font-weight:700; margin-bottom:15px;">📂 서류 업로드 (PDF)</div>
-                <label style="display:block; font-size:12px; font-weight:700; margin-bottom: 5px;">고지의무 이행확인서</label>
+                <label style="display:block; font-size:12px; font-weight:700;">고지의무 이행확인서</label>
                 <input type="file" id="f1" accept=".pdf" onchange="keepFile(1)">
-                <label style="display:block; margin-top:10px; font-size:12px; font-weight:700; margin-bottom: 5px;">필수 동의서</label>
+                <label style="display:block; margin-top:10px; font-size:12px; font-weight:700;">필수 동의서</label>
                 <input type="file" id="f2" accept=".pdf" onchange="keepFile(2)">
             </div>
             <div class="glass-card">
                 <div style="font-size:18px; font-weight:700; margin-bottom:15px;">👤 기재 정보 및 전송</div>
-                <label style="display:block; font-size:12px; font-weight:700; margin-bottom: 5px;">계약 체결일</label>
                 <input type="date" id="cDate">
-                <div class="two-cols" style="margin-top: 5px;">
-                    <div><label style="font-size:11px; font-weight:700;">담당 설계사</label><input type="text" id="pName" placeholder="성함"></div>
-                    <div><label style="font-size:11px; font-weight:700;">계약자 성명</label><input type="text" id="uName" placeholder="성함"></div>
-                </div>
+                <div class="two-cols"><input type="text" id="pName" placeholder="담당 설계사"><input type="text" id="uName" placeholder="계약자 성명"></div>
                 <button class="btn-main" style="width:100%; height:50px; margin-top:10px;" id="process-btn" onclick="startProcess()">📤 서류 생성 및 드라이브 전송</button>
                 <div id="processStatus" style="text-align:center; margin-top:12px; font-weight:700; font-size:13px;"></div>
             </div>
         </div>
-
-        <!-- 2️⃣ [Shortcuts] 가로 버튼 그룹 (비교확인-초격차-모홈-ERP) -->
+        <!-- 2️⃣ [Shortcut Buttons] -->
         <div class="shortcut-row">
             <a href="https://pcs.iaa.or.kr/comm/login.do" target="_blank" class="side-btn btn-check">비교확인</a>
             <a href="http://chrurck.com/?act=info.page&pcode=sub1_3" target="_blank" class="side-btn btn-gap">초격차</a>
             <a href="https://www.mohom.kr/" target="_blank" class="side-btn btn-mohom">모홈</a>
             <a href="https://infis-erp.co.kr/" target="_blank" class="side-btn btn-erp">ERP</a>
         </div>
-
-        <!-- 3️⃣ [Middle] 통합 고객 조회 -->
+        <!-- 3️⃣ [MIDDLE] 통합 고객 조회 -->
         <div class="glass-card">
-            <div style="font-size:20px; font-weight:700; margin-bottom:15px; display: flex; align-items: center; gap: 8px;">🔍 통합 고객 조회</div>
-            <div style="display:grid; grid-template-columns: 1fr 150px; gap:12px;">
-                <input type="text" id="searchName" placeholder="고객 성함을 입력하세요" style="margin-bottom:0;" onkeypress="if(event.keyCode==13) findCustomer()">
-                <button class="btn-main" onclick="findCustomer()">데이터 조회</button>
-            </div>
-            <div id="searchStatus" style="margin-top:15px; font-weight:700; font-size:14px; color: var(--primary);">성함을 입력하고 조회를 누르세요.</div>
-            <div id="searchResultArea" style="display:none; overflow-x:auto;">
-                <table class="results-table">
-                    <thead><tr><th>취급자</th><th>이름</th><th>주민번호</th><th>연락처</th><th>주소</th><th>직업</th><th>계좌정보</th></tr></thead>
-                    <tbody id="resultTableBody"></tbody>
-                </table>
-            </div>
+            <div style="font-size:20px; font-weight:700; margin-bottom:15px;">🔍 통합 고객 조회</div>
+            <div style="display:grid; grid-template-columns: 1fr 150px; gap:12px;"><input type="text" id="searchName" placeholder="성함 입력" onkeypress="if(event.keyCode==13) findCustomer()"><button class="btn-main" onclick="findCustomer()">조회</button></div>
+            <div id="searchStatus" style="margin-top:10px; font-size:14px; color: var(--primary);"></div>
+            <div id="searchResultArea" style="display:none; overflow-x:auto;"><table class="results-table"><thead><tr><th>취급자</th><th>이름</th><th>주민번호</th><th>연락처</th><th>주소</th><th>직업</th><th>계좌정보</th></tr></thead><tbody id="resultTableBody"></tbody></table></div>
         </div>
-
-        <!-- 4️⃣ [Bottom] 대시보드 (날씨 & 확장된 캘린더) -->
+        <!-- 4️⃣ [BOTTOM] 날씨 & 캘린더 -->
         <div class="dashboard-grid">
-            <div class="glass-card">
-                <div class="weather-info">
-                    <div id="cur-date"></div>
-                    <div id="cur-time"></div>
-                    <div id="we-icon">☀️</div> 
-                    <span id="we-temp">--°C</span>
-                    <div id="weather-desc" style="font-size: 13px; color: var(--text-sub); margin-top: 5px;">날씨 불러오는 중...</div>
-                </div>
-            </div>
-            <div class="glass-card" style="padding: 18px;">
-                <div id="cal-title" style="font-weight: 800; text-align: center; margin-bottom: 12px; font-size: 16px;"></div>
-                <table class="calendar-table">
-                    <thead><tr style="font-size: 11px; height: 25px; text-align: center;"><th style="color:var(--red)">일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th style="color:var(--primary)">토</th></tr></thead>
-                    <tbody id="cal-body-content"></tbody>
-                </table>
-            </div>
+            <div class="glass-card"><div class="weather-info"><div id="cur-date"></div><div id="cur-time"></div><div id="we-icon">☀️</div><span id="we-temp">--°C</span><div id="weather-desc" style="font-size:13px; color:var(--text-sub);">불러오는 중...</div></div></div>
+            <div class="glass-card" style="padding: 18px;"><div id="cal-title" style="font-weight: 800; text-align: center; margin-bottom: 12px; font-size: 16px;"></div><table class="calendar-table"><thead><tr style="font-size: 11px; height: 25px; text-align: center;"><th style="color:var(--red)">일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th style="color:var(--primary)">토</th></tr></thead><tbody id="cal-body-content"></tbody></table></div>
         </div>
-
     </div>
 </div>
-
 <canvas id="pdf-canvas" style="display:none;"></canvas>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-
 <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxKuInYyTnY8vp_8gCVgW17givSBKO27k_JcO2cdtovMlzDBa2Fxh9Q4MJwkRQ8BsV1lA/exec';
     const W_API_KEY = 'e9e4b4788a9cb01857b3d430b6551c24';
     let sessionKey = ""; 
-
     const $ = id => document.getElementById(id);
 
-    window.onload = () => {
-        const darkToggle = $('darkToggle');
-        darkToggle.addEventListener('change', () => {
-            document.body.classList.toggle('dark-mode');
-        });
-    };
+    window.onload = () => { $('darkToggle').addEventListener('change', () => document.body.classList.toggle('dark-mode')); };
 
     async function tryAccess() {
-        const pass = $('entry-pass').value.trim();
-        if(!pass) return;
-        $('access-btn').disabled = true;
-        $('access-btn').innerText = "보안 인증 중...";
-        
+        const pass = $('entry-pass').value.trim(); if(!pass) return;
+        $('access-btn').disabled = true; $('access-btn').innerText = "인증 중...";
         try {
             const res = await fetch(`${SCRIPT_URL}?action=auth&key=${encodeURIComponent(pass)}`);
             const data = await res.json();
-            
-            if(data[0] && data[0].error === "SITE_LOCKED") {
-                document.body.classList.add('is-locked');
-                $('gatekeeper').style.display = 'none';
-                return;
-            }
-
-            if(data.status === "success") {
-                sessionKey = pass;
-                unlockApp();
-            } else {
-                $('lock-error-area').innerHTML = `<p class="error-msg">${data[0].error || "인증 실패"}</p>`;
-                $('entry-pass').value = "";
-                $('access-btn').disabled = false;
-                $('access-btn').innerText = "보안 접속 시작";
-            }
-        } catch(e) {
-            $('lock-error-area').innerHTML = `<p class="error-msg">⚠️ 서버 연결 오류</p>`;
-            $('access-btn').disabled = false;
-        }
+            if(data[0] && data[0].error === "SITE_LOCKED") { document.body.classList.add('is-locked'); return; }
+            if(data.status === "success") { sessionKey = pass; unlockApp(); }
+            else { $('lock-error-area').innerHTML = `<p class="error-msg">${data[0].error || "비밀번호 오류"}</p>`; $('access-btn').disabled = false; }
+        } catch(e) { $('lock-error-area').innerHTML = `<p class="error-msg">⚠️ 서버 연결 오류</p>`; $('access-btn').disabled = false; }
     }
 
-    function unlockApp() {
-        $('gatekeeper').style.display = 'none';
-        $('main-app').style.display = 'flex';
-        updateClock(); setInterval(updateClock, 1000); fetchWeather(); drawCal();
-    }
-
+    function unlockApp() { $('gatekeeper').style.display = 'none'; $('main-app').style.display = 'flex'; updateClock(); setInterval(updateClock, 1000); fetchWeather(); drawCal(); }
+    
     function updateClock() {
-        const n = new Date();
-        const days = ["일", "월", "화", "수", "목", "금", "토"];
+        const n = new Date(); const days = ["일", "월", "화", "수", "목", "금", "토"];
         $('cur-date').innerText = `${n.getFullYear()}년 ${n.getMonth()+1}월 ${n.getDate()}일 (${days[n.getDay()]})`;
-        let hrs = n.getHours();
-        const ampm = hrs >= 12 ? 'PM' : 'AM';
-        hrs = hrs % 12 || 12;
+        let hrs = n.getHours(); const ampm = hrs >= 12 ? 'PM' : 'AM'; hrs = hrs % 12 || 12;
         $('cur-time').innerText = `${ampm} ${hrs}:${String(n.getMinutes()).padStart(2, '0')}:${String(n.getSeconds()).padStart(2, '0')}`;
     }
 
     async function fetchWeather() {
         try {
             const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Seoul&appid=${W_API_KEY}&units=metric&lang=kr`);
-            const d = await res.json();
-            $('we-temp').innerText = `${Math.round(d.main.temp)}°C`;
+            const d = await res.json(); $('we-temp').innerText = `${Math.round(d.main.temp)}°C`;
             $('weather-desc').innerText = d.weather[0].description;
-            const icon = d.weather[0].icon;
-            $('we-icon').innerText = icon.includes('01') ? '☀️' : (icon.includes('02') || icon.includes('03') ? '⛅' : '☁️');
+            $('we-icon').innerText = d.weather[0].icon.includes('01') ? '☀️' : '☁️';
         } catch (e) {}
     }
 
     function drawCal() {
-        const y = 2026, m = 0; const n = new Date();
-        $('cal-title').innerText = `${y}년 ${m + 1}월`;
-        const firstDay = new Date(y, m, 1).getDay();
-        const lastDate = new Date(y, m + 1, 0).getDate();
+        const y = 2026, m = 0; const n = new Date(); $('cal-title').innerText = `${y}년 ${m + 1}월`;
+        const firstDay = new Date(y, m, 1).getDay(); const lastDate = new Date(y, m + 1, 0).getDate();
         let html = '<tr>';
-        
         const events = [
-            { start: '2026-01-01', end: '2026-01-01', text: '신정' },
-            { start: '2026-01-16', end: '2026-01-16', text: '수인 휴가' },
-            { start: '2026-01-19', end: '2026-01-19', text: '하경 휴가' },
-            { start: '2026-01-23', end: '2026-01-23', text: '수인 휴가' },
-            { start: '2026-01-26', end: '2026-01-30', text: '하경 휴가' },
-            { start: '2026-01-31', end: '2026-01-31', text: '하경 퇴사' }
+            { start:'2026-01-01', end:'2026-01-01', text:'신정' },
+            { start:'2026-01-16', end:'2026-01-16', text:'수인 휴가' },
+            { start:'2026-01-19', end:'2026-01-19', text:'하경 휴가' },
+            { start:'2026-01-23', end:'2026-01-23', text:'수인 휴가' },
+            { start:'2026-01-26', end:'2026-01-30', text:'하경 휴가' },
+            { start:'2026-01-31', end:'2026-01-31', text:'하경 퇴사' }
         ];
-
         for(let i=0; i<firstDay; i++) html += '<td class="calendar-td"></td>';
         for(let d=1; d<=lastDate; d++) {
-            const curIdx = (firstDay + d - 1) % 7;
-            if (d > 1 && curIdx === 0) html += '</tr><tr>';
+            const curIdx = (firstDay + d - 1) % 7; if (d > 1 && curIdx === 0) html += '</tr><tr>';
             const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
             const isToday = (d === n.getDate() && m === n.getMonth() && y === n.getFullYear()) ? 'today' : '';
-            
             let evHtml = '';
-            events.forEach(ev => {
-                if (dateStr >= ev.start && dateStr <= ev.end) {
-                    const txt = (dateStr === ev.start || curIdx === 0) ? ev.text : '';
-                    evHtml += `<div class="event-bar">${txt}</div>`;
-                }
-            });
-            
+            events.forEach(ev => { if (dateStr >= ev.start && dateStr <= ev.end) { const txt = (dateStr === ev.start || curIdx === 0) ? ev.text : ''; evHtml += `<div class="event-bar">${txt}</div>`; } });
             html += `<td class="calendar-td ${isToday}"><span class="day-num">${d}</span>${evHtml}</td>`;
         }
         $('cal-body-content').innerHTML = html + '</tr>';
     }
 
     async function findCustomer() {
-        const name = $('searchName').value.trim();
-        if(!name) return;
+        const name = $('searchName').value.trim(); if(!name) return;
         $('searchStatus').innerText = "🔎 통합 검색 중...";
         try {
             const res = await fetch(`${SCRIPT_URL}?action=search&name=${encodeURIComponent(name)}&key=${encodeURIComponent(sessionKey)}`);
             const results = await res.json();
-            
-            if(results[0] && results[0].error === "SITE_LOCKED") { document.body.classList.add('is-locked'); return; }
-            if(results[0] && results[0].error) { location.reload(); return; }
-            
-            const tbody = $('resultTableBody'); 
-            tbody.innerHTML = '';
-            
-            if(!results || results.length === 0) { 
-                $('searchStatus').innerText = `❌ 검색 결과가 없습니다.`; 
-                $('searchResultArea').style.display = 'none'; 
-                return; 
-            }
-
-            const filtered = [];
-            const seen = new Set();
+            const tbody = $('resultTableBody'); tbody.innerHTML = '';
+            if(!results || results.length === 0) { $('searchStatus').innerText = `❌ 결과 없음`; $('searchResultArea').style.display = 'none'; return; }
+            const filtered = []; const seen = new Set();
             results.forEach(item => {
                 const uniqueKey = `${item.name.replace(/\s/g, "")}_${item.residentId.replace(/\s/g, "")}`;
-                if (!seen.has(uniqueKey)) {
-                    seen.add(uniqueKey);
-                    filtered.push(item);
-                }
+                if (!seen.has(uniqueKey)) { seen.add(uniqueKey); filtered.push(item); }
             });
-
             filtered.forEach(item => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `<td>${item.handler}</td><td style="font-weight:700;">${item.name}</td><td>${item.residentId}</td><td>${item.phone}</td><td>${item.address}</td><td>${item.job}</td><td>${item.account}</td>`;
                 tbody.appendChild(tr);
             });
-            
-            $('searchResultArea').style.display = 'block';
-            $('searchStatus').innerText = `✅ 조회 완료 (${filtered.length}건)`;
+            $('searchResultArea').style.display = 'block'; $('searchStatus').innerText = `✅ 조회 완료 (${filtered.length}건)`;
         } catch(e) { $('searchStatus').innerText = "❌ 조회 오류"; }
     }
 
     let uploadedFiles = [null, null];
-    function keepFile(n) { const f = $('f'+n).files[0]; if(f) uploadedFiles[n-1] = f; }
+    function keepFile(n) { uploadedFiles[n-1] = $('f'+n).files[0]; }
 
     async function startProcess() {
         const dVal = $('cDate').value; const uN = $('uName').value.trim(); const pN = $('pName').value.trim();
         if (!uploadedFiles[0] || !uploadedFiles[1] || !dVal || !uN || !pN) return alert("필수 정보가 누락되었습니다.");
-        
-        const pBtn = $('process-btn');
-        pBtn.disabled = true;
-        $('processStatus').innerText = "🚀 드라이브 전송 중...";
-        $('processStatus').style.color = "var(--primary)";
-        
+        $('process-btn').disabled = true; $('processStatus').innerText = "🚀 드라이브 전송 중...";
         try {
             const dt = new Date(dVal);
             const dObj = { y: dt.getFullYear().toString().slice(-2), m: (dt.getMonth()+1).toString(), day: dt.getDate().toString() };
             const i1 = await renderPdf(uploadedFiles[0], "고", dObj, uN, pN);
             const i2 = await renderPdf(uploadedFiles[1], "동", dObj, uN, pN);
             
-            // 🛠️ 중요 수정: mode: 'no-cors'를 다시 적용하여 GAS의 CORS 사전검사 문제를 우회함
-            // body에 암호(key)를 반드시 포함하여 전송 (보안 강화 사양)
+            // 🛠️ 핵심 보안 전송 (no-cors를 통해 브라우저 차단 우회)
+            // body 안에 key(암호)가 포함되어야 서버(Search.gs)에서 파일을 저장합니다.
             await fetch(SCRIPT_URL, { 
                 method: 'POST',
                 mode: 'no-cors',
@@ -392,24 +241,16 @@
                     file2Data: i2, fileName2: `${uN}_동의서.jpg` 
                 }) 
             });
-            
-            // no-cors 모드는 결과를 JS에서 읽을 수 없으므로 성공으로 간주함 (신호는 서버에 도착함)
-            $('processStatus').innerText = "✅ 드라이브 전송 요청 완료!";
+            $('processStatus').innerText = "✅ 전송 요청 완료! (드라이브 확인)";
             $('processStatus').style.color = "#10b981";
-        } catch (e) { 
-            console.error(e);
-            $('processStatus').innerText = "❌ 전송 과정 오류"; 
-            $('processStatus').style.color = "var(--red)";
-        } finally { pBtn.disabled = false; }
+        } catch (e) { $('processStatus').innerText = "❌ 전송 오류"; } finally { $('process-btn').disabled = false; }
     }
 
     async function renderPdf(file, type, dy, n, p) {
         const canvas = document.createElement('canvas');
         const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
-        const page = await pdf.getPage(1);
-        const viewport = page.getViewport({ scale: 2.0 });
-        const ctx = canvas.getContext('2d');
-        canvas.width = viewport.width; canvas.height = viewport.height;
+        const page = await pdf.getPage(1); const viewport = page.getViewport({ scale: 2.0 });
+        const ctx = canvas.getContext('2d'); canvas.width = viewport.width; canvas.height = viewport.height;
         ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
         await page.render({ canvasContext: ctx, viewport: viewport }).promise;
         const s = 2.0; const h = viewport.height;
