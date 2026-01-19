@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>미래전략 사업단 V17.0</title>
+    <title>미래전략 사업단 V17.1</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400;700&display=swap');
         
@@ -70,7 +70,7 @@
         body.dark-mode .slider { background-color: #334155; }
         body.dark-mode input:checked + .slider { background-color: var(--primary); }
 
-        /* 🌤️ 하단 대시보드 */
+        /* 🌤️ 하단 대시보드 (캘린더 너비 확장) */
         .dashboard-grid { display: grid; grid-template-columns: 280px 1fr; gap: 20px; align-items: stretch; }
         .weather-info { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; text-align: center; height: 100%; }
         #we-icon { font-size: 55px; margin: 5px 0; }
@@ -164,7 +164,7 @@
             </div>
         </div>
 
-        <!-- 2️⃣ [Shortcuts] 가로 버튼 그룹 -->
+        <!-- 2️⃣ [Shortcuts] 가로 버튼 그룹 (비교확인-초격차-모홈-ERP) -->
         <div class="shortcut-row">
             <a href="https://pcs.iaa.or.kr/comm/login.do" target="_blank" class="side-btn btn-check">비교확인</a>
             <a href="http://chrurck.com/?act=info.page&pcode=sub1_3" target="_blank" class="side-btn btn-gap">초격차</a>
@@ -188,7 +188,7 @@
             </div>
         </div>
 
-        <!-- 4️⃣ [Bottom] 대시보드 -->
+        <!-- 4️⃣ [Bottom] 대시보드 (날씨 & 확장된 캘린더) -->
         <div class="dashboard-grid">
             <div class="glass-card">
                 <div class="weather-info">
@@ -223,7 +223,9 @@
 
     window.onload = () => {
         const darkToggle = $('darkToggle');
-        darkToggle.addEventListener('change', () => document.body.classList.toggle('dark-mode'));
+        darkToggle.addEventListener('change', () => {
+            document.body.classList.toggle('dark-mode');
+        });
     };
 
     async function tryAccess() {
@@ -379,11 +381,11 @@
             const i1 = await renderPdf(uploadedFiles[0], "고", dObj, uN, pN);
             const i2 = await renderPdf(uploadedFiles[1], "동", dObj, uN, pN);
             
-            // 🛠️ 중요: POST 전송 시 key와 파일 데이터를 명확히 구분하여 전송
-            const response = await fetch(SCRIPT_URL, { 
+            // 🛠️ 중요 수정: mode: 'no-cors'를 다시 적용하여 GAS의 CORS 사전검사 문제를 우회함
+            // body에 암호(key)를 반드시 포함하여 전송 (보안 강화 사양)
+            await fetch(SCRIPT_URL, { 
                 method: 'POST',
-                // mode: 'no-cors'를 제거하여 응답 상태를 확인할 수 있도록 함 (GAS 대응)
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                mode: 'no-cors',
                 body: JSON.stringify({ 
                     key: sessionKey,
                     file1Data: i1, fileName1: `${uN}_고지의무.jpg`, 
@@ -391,12 +393,12 @@
                 }) 
             });
             
-            // 전송 결과에 따른 피드백
-            $('processStatus').innerText = "✅ 드라이브 전송 완료!";
+            // no-cors 모드는 결과를 JS에서 읽을 수 없으므로 성공으로 간주함 (신호는 서버에 도착함)
+            $('processStatus').innerText = "✅ 드라이브 전송 요청 완료!";
             $('processStatus').style.color = "#10b981";
         } catch (e) { 
             console.error(e);
-            $('processStatus').innerText = "❌ 전송 실패 (네트워크 확인)"; 
+            $('processStatus').innerText = "❌ 전송 과정 오류"; 
             $('processStatus').style.color = "var(--red)";
         } finally { pBtn.disabled = false; }
     }
