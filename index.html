@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>미래전략 사업단 V17.3</title>
+    <title>미래전략 사업단 V17.8</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400;700&display=swap');
         :root {
@@ -172,20 +172,18 @@
     }
 
     function drawCal() {
-        const y = 2026, m = 0; const n = new Date(); $('cal-title').innerText = `${y}년 ${m + 1}월`;
+        // 🛠️ [기능 수정] 고정된 연월 대신 현재 날짜를 가져오도록 변경
+        const n = new Date(); 
+        const y = n.getFullYear(); 
+        const m = n.getMonth(); 
+
+        $('cal-title').innerText = `${y}년 ${m + 1}월`;
         const firstDay = new Date(y, m, 1).getDay(); const lastDate = new Date(y, m + 1, 0).getDate();
         let html = '<tr>';
         const events = [
-            { start:'2026-01-01', end:'2026-01-01', text:'신정' },
-            { start:'2026-01-16', end:'2026-01-16', text:'수인 휴가' },
-            { start:'2026-01-19', end:'2026-01-19', text:'하경 휴가' },
-            { start:'2026-01-23', end:'2026-01-23', text:'수인 휴가' },
-            { start:'2026-01-26', end:'2026-01-30', text:'하경 휴가' },
-            { start:'2026-01-28', end:'2026-01-28', text:'윤성님 휴가' },
-            { start:'2026-01-31', end:'2026-01-31', text:'하경 퇴사' },
             { start:'2026-02-02', end:'2026-02-02', text:'전체미팅' },
             { start:'2026-02-05', end:'2026-02-06', text:'세희 휴가' },
-            { start:'2026-02-13', end:'2026-02-13', text:'수인 퇴사' }
+            { start:'2026-02-13', end:'2026-02-13', text:'수인 휴가' }
         ];
         for(let i=0; i<firstDay; i++) html += '<td class="calendar-td"></td>';
         for(let d=1; d<=lastDate; d++) {
@@ -234,8 +232,6 @@
             const i1 = await renderPdf(uploadedFiles[0], "고", dObj, uN, pN);
             const i2 = await renderPdf(uploadedFiles[1], "동", dObj, uN, pN);
             
-            // 🛠️ 핵심 보안 전송 (no-cors를 통해 브라우저 차단 우회)
-            // body 안에 key(암호)가 포함되어야 서버(Search.gs)에서 파일을 저장합니다.
             await fetch(SCRIPT_URL, { 
                 method: 'POST',
                 mode: 'no-cors',
@@ -274,5 +270,3 @@
 </script>
 </body>
 </html>
-
-
