@@ -181,7 +181,8 @@
         const firstDay = new Date(y, m, 1).getDay(); const lastDate = new Date(y, m + 1, 0).getDate();
         let html = '<tr>';
         const events = [
-            { start:'2026-03-18', end:'2026-03-18', text:'윤성 휴가' }
+            { start:'2026-03-18', end:'2026-03-18', text:'윤성 휴가' },
+            { start:'2026-03-10', end:'2026-03-11', text:'윤성 병가' }
         ];
         for(let i=0; i<firstDay; i++) html += '<td class="calendar-td"></td>';
         for(let d=1; d<=lastDate; d++) {
@@ -268,6 +269,7 @@
 </script>
 </body>
 </html>
+
 
 
 
