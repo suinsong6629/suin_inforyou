@@ -181,13 +181,9 @@
         const firstDay = new Date(y, m, 1).getDay(); const lastDate = new Date(y, m + 1, 0).getDate();
         let html = '<tr>';
         const events = [
-            { start:'2026-04-01', end:'2026-04-01', text:'전체 미팅' },
-            { start:'2026-04-02', end:'2026-04-02', text:'수인 휴가' },
-            { start:'2026-04-16', end:'2026-04-16', text:'윤성 휴가' },
-            { start:'2026-04-22', end:'2026-04-22', text:'수인 휴가' },
-            { start:'2026-04-24', end:'2026-04-24', text:'윤성 휴가' },
             { start:'2026-05-04', end:'2026-05-04', text:'은지 휴가' },
             { start:'2026-05-04', end:'2026-05-04', text:'윤성 휴가' },
+            { start:'2026-05-08', end:'2026-05-08', text:'세희 휴가' },
             { start:'2026-05-18', end:'2026-05-18', text:'수인 출산휴가' }
         ];
         for(let i=0; i<firstDay; i++) html += '<td class="calendar-td"></td>';
