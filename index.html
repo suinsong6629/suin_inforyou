@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>미래전략 사업단 V17.8</title>
+    <title>미래전략 사업단 V17.9</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400;700&display=swap');
         :root {
@@ -57,9 +57,9 @@
         .btn-check { background: var(--c-green); color: #10b981; }
         .btn-mohom { background: var(--c-blue); color: #3b82f6; }
         .calendar-table { width: 100%; border-collapse: separate; border-spacing: 2px; table-layout: fixed; }
-        .calendar-td { height: 80px; vertical-align: top; padding: 8px; border: 1px solid rgba(125,125,125,0.1); border-radius: 10px; position: relative; background: rgba(255,255,255,0.2); }
+        .calendar-td { height: 90px; vertical-align: top; padding: 8px; border: 1px solid rgba(125,125,125,0.1); border-radius: 10px; background: rgba(255,255,255,0.2); }
         .day-num { font-weight: 700; font-size: 12px; }
-        .event-bar { position: absolute; left: 0; right: 0; top: 32px; height: 20px; background: rgba(251, 113, 133, 0.2); border-bottom: 2.5px solid var(--red); font-size: 11px; font-weight: 700; color: #b91c1c; display: flex; align-items: center; justify-content: center; overflow: hidden; white-space: nowrap; }
+        .event-bar { height: 20px; background: rgba(251, 113, 133, 0.2); border-bottom: 2.5px solid var(--red); font-size: 10px; font-weight: 700; color: #b91c1c; display: flex; align-items: center; justify-content: center; border-radius: 4px; margin-bottom: 2px; overflow: hidden; white-space: nowrap; }
         body.dark-mode .event-bar { color: #fff; }
         .today { background: rgba(49, 130, 246, 0.15) !important; outline: 2px solid var(--primary) !important; outline-offset: -2px; }
         input, select { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(125,125,125,0.2); margin-bottom: 12px; background: rgba(255,255,255,0.5); color: inherit; outline: none; }
@@ -93,7 +93,6 @@
                 <button onclick="location.reload()" style="background:#eee; border:none; padding:12px 18px; border-radius:12px; cursor:pointer; font-size:12px; font-weight: 700;">보안 로그아웃</button>
             </div>
         </div>
-        <!-- 1️⃣ [TOP] 서류 생성 및 전송 -->
         <div class="two-cols">
             <div class="glass-card">
                 <div style="font-size:18px; font-weight:700; margin-bottom:15px;">📂 서류 업로드 (PDF)</div>
@@ -110,33 +109,29 @@
                 <div id="processStatus" style="text-align:center; margin-top:12px; font-weight:700; font-size:13px;"></div>
             </div>
         </div>
-        <!-- 2️⃣ [Shortcut Buttons] -->
         <div class="shortcut-row">
             <a href="https://pcs.iaa.or.kr/index.go" target="_blank" class="side-btn btn-check">비교확인</a>
             <a href="http://chrurck.com/?act=info.page&pcode=sub1_3" target="_blank" class="side-btn btn-gap">초격차</a>
             <a href="https://www.mohom.kr/" target="_blank" class="side-btn btn-mohom">모홈</a>
             <a href="https://infis-erp.co.kr/" target="_blank" class="side-btn btn-erp">ERP</a>
         </div>
-        <!-- 3️⃣ [MIDDLE] 통합 고객 조회 -->
         <div class="glass-card">
             <div style="font-size:20px; font-weight:700; margin-bottom:15px;">🔍 통합 고객 조회</div>
             <div style="display:grid; grid-template-columns: 1fr 150px; gap:12px;"><input type="text" id="searchName" placeholder="성함 입력" onkeypress="if(event.keyCode==13) findCustomer()"><button class="btn-main" onclick="findCustomer()">조회</button></div>
             <div id="searchStatus" style="margin-top:10px; font-size:14px; color: var(--primary);"></div>
             <div id="searchResultArea" style="display:none; overflow-x:auto;"><table class="results-table"><thead><tr><th>취급자</th><th>이름</th><th>주민번호</th><th>연락처</th><th>주소</th><th>직업</th><th>계좌정보</th></tr></thead><tbody id="resultTableBody"></tbody></table></div>
         </div>
-        <!-- 4️⃣ [BOTTOM] 날씨 & 캘린더 -->
         <div class="dashboard-grid">
             <div class="glass-card"><div class="weather-info"><div id="cur-date"></div><div id="cur-time"></div><div id="we-icon">☀️</div><span id="we-temp">--°C</span><div id="weather-desc" style="font-size:13px; color:var(--text-sub);">불러오는 중...</div></div></div>
             <div class="glass-card" style="padding: 18px;"><div id="cal-title" style="font-weight: 800; text-align: center; margin-bottom: 12px; font-size: 16px;"></div><table class="calendar-table"><thead><tr style="font-size: 11px; height: 25px; text-align: center;"><th style="color:var(--red)">일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th style="color:var(--primary)">토</th></tr></thead><tbody id="cal-body-content"></tbody></table></div>
         </div>
     </div>
 </div>
-<canvas id="pdf-canvas" style="display:none;"></canvas>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxKuInYyTnY8vp_8gCVgW17givSBKO27k_JcO2cdtovMlzDBa2Fxh9Q4MJwkRQ8BsV1lA/exec';
     const W_API_KEY = 'e9e4b4788a9cb01857b3d430b6551c24';
-    let sessionKey = ""; 
+    let sessionKey = "";
     const $ = id => document.getElementById(id);
 
     window.onload = () => { $('darkToggle').addEventListener('change', () => document.body.classList.toggle('dark-mode')); };
@@ -154,7 +149,7 @@
     }
 
     function unlockApp() { $('gatekeeper').style.display = 'none'; $('main-app').style.display = 'flex'; updateClock(); setInterval(updateClock, 1000); fetchWeather(); drawCal(); }
-    
+
     function updateClock() {
         const n = new Date(); const days = ["일", "월", "화", "수", "목", "금", "토"];
         $('cur-date').innerText = `${n.getFullYear()}년 ${n.getMonth()+1}월 ${n.getDate()}일 (${days[n.getDay()]})`;
@@ -172,11 +167,9 @@
     }
 
     function drawCal() {
-        // 🛠️ [기능 수정] 고정된 연월 대신 현재 날짜를 가져오도록 변경
         const n = new Date(); 
         const y = n.getFullYear(); 
         const m = n.getMonth(); 
-
         $('cal-title').innerText = `${y}년 ${m + 1}월`;
         const firstDay = new Date(y, m, 1).getDay(); const lastDate = new Date(y, m + 1, 0).getDate();
         let html = '<tr>';
@@ -191,12 +184,14 @@
             const curIdx = (firstDay + d - 1) % 7; if (d > 1 && curIdx === 0) html += '</tr><tr>';
             const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
             const isToday = (d === n.getDate() && m === n.getMonth() && y === n.getFullYear()) ? 'today' : '';
-            let evHtml = '';
-            events.forEach(ev => { if (dateStr >= ev.start && dateStr <= ev.end) { const txt = (dateStr === ev.start || curIdx === 0) ? ev.text : ''; evHtml += `<div class="event-bar">${txt}</div>`; } });
-            html += `<td class="calendar-td ${isToday}"><span class="day-num">${d}</span>${evHtml}</td>`;
+            const dayEvents = events.filter(ev => dateStr >= ev.start && dateStr <= ev.end);
+            const evHtml = dayEvents.map(ev => `<div class="event-bar">${ev.text}</div>`).join('');
+            html += `<td class="calendar-td ${isToday}"><span class="day-num">${d}</span><div style="margin-top:2px;">${evHtml}</div></td>`;
         }
         $('cal-body-content').innerHTML = html + '</tr>';
     }
+
+    function maskResidentId(id) { return id ? id.substring(0, 8) + "******" : ""; }
 
     async function findCustomer() {
         const name = $('searchName').value.trim(); if(!name) return;
@@ -206,17 +201,12 @@
             const results = await res.json();
             const tbody = $('resultTableBody'); tbody.innerHTML = '';
             if(!results || results.length === 0) { $('searchStatus').innerText = `❌ 결과 없음`; $('searchResultArea').style.display = 'none'; return; }
-            const filtered = []; const seen = new Set();
             results.forEach(item => {
-                const uniqueKey = `${item.name.replace(/\s/g, "")}_${item.residentId.replace(/\s/g, "")}`;
-                if (!seen.has(uniqueKey)) { seen.add(uniqueKey); filtered.push(item); }
-            });
-            filtered.forEach(item => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${item.handler}</td><td style="font-weight:700;">${item.name}</td><td>${item.residentId}</td><td>${item.phone}</td><td>${item.address}</td><td>${item.job}</td><td>${item.account}</td>`;
+                tr.innerHTML = `<td>${item.handler}</td><td style="font-weight:700;">${item.name}</td><td>${maskResidentId(item.residentId)}</td><td>${item.phone}</td><td>${item.address}</td><td>${item.job}</td><td>${item.account}</td>`;
                 tbody.appendChild(tr);
             });
-            $('searchResultArea').style.display = 'block'; $('searchStatus').innerText = `✅ 조회 완료 (${filtered.length}건)`;
+            $('searchResultArea').style.display = 'block'; $('searchStatus').innerText = `✅ 조회 완료 (${results.length}건)`;
         } catch(e) { $('searchStatus').innerText = "❌ 조회 오류"; }
     }
 
@@ -232,18 +222,8 @@
             const dObj = { y: dt.getFullYear().toString().slice(-2), m: (dt.getMonth()+1).toString(), day: dt.getDate().toString() };
             const i1 = await renderPdf(uploadedFiles[0], "고", dObj, uN, pN);
             const i2 = await renderPdf(uploadedFiles[1], "동", dObj, uN, pN);
-            
-            await fetch(SCRIPT_URL, { 
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify({ 
-                    key: sessionKey,
-                    file1Data: i1, fileName1: `${uN}_고지의무.jpg`, 
-                    file2Data: i2, fileName2: `${uN}_동의서.jpg` 
-                }) 
-            });
-            $('processStatus').innerText = "✅ 전송 요청 완료! (드라이브 확인)";
-            $('processStatus').style.color = "#10b981";
+            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ key: sessionKey, file1Data: i1, fileName1: `${uN}_고지의무.jpg`, file2Data: i2, fileName2: `${uN}_동의서.jpg` }) });
+            $('processStatus').innerText = "✅ 전송 요청 완료!";
         } catch (e) { $('processStatus').innerText = "❌ 전송 오류"; } finally { $('process-btn').disabled = false; }
     }
 
@@ -271,10 +251,3 @@
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
