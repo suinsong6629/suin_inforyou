@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>미래전략 사업단 V17.9</title>
+    <title>미래전략 사업단 V17.9_Final</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400;700&display=swap');
         :root {
@@ -191,8 +191,6 @@
         $('cal-body-content').innerHTML = html + '</tr>';
     }
 
-    function maskResidentId(id) { return id ? id.substring(0, 8) + "******" : ""; }
-
     async function findCustomer() {
         const name = $('searchName').value.trim(); if(!name) return;
         $('searchStatus').innerText = "🔎 통합 검색 중...";
@@ -203,7 +201,7 @@
             if(!results || results.length === 0) { $('searchStatus').innerText = `❌ 결과 없음`; $('searchResultArea').style.display = 'none'; return; }
             results.forEach(item => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${item.handler}</td><td style="font-weight:700;">${item.name}</td><td>${maskResidentId(item.residentId)}</td><td>${item.phone}</td><td>${item.address}</td><td>${item.job}</td><td>${item.account}</td>`;
+                tr.innerHTML = `<td>${item.handler}</td><td style="font-weight:700;">${item.name}</td><td>${item.residentId}</td><td>${item.phone}</td><td>${item.address}</td><td>${item.job}</td><td>${item.account}</td>`;
                 tbody.appendChild(tr);
             });
             $('searchResultArea').style.display = 'block'; $('searchStatus').innerText = `✅ 조회 완료 (${results.length}건)`;
