@@ -49,8 +49,8 @@
         .weather-info { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; text-align: center; height: 100%; }
         #we-icon { font-size: 55px; }
         #cur-time { font-size: 38px; font-weight: 800; color: var(--primary); }
-        .shortcut-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; width: 100%; }
-        .side-btn { height: 55px; border-radius: 16px; text-decoration: none; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+        .shortcut-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; width: 100%; }
+        .side-btn { height: 55px; border-radius: 16px; text-decoration: none; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
         .side-btn:hover { transform: translateY(-2px); }
         .btn-erp { background: var(--c-purple); color: #7c3aed; }
         .btn-gap { background: var(--c-orange); color: #ea580c; }
@@ -110,6 +110,7 @@
             </div>
         </div>
         <div class="shortcut-row">
+            <a href="https://mmpcc.ohmymanager.com/index.html?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjb25zdWx0YW50aWQiOiI1MjIwMzAwMDUiLCJjb25zdWx0YW50X25hbWUiOiLsp4TsoJXtm4giLCJjb21weV9jZCI6IkEyNzIiLCJjb21weV9uYW1lIjoi7J247Y-s7Jyg6riI7Jy17ISc67mE7IqkIiwiYnJhbmNoX25hbWUiOiLsnbjtj6zsnKDquIjsnLXshJzruYTsiqQiLCJleHAiOjE3ODM0NjkxNDMsImNvbnN1bHRhbnRfaWQiOiI1MjIwMzAwMDUiLCJuYW1lIjoi7KeE7KCV7ZuIIiwiY2xpZW50X2lkIjoiQTI3MiIsIm1kbiI6IkEyNzIiLCJyb2xlIjoiIiwiY2xpZW50X2lwIjoiMS4yMTQuMTM2Ljc0In0.xY47vknrpvFzyY2THO_9vwWEKYtvLTMXQEI6cTn37dQ" target="_blank" class="side-btn" style="background: rgba(49, 130, 246, 0.2); color: #3182f6;">마이매니저_비교확인</a>
             <a href="https://pcs.iaa.or.kr/index.go" target="_blank" class="side-btn btn-check">비교확인</a>
             <a href="http://chrurck.com/?act=info.page&pcode=sub1_3" target="_blank" class="side-btn btn-gap">초격차</a>
             <a href="https://www.mohom.kr/" target="_blank" class="side-btn btn-mohom">모홈</a>
@@ -154,7 +155,7 @@
         const n = new Date(); const days = ["일", "월", "화", "수", "목", "금", "토"];
         $('cur-date').innerText = `${n.getFullYear()}년 ${n.getMonth()+1}월 ${n.getDate()}일 (${days[n.getDay()]})`;
         let hrs = n.getHours(); const ampm = hrs >= 12 ? 'PM' : 'AM'; hrs = hrs % 12 || 12;
-        $('cur-time').innerText = `${ampm} ${hrs}:${String(n.getMinutes()).padStart(2, '0')}:${String(n.getSeconds()).padStart(2, '0')}`;
+        $('cur-time').innerText = `${ampm} ${hrs}:${String(n.getMinutes()).padStart(2, '0')}`;
     }
 
     async function fetchWeather() {
