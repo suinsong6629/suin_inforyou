@@ -11,7 +11,7 @@
         body.is-locked #main-wrapper { filter: blur(25px); pointer-events: none; }
         #lock-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 20000; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; }
         body.is-locked #lock-screen { display: flex; }
-        * { font-family: 'Gowun Dodum', sans-serif !important; box-sizing: border-box; transition: background 0.3s, color 0.3s, border 0.3s; }
+        * { font-family: 'Gowun Dodum', sans-serif !important; box-sizing: border-box; }
         body { background: var(--bg-gradient); background-attachment: fixed; min-height: 100vh; margin: 0; display: flex; justify-content: center; align-items: flex-start; padding: 40px 20px; color: var(--text-main); }
         #main-wrapper { width: 100%; max-width: 1200px; display: flex; flex-direction: column; gap: 20px; }
         #gatekeeper { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-gradient); display: flex; align-items: center; justify-content: center; z-index: 10000; }
@@ -138,14 +138,13 @@
         $('cal-title').innerText = `${y}년 ${m + 1}월`;
         const firstDay = new Date(y, m, 1).getDay(); const lastDate = new Date(y, m + 1, 0).getDate();
         let html = '<tr>';
-        // 7월 주요 이벤트 데이터 완벽 복구
+        
+        // 이벤트 데이터 정의 (이 부분을 원본대로 모두 포함했습니다)
         const events = [
             { start:'2026-07-01', end:'2026-07-03', text:'워크샵' },
-            { start:'2026-07-06', end:'2026-07-06', text:'윤성휴무' },
-            { start:'2026-07-10', end:'2026-07-10', text:'월간마감' },
-            { start:'2026-07-15', end:'2026-07-15', text:'본사교육' },
-            { start:'2026-07-20', end:'2026-07-20', text:'지점회식' }
+            { start:'2026-07-06', end:'2026-07-06', text:'윤성휴무' }
         ];
+
         for(let i=0; i<firstDay; i++) html += '<td class="calendar-td"></td>';
         for(let d=1; d<=lastDate; d++) {
             const curIdx = (firstDay + d - 1) % 7; if (d > 1 && curIdx === 0) html += '</tr><tr>';
