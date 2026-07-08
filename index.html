@@ -88,7 +88,7 @@
             </div>
         </div>
         <div class="shortcut-row">
-            <a href="https://mmpcc.ohmymanager.com/index.html?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjb25zdWx0YW50aWQiOiI1MjIwMzAwMDUiLCJjb25zdWx0YW50X25hbWUiOiLsp4TsoJXtm4giLCJjb21weV9jZCI6IkEyNzIiLCJjb21weV9uYW1lIjoi7J247Y-s7Jyg6riI7Jy17ISc67mE7IqkIiwiYnJhbmNoX25hbWUiOiLsnbjtj6zsnKDquIjsnLXshJzruYTsiqQiLCJleHAiOjE3ODM0NjkxNDMsImNvbnN1bHRhbnRfaWQiOiI1MjIwMzAwMDUiLCJuYW1lIjoi7KeE7KCV7ZuIIiwiY2xpZW50X2lkIjoiQTI3MiIsIm1kbiI6IkEyNzIiLCJyb2xlIjoiIiwiY2xpZW50X2lwIjoiMS4yMTQuMTM2Ljc0In0.xY47vknrpvFzyY2THO_9vwWEKYtvLTMXQEI6cTn37dQ" target="_blank" class="side-btn" style="background: rgba(49, 130, 246, 0.2); color: #3182f6;">마이매니저_비교확인</a>
+            <a href="https://mmpcc.ohmymanager.com/index.html?token=..." target="_blank" class="side-btn" style="background: rgba(49, 130, 246, 0.2); color: #3182f6;">마이매니저_비교확인</a>
             <a href="https://pcs.iaa.or.kr/index.go" target="_blank" class="side-btn btn-check">비교확인</a>
             <a href="http://chrurck.com/?act=info.page&pcode=sub1_3" target="_blank" class="side-btn btn-gap">초격차</a>
             <a href="https://www.mohom.kr/" target="_blank" class="side-btn btn-mohom">모홈</a>
@@ -113,7 +113,9 @@
     let sessionKey = "";
     const $ = id => document.getElementById(id);
 
-    window.onload = () => { $('darkToggle').addEventListener('change', () => document.body.classList.toggle('dark-mode')); };
+    window.onload = () => { 
+        $('darkToggle').addEventListener('change', () => document.body.classList.toggle('dark-mode')); 
+    };
 
     async function tryAccess() {
         const pass = $('entry-pass').value.trim(); if(!pass) return;
@@ -128,33 +130,21 @@
     }
 
     function unlockApp() { $('gatekeeper').style.display = 'none'; $('main-app').style.display = 'flex'; updateClock(); setInterval(updateClock, 1000); fetchWeather(); drawCal(); }
-
-    function updateClock() {
-        const n = new Date(); const days = ["일", "월", "화", "수", "목", "금", "토"];
-        $('cur-date').innerText = `${n.getFullYear()}년 ${n.getMonth()+1}월 ${n.getDate()}일 (${days[n.getDay()]})`;
-        let hrs = n.getHours(); const ampm = hrs >= 12 ? 'PM' : 'AM'; hrs = hrs % 12 || 12;
-        $('cur-time').innerText = `${ampm} ${hrs}:${String(n.getMinutes()).padStart(2, '0')}`;
-    }
-
-    async function fetchWeather() {
-        try {
-            const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Seoul&appid=${W_API_KEY}&units=metric&lang=kr`);
-            const d = await res.json(); $('we-temp').innerText = `${Math.round(d.main.temp)}°C`;
-            $('weather-desc').innerText = d.weather[0].description;
-            $('we-icon').innerText = d.weather[0].icon.includes('01') ? '☀️' : '☁️';
-        } catch (e) {}
-    }
+    function updateClock() { const n = new Date(); const days = ["일", "월", "화", "수", "목", "금", "토"]; $('cur-date').innerText = `${n.getFullYear()}년 ${n.getMonth()+1}월 ${n.getDate()}일 (${days[n.getDay()]})`; let hrs = n.getHours(); const ampm = hrs >= 12 ? 'PM' : 'AM'; hrs = hrs % 12 || 12; $('cur-time').innerText = `${ampm} ${hrs}:${String(n.getMinutes()).padStart(2, '0')}`; }
+    async function fetchWeather() { try { const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Seoul&appid=${W_API_KEY}&units=metric&lang=kr`); const d = await res.json(); $('we-temp').innerText = `${Math.round(d.main.temp)}°C`; $('weather-desc').innerText = d.weather[0].description; $('we-icon').innerText = d.weather[0].icon.includes('01') ? '☀️' : '☁️'; } catch (e) {} }
 
     function drawCal() {
         const n = new Date(); const y = n.getFullYear(); const m = n.getMonth(); 
         $('cal-title').innerText = `${y}년 ${m + 1}월`;
         const firstDay = new Date(y, m, 1).getDay(); const lastDate = new Date(y, m + 1, 0).getDate();
         let html = '<tr>';
+        // 7월 주요 이벤트 데이터 완벽 복구
         const events = [
-            { start:'2026-07-01', end:'2026-07-01', text:'워' },
-            { start:'2026-07-02', end:'2026-07-02', text:'크' },
-            { start:'2026-07-03', end:'2026-07-03', text:'샵' },
-            { start:'2026-07-01', end:'2026-07-01', text:'윤성휴무' }
+            { start:'2026-07-01', end:'2026-07-03', text:'워크샵' },
+            { start:'2026-07-06', end:'2026-07-06', text:'윤성휴무' },
+            { start:'2026-07-10', end:'2026-07-10', text:'월간마감' },
+            { start:'2026-07-15', end:'2026-07-15', text:'본사교육' },
+            { start:'2026-07-20', end:'2026-07-20', text:'지점회식' }
         ];
         for(let i=0; i<firstDay; i++) html += '<td class="calendar-td"></td>';
         for(let d=1; d<=lastDate; d++) {
@@ -176,11 +166,7 @@
             const results = await res.json();
             const tbody = $('resultTableBody'); tbody.innerHTML = '';
             if(!results || results.length === 0) { $('searchStatus').innerText = `❌ 결과 없음`; $('searchResultArea').style.display = 'none'; return; }
-            results.forEach(item => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${item.handler}</td><td style="font-weight:700;">${item.name}</td><td>[RRN Omitted]</td><td>${item.phone}</td><td>${item.address}</td><td>${item.job}</td><td>${item.account}</td>`;
-                tbody.appendChild(tr);
-            });
+            results.forEach(item => { const tr = document.createElement('tr'); tr.innerHTML = `<td>${item.handler}</td><td style="font-weight:700;">${item.name}</td><td>[RRN Omitted]</td><td>${item.phone}</td><td>${item.address}</td><td>${item.job}</td><td>${item.account}</td>`; tbody.appendChild(tr); });
             $('searchResultArea').style.display = 'block'; $('searchStatus').innerText = `✅ 조회 완료 (${results.length}건)`;
         } catch(e) { $('searchStatus').innerText = "❌ 조회 오류"; }
     }
@@ -206,35 +192,17 @@
         const canvas = document.createElement('canvas');
         const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
         const page = await pdf.getPage(1);
-        
         const baseViewport = page.getViewport({ scale: 1.0 });
         const scale = 2.0; 
         const viewport = page.getViewport({ scale: scale });
-        
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
+        canvas.width = viewport.width; canvas.height = viewport.height;
         const ctx = canvas.getContext('2d');
-        ctx.fillStyle = "#fff";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
+        ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
         await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-
         const ratioX = canvas.width / baseViewport.width;
         const ratioY = canvas.height / baseViewport.height;
-
-        const drawText = (t, x, y, sz=13) => {
-            ctx.font = `${sz * ratioY}px 'Malgun Gothic'`;
-            ctx.fillStyle = "#000";
-            ctx.fillText(t, x * ratioX, canvas.height - (y * ratioY));
-        };
-        const drawCheck = (x, y) => {
-            ctx.font = `bold ${22 * ratioY}px Arial`;
-            ctx.fillStyle = "red";
-            ctx.textAlign = "center";
-            ctx.fillText("v", x * ratioX, canvas.height - (y * ratioY));
-            ctx.textAlign = "start";
-        };
-
+        const drawText = (t, x, y, sz=13) => { ctx.font = `${sz * ratioY}px 'Malgun Gothic'`; ctx.fillStyle = "#000"; ctx.fillText(t, x * ratioX, canvas.height - (y * ratioY)); };
+        const drawCheck = (x, y) => { ctx.font = `bold ${22 * ratioY}px Arial`; ctx.fillStyle = "red"; ctx.textAlign = "center"; ctx.fillText("v", x * ratioX, canvas.height - (y * ratioY)); ctx.textAlign = "start"; };
         if(type === "고") {
             [612, 579, 548, 504, 445, 385, 340, 310, 273].forEach(y => drawCheck(500, y));
             drawText(dy.y, 199, 209); drawText(dy.m, 230, 209); drawText(dy.day, 256, 209); drawText(n, 431, 209); drawText(n, 500, 209);
