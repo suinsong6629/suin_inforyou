@@ -6,8 +6,28 @@
     <title>미래전략 사업단 V17.9_Final</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400;700&display=swap');
-        :root { --bg-gradient: linear-gradient(135deg, #dce4ff 0%, #f1f5f9 50%, #ffe4e6 100%); --glass: rgba(255, 255, 255, 0.75); --glass-border: rgba(255, 255, 255, 0.4); --primary: #3182f6; --red: #fb7185; --text-main: #191f28; --text-sub: #4e5968; --shadow: 0 8px 32px rgba(0, 0, 0, 0.05); --c-purple: rgba(168, 85, 247, 0.15); --c-orange: rgba(249, 115, 22, 0.15); --c-blue: rgba(59, 130, 246, 0.15); --c-green: rgba(16, 185, 129, 0.15); }
-        body.dark-mode { --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); --glass: rgba(30, 41, 59, 0.7); --glass-border: rgba(255, 255, 255, 0.1); --text-main: #f8fafc; --text-sub: #94a3b8; --shadow: 0 8px 32px rgba(0, 0, 0, 0.3); }
+        :root {
+            --bg-gradient: linear-gradient(135deg, #dce4ff 0%, #f1f5f9 50%, #ffe4e6 100%);
+            --glass: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --primary: #3182f6;
+            --red: #fb7185;
+            --text-main: #191f28;
+            --text-sub: #4e5968;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+            --c-purple: rgba(168, 85, 247, 0.15);
+            --c-orange: rgba(249, 115, 22, 0.15);
+            --c-blue: rgba(59, 130, 246, 0.15);
+            --c-green: rgba(16, 185, 129, 0.15);
+        }
+        body.dark-mode {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            --glass: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
         body.is-locked #main-wrapper { filter: blur(25px); pointer-events: none; }
         #lock-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 20000; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; }
         body.is-locked #lock-screen { display: flex; }
@@ -75,15 +95,17 @@
         </div>
         <div class="two-cols">
             <div class="glass-card">
-                <div style="font-size:18px; font-weight:700; margin-bottom:15px;">📂 서류 자동화 상태</div>
-                <p style="font-size: 13px; color: var(--text-sub);">드라이브 원본을 자동 호출하여 처리합니다.</p>
-                <div id="autoStatus" style="color: var(--primary); font-weight: 700; padding: 10px; border: 1px solid var(--primary); border-radius: 8px;">✅ 준비 완료</div>
+                <div style="font-size:18px; font-weight:700; margin-bottom:15px;">📂 서류 업로드 (PDF)</div>
+                <label style="display:block; font-size:12px; font-weight:700;">고지의무 이행확인서</label>
+                <input type="file" id="f1" accept=".pdf" onchange="keepFile(1)">
+                <label style="display:block; margin-top:10px; font-size:12px; font-weight:700;">필수 동의서</label>
+                <input type="file" id="f2" accept=".pdf" onchange="keepFile(2)">
             </div>
             <div class="glass-card">
                 <div style="font-size:18px; font-weight:700; margin-bottom:15px;">👤 기재 정보 및 전송</div>
                 <input type="date" id="cDate">
                 <div class="two-cols"><input type="text" id="pName" placeholder="담당 설계사"><input type="text" id="uName" placeholder="계약자 성명"></div>
-                <button class="btn-main" style="width:100%; height:50px; margin-top:10px;" id="process-btn" onclick="startProcess()">📤 드라이브 원본 호출 및 생성</button>
+                <button class="btn-main" style="width:100%; height:50px; margin-top:10px;" id="process-btn" onclick="startProcess()">📤 서류 생성 및 드라이브 전송</button>
                 <div id="processStatus" style="text-align:center; margin-top:12px; font-weight:700; font-size:13px;"></div>
             </div>
         </div>
@@ -108,7 +130,7 @@
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx2TfR2pFEo2SdY-m_Za-ISMxF65Z_j528vc73DnWzMFMY6qYYEcuNUpxzPxnGm89mobQ/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxKuInYyTnY8vp_8gCVgW17givSBKO27k_JcO2cdtovMlzDBa2Fxh9Q4MJwkRQ8BsV1lA/exec';
     const W_API_KEY = 'e9e4b4788a9cb01857b3d430b6551c24';
     let sessionKey = "";
     const $ = id => document.getElementById(id);
@@ -185,43 +207,56 @@
         } catch(e) { $('searchStatus').innerText = "❌ 조회 오류"; }
     }
 
+    let uploadedFiles = [null, null];
+    function keepFile(n) { uploadedFiles[n-1] = $('f'+n).files[0]; }
+
     async function startProcess() {
         const dVal = $('cDate').value; const uN = $('uName').value.trim(); const pN = $('pName').value.trim();
-        if (!dVal || !uN || !pN) return alert("필수 정보가 누락되었습니다.");
-        $('process-btn').disabled = true; $('processStatus').innerText = "🚀 드라이브 자동 호출 및 생성 중...";
+        if (!uploadedFiles[0] || !uploadedFiles[1] || !dVal || !uN || !pN) return alert("필수 정보가 누락되었습니다.");
+        $('process-btn').disabled = true; $('processStatus').innerText = "🚀 드라이브 전송 중...";
         try {
-            const res = await fetch(`${SCRIPT_URL}?action=fetchFiles&key=${encodeURIComponent(sessionKey)}`);
-            const files = await res.json();
-            
-            const base64ToBlob = (base64) => {
-                const parts = base64.split(';base64,');
-                const contentType = parts[0].split(':')[1];
-                const raw = window.atob(parts[1]);
-                const uInt8Array = new Uint8Array(raw.length);
-                for (let i = 0; i < raw.length; ++i) uInt8Array[i] = raw.charCodeAt(i);
-                return new Blob([uInt8Array], { type: contentType });
-            };
-
             const dt = new Date(dVal);
             const dObj = { y: dt.getFullYear().toString().slice(-2), m: (dt.getMonth()+1).toString(), day: dt.getDate().toString() };
-            const i1 = await renderPdf(base64ToBlob(files.data1), "고", dObj, uN, pN);
-            const i2 = await renderPdf(base64ToBlob(files.data2), "동", dObj, uN, pN);
-            
-            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ key: sessionKey, action: 'save', file1Data: i1, fileName1: `${uN}_고지의무.jpg`, file2Data: i2, fileName2: `${uN}_필수동의.jpg` }) });
-            $('processStatus').innerText = "✅ 전송 완료!";
-        } catch (e) { $('processStatus').innerText = "❌ 오류 발생"; } finally { $('process-btn').disabled = false; }
+            const i1 = await renderPdf(uploadedFiles[0], "고", dObj, uN, pN);
+            const i2 = await renderPdf(uploadedFiles[1], "동", dObj, uN, pN);
+            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ key: sessionKey, file1Data: i1, fileName1: `${uN}_고지의무.jpg`, file2Data: i2, fileName2: `${uN}_동의서.jpg` }) });
+            $('processStatus').innerText = "✅ 전송 요청 완료!";
+        } catch (e) { $('processStatus').innerText = "❌ 전송 오류"; } finally { $('process-btn').disabled = false; }
     }
 
     async function renderPdf(file, type, dy, n, p) {
         const canvas = document.createElement('canvas');
         const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
-        const page = await pdf.getPage(1); const viewport = page.getViewport({ scale: 2.0 });
-        const ctx = canvas.getContext('2d'); canvas.width = viewport.width; canvas.height = viewport.height;
-        ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        const page = await pdf.getPage(1);
+        
+        const baseViewport = page.getViewport({ scale: 1.0 });
+        const scale = 2.0; 
+        const viewport = page.getViewport({ scale: scale });
+        
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
         await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-        const s = 2.0; const h = viewport.height;
-        const drawText = (t, x, y, sz=13) => { ctx.font = `${sz*s}px 'Malgun Gothic'`; ctx.fillStyle = "#000"; ctx.fillText(t, x*s, h-(y*s)); };
-        const drawCheck = (x, y) => { ctx.font = `bold ${22*s}px Arial`; ctx.fillStyle = "red"; ctx.textAlign = "center"; ctx.fillText("v", x*s, h-(y*s)); ctx.textAlign = "start"; };
+
+        const ratioX = canvas.width / baseViewport.width;
+        const ratioY = canvas.height / baseViewport.height;
+
+        const drawText = (t, x, y, sz=13) => {
+            ctx.font = `${sz * ratioY}px 'Malgun Gothic'`;
+            ctx.fillStyle = "#000";
+            ctx.fillText(t, x * ratioX, canvas.height - (y * ratioY));
+        };
+        const drawCheck = (x, y) => {
+            ctx.font = `bold ${22 * ratioY}px Arial`;
+            ctx.fillStyle = "red";
+            ctx.textAlign = "center";
+            ctx.fillText("v", x * ratioX, canvas.height - (y * ratioY));
+            ctx.textAlign = "start";
+        };
+
         if(type === "고") {
             [612, 579, 548, 504, 445, 385, 340, 310, 273].forEach(y => drawCheck(500, y));
             drawText(dy.y, 199, 209); drawText(dy.m, 230, 209); drawText(dy.day, 256, 209); drawText(n, 431, 209); drawText(n, 500, 209);
