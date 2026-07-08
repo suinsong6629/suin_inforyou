@@ -74,8 +74,11 @@
         <div class="two-cols">
             <div class="glass-card">
                 <div style="font-size:18px; font-weight:700; margin-bottom:15px;">📂 드라이브 자동 연동</div>
-                <input type="text" id="fileId1" placeholder="고지의무 이행확인서 드라이브 ID">
-                <input type="text" id="fileId2" placeholder="필수 동의서 드라이브 ID">
+                <div style="font-size:13px; color:var(--text-sub); line-height:1.8; background:rgba(0,0,0,0.03); padding:14px; border-radius:12px;">
+                    아래 두 파일을 지정된 폴더에서 자동으로 불러옵니다.<br>
+                    · 고지의무 이행확인서 : <b>고지의무이행확인서_원본</b><br>
+                    · 필수 동의서 : <b>필수 동의서_원본</b>
+                </div>
             </div>
             <div class="glass-card">
                 <div style="font-size:18px; font-weight:700; margin-bottom:15px;">👤 기재 정보 및 마스킹 전송</div>
@@ -108,6 +111,9 @@
 <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxKuInYyTnY8vp_8gCVgW17givSBKO27k_JcO2cdtovMlzDBa2Fxh9Q4MJwkRQ8BsV1lA/exec';
     const W_API_KEY = 'e9e4b4788a9cb01857b3d430b6551c24';
+    const DRIVE_FOLDER_ID = '1iU-4NJ9RLjslb_75RXfQDV-8IH2zGAfU';
+    const FILE_NAME_1 = '고지의무이행확인서_원본';
+    const FILE_NAME_2 = '필수 동의서_원본';
     let sessionKey = "";
     const $ = id => document.getElementById(id);
 
@@ -170,20 +176,20 @@
     }
 
     async function startProcess() {
-        const id1 = $('fileId1').value.trim(); const id2 = $('fileId2').value.trim();
         const dVal = $('cDate').value; const uN = $('uName').value.trim(); const pN = $('pName').value.trim();
-        if (!id1 || !id2 || !dVal || !uN || !pN) return alert("드라이브 ID 및 필수 정보를 입력하세요.");
-        $('process-btn').disabled = true; $('processStatus').innerText = "🚀 드라이브 파일 불러오기 중...";
+        if (!dVal || !uN || !pN) return alert("필수 정보가 누락되었습니다.");
+        $('process-btn').disabled = true; $('processStatus').innerText = "🚀 드라이브 파일 검색 중...";
         try {
             const dt = new Date(dVal);
             const dObj = { y: dt.getFullYear().toString().slice(-2), m: (dt.getMonth()+1).toString(), day: dt.getDate().toString() };
-            const file1 = await fetch(`${SCRIPT_URL}?action=getFile&id=${id1}&key=${sessionKey}`).then(r => r.blob());
-            const file2 = await fetch(`${SCRIPT_URL}?action=getFile&id=${id2}&key=${sessionKey}`).then(r => r.blob());
+            const file1 = await fetch(`${SCRIPT_URL}?action=getFile&folderId=${DRIVE_FOLDER_ID}&fileName=${encodeURIComponent(FILE_NAME_1)}&key=${sessionKey}`).then(r => r.blob());
+            const file2 = await fetch(`${SCRIPT_URL}?action=getFile&folderId=${DRIVE_FOLDER_ID}&fileName=${encodeURIComponent(FILE_NAME_2)}&key=${sessionKey}`).then(r => r.blob());
+            $('processStatus').innerText = "🖊️ 마스킹 처리 중...";
             const i1 = await renderPdf(file1, "고", dObj, uN, pN);
             const i2 = await renderPdf(file2, "동", dObj, uN, pN);
             await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ key: sessionKey, file1Data: i1, fileName1: `${uN}_고지의무.jpg`, file2Data: i2, fileName2: `${uN}_동의서.jpg` }) });
             $('processStatus').innerText = "✅ 마스킹 및 전송 완료!";
-        } catch (e) { $('processStatus').innerText = "❌ 처리 오류"; } finally { $('process-btn').disabled = false; }
+        } catch (e) { $('processStatus').innerText = "❌ 처리 오류 (파일을 찾지 못했거나 서버 오류)"; } finally { $('process-btn').disabled = false; }
     }
 
     async function renderPdf(blob, type, dy, n, p) {
