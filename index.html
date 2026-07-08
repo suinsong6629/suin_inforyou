@@ -75,9 +75,10 @@
             <div class="glass-card">
                 <div style="font-size:18px; font-weight:700; margin-bottom:15px;">📂 드라이브 자동 연동</div>
                 <div style="font-size:13px; color:var(--text-sub); line-height:1.8; background:rgba(0,0,0,0.03); padding:14px; border-radius:12px;">
-                    아래 두 파일을 지정된 폴더에서 자동으로 불러옵니다.<br>
-                    · 고지의무 이행확인서 : <b>고지의무이행확인서_원본</b><br>
-                    · 필수 동의서 : <b>필수 동의서_원본</b>
+                    지정된 드라이브 폴더에서 파일명에<br>
+                    · <b>"고지의무"</b>가 포함된 파일 → 고지의무 이행확인서<br>
+                    · <b>"동의"</b>가 포함된 파일 → 필수 동의서<br>
+                    를 자동으로 찾아 불러옵니다.
                 </div>
             </div>
             <div class="glass-card">
@@ -111,9 +112,6 @@
 <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxKuInYyTnY8vp_8gCVgW17givSBKO27k_JcO2cdtovMlzDBa2Fxh9Q4MJwkRQ8BsV1lA/exec';
     const W_API_KEY = 'e9e4b4788a9cb01857b3d430b6551c24';
-    const DRIVE_FOLDER_ID = '1iU-4NJ9RLjslb_75RXfQDV-8IH2zGAfU';
-    const FILE_NAME_1 = '고지의무이행확인서_원본';
-    const FILE_NAME_2 = '필수 동의서_원본';
     let sessionKey = "";
     const $ = id => document.getElementById(id);
 
@@ -178,23 +176,43 @@
     async function startProcess() {
         const dVal = $('cDate').value; const uN = $('uName').value.trim(); const pN = $('pName').value.trim();
         if (!dVal || !uN || !pN) return alert("필수 정보가 누락되었습니다.");
-        $('process-btn').disabled = true; $('processStatus').innerText = "🚀 드라이브 파일 검색 중...";
+        $('process-btn').disabled = true; $('processStatus').innerText = "🚀 드라이브 파일 불러오는 중...";
         try {
             const dt = new Date(dVal);
             const dObj = { y: dt.getFullYear().toString().slice(-2), m: (dt.getMonth()+1).toString(), day: dt.getDate().toString() };
-            const file1 = await fetch(`${SCRIPT_URL}?action=getFile&folderId=${DRIVE_FOLDER_ID}&fileName=${encodeURIComponent(FILE_NAME_1)}&key=${sessionKey}`).then(r => r.blob());
-            const file2 = await fetch(`${SCRIPT_URL}?action=getFile&folderId=${DRIVE_FOLDER_ID}&fileName=${encodeURIComponent(FILE_NAME_2)}&key=${sessionKey}`).then(r => r.blob());
+
+            const res = await fetch(`${SCRIPT_URL}?action=fetchFiles&key=${encodeURIComponent(sessionKey)}`);
+            const rawText = await res.text();
+            let filesData;
+            try {
+                filesData = JSON.parse(rawText);
+            } catch (parseErr) {
+                console.error('서버 원본 응답(JSON 아님):', rawText);
+                throw new Error('서버 응답이 JSON이 아닙니다. 콘솔에 찍힌 "서버 원본 응답"을 확인하세요. (배포 미갱신 가능성)');
+            }
+            if (!filesData.data1 || !filesData.data2) throw new Error("드라이브 폴더에서 원본 파일을 찾지 못했습니다. 파일명을 확인해주세요.");
+
             $('processStatus').innerText = "🖊️ 마스킹 처리 중...";
-            const i1 = await renderPdf(file1, "고", dObj, uN, pN);
-            const i2 = await renderPdf(file2, "동", dObj, uN, pN);
-            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ key: sessionKey, file1Data: i1, fileName1: `${uN}_고지의무.jpg`, file2Data: i2, fileName2: `${uN}_동의서.jpg` }) });
+            const i1 = await renderPdf(filesData.data1, "고", dObj, uN, pN);
+            const i2 = await renderPdf(filesData.data2, "동", dObj, uN, pN);
+
+            $('processStatus').innerText = "📤 전송 중...";
+            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'save', key: sessionKey, file1Data: i1, fileName1: `${uN}_고지의무.jpg`, file2Data: i2, fileName2: `${uN}_동의서.jpg` }) });
             $('processStatus').innerText = "✅ 마스킹 및 전송 완료!";
-        } catch (e) { $('processStatus').innerText = "❌ 처리 오류 (파일을 찾지 못했거나 서버 오류)"; } finally { $('process-btn').disabled = false; }
+        } catch (e) { console.error(e); $('processStatus').innerText = "❌ 오류: " + e.message; } finally { $('process-btn').disabled = false; }
     }
 
-    async function renderPdf(blob, type, dy, n, p) {
+    function dataURItoUint8Array(dataURI) {
+        const base64 = dataURI.split(',')[1];
+        const binary = atob(base64);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        return bytes;
+    }
+
+    async function renderPdf(dataUri, type, dy, n, p) {
         const canvas = document.createElement('canvas');
-        const pdf = await pdfjsLib.getDocument({ data: await blob.arrayBuffer() }).promise;
+        const pdf = await pdfjsLib.getDocument({ data: dataURItoUint8Array(dataUri) }).promise;
         const page = await pdf.getPage(1);
         const baseViewport = page.getViewport({ scale: 1.0 });
         const scale = 2.0; 
