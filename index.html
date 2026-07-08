@@ -193,8 +193,8 @@
             if (!filesData.data1 || !filesData.data2) throw new Error("드라이브 폴더에서 원본 파일을 찾지 못했습니다. 파일명을 확인해주세요.");
 
             $('processStatus').innerText = "🖊️ 마스킹 처리 중...";
-            const i1 = await renderPdf(filesData.data1, "고", dObj, uN, pN);
-            const i2 = await renderPdf(filesData.data2, "동", dObj, uN, pN);
+            const i1 = await renderPdf(filesData.data1, "동", dObj, uN, pN);
+            const i2 = await renderPdf(filesData.data2, "고", dObj, uN, pN);
 
             $('processStatus').innerText = "📤 전송 중...";
             await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'save', key: sessionKey, file1Data: i1, fileName1: `${uN}_고지의무.jpg`, file2Data: i2, fileName2: `${uN}_동의서.jpg` }) });
