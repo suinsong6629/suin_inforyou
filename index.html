@@ -6,28 +6,8 @@
     <title>미래전략 사업단 V17.9_Final</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400;700&display=swap');
-        :root {
-            --bg-gradient: linear-gradient(135deg, #dce4ff 0%, #f1f5f9 50%, #ffe4e6 100%);
-            --glass: rgba(255, 255, 255, 0.75);
-            --glass-border: rgba(255, 255, 255, 0.4);
-            --primary: #3182f6;
-            --red: #fb7185;
-            --text-main: #191f28;
-            --text-sub: #4e5968;
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
-            --c-purple: rgba(168, 85, 247, 0.15);
-            --c-orange: rgba(249, 115, 22, 0.15);
-            --c-blue: rgba(59, 130, 246, 0.15);
-            --c-green: rgba(16, 185, 129, 0.15);
-        }
-        body.dark-mode {
-            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            --glass: rgba(30, 41, 59, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --text-main: #f8fafc;
-            --text-sub: #94a3b8;
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
+        :root { --bg-gradient: linear-gradient(135deg, #dce4ff 0%, #f1f5f9 50%, #ffe4e6 100%); --glass: rgba(255, 255, 255, 0.75); --glass-border: rgba(255, 255, 255, 0.4); --primary: #3182f6; --red: #fb7185; --text-main: #191f28; --text-sub: #4e5968; --shadow: 0 8px 32px rgba(0, 0, 0, 0.05); --c-purple: rgba(168, 85, 247, 0.15); --c-orange: rgba(249, 115, 22, 0.15); --c-blue: rgba(59, 130, 246, 0.15); --c-green: rgba(16, 185, 129, 0.15); }
+        body.dark-mode { --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); --glass: rgba(30, 41, 59, 0.7); --glass-border: rgba(255, 255, 255, 0.1); --text-main: #f8fafc; --text-sub: #94a3b8; --shadow: 0 8px 32px rgba(0, 0, 0, 0.3); }
         body.is-locked #main-wrapper { filter: blur(25px); pointer-events: none; }
         #lock-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 20000; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; }
         body.is-locked #lock-screen { display: flex; }
@@ -51,7 +31,6 @@
         #cur-time { font-size: 38px; font-weight: 800; color: var(--primary); }
         .shortcut-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; width: 100%; }
         .side-btn { height: 55px; border-radius: 16px; text-decoration: none; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
-        .side-btn:hover { transform: translateY(-2px); }
         .btn-erp { background: var(--c-purple); color: #7c3aed; }
         .btn-gap { background: var(--c-orange); color: #ea580c; }
         .btn-check { background: var(--c-green); color: #10b981; }
@@ -60,7 +39,6 @@
         .calendar-td { height: 90px; vertical-align: top; padding: 8px; border: 1px solid rgba(125,125,125,0.1); border-radius: 10px; background: rgba(255,255,255,0.2); }
         .day-num { font-weight: 700; font-size: 12px; }
         .event-bar { height: 20px; background: rgba(251, 113, 133, 0.2); border-bottom: 2.5px solid var(--red); font-size: 10px; font-weight: 700; color: #b91c1c; display: flex; align-items: center; justify-content: center; border-radius: 4px; margin-bottom: 2px; overflow: hidden; white-space: nowrap; }
-        body.dark-mode .event-bar { color: #fff; }
         .today { background: rgba(49, 130, 246, 0.15) !important; outline: 2px solid var(--primary) !important; outline-offset: -2px; }
         input, select { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(125,125,125,0.2); margin-bottom: 12px; background: rgba(255,255,255,0.5); color: inherit; outline: none; }
         .btn-main { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 16px; }
@@ -145,8 +123,8 @@
             const data = await res.json();
             if(data[0] && data[0].error === "SITE_LOCKED") { document.body.classList.add('is-locked'); return; }
             if(data.status === "success") { sessionKey = pass; unlockApp(); }
-            else { $('lock-error-area').innerHTML = `<p class="error-msg">${data[0].error || "비밀번호 오류"}</p>`; $('access-btn').disabled = false; }
-        } catch(e) { $('lock-error-area').innerHTML = `<p class="error-msg">⚠️ 서버 연결 오류</p>`; $('access-btn').disabled = false; }
+            else { $('lock-error-area').innerHTML = `<p style="color:red; font-size:12px;">${data[0].error || "비밀번호 오류"}</p>`; $('access-btn').disabled = false; }
+        } catch(e) { $('lock-error-area').innerHTML = `<p style="color:red; font-size:12px;">⚠️ 서버 연결 오류</p>`; $('access-btn').disabled = false; }
     }
 
     function unlockApp() { $('gatekeeper').style.display = 'none'; $('main-app').style.display = 'flex'; updateClock(); setInterval(updateClock, 1000); fetchWeather(); drawCal(); }
@@ -200,7 +178,7 @@
             if(!results || results.length === 0) { $('searchStatus').innerText = `❌ 결과 없음`; $('searchResultArea').style.display = 'none'; return; }
             results.forEach(item => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${item.handler}</td><td style="font-weight:700;">${item.name}</td><td>${item.residentId}</td><td>${item.phone}</td><td>${item.address}</td><td>${item.job}</td><td>${item.account}</td>`;
+                tr.innerHTML = `<td>${item.handler}</td><td style="font-weight:700;">${item.name}</td><td>[RRN Omitted]</td><td>${item.phone}</td><td>${item.address}</td><td>${item.job}</td><td>${item.account}</td>`;
                 tbody.appendChild(tr);
             });
             $('searchResultArea').style.display = 'block'; $('searchStatus').innerText = `✅ 조회 완료 (${results.length}건)`;
