@@ -150,7 +150,6 @@
         $('cal-title').innerText = `${y}년 ${m + 1}월`;
         const firstDay = new Date(y, m, 1).getDay(); const lastDate = new Date(y, m + 1, 0).getDate();
         let html = '<tr>';
-        // 캘린더 이벤트 데이터 완벽 복구
         const events = [
             { start:'2026-07-01', end:'2026-07-01', text:'워' },
             { start:'2026-07-02', end:'2026-07-02', text:'크' },
@@ -189,14 +188,25 @@
     async function startProcess() {
         const dVal = $('cDate').value; const uN = $('uName').value.trim(); const pN = $('pName').value.trim();
         if (!dVal || !uN || !pN) return alert("필수 정보가 누락되었습니다.");
-        $('process-btn').disabled = true; $('processStatus').innerText = "🚀 드라이브 자동 처리 중...";
+        $('process-btn').disabled = true; $('processStatus').innerText = "🚀 드라이브 자동 호출 및 생성 중...";
         try {
             const res = await fetch(`${SCRIPT_URL}?action=fetchFiles&key=${encodeURIComponent(sessionKey)}`);
             const files = await res.json();
+            
+            const base64ToBlob = (base64) => {
+                const parts = base64.split(';base64,');
+                const contentType = parts[0].split(':')[1];
+                const raw = window.atob(parts[1]);
+                const uInt8Array = new Uint8Array(raw.length);
+                for (let i = 0; i < raw.length; ++i) uInt8Array[i] = raw.charCodeAt(i);
+                return new Blob([uInt8Array], { type: contentType });
+            };
+
             const dt = new Date(dVal);
             const dObj = { y: dt.getFullYear().toString().slice(-2), m: (dt.getMonth()+1).toString(), day: dt.getDate().toString() };
-            const i1 = await renderPdf(await (await fetch(files.url1)).blob(), "고", dObj, uN, pN);
-            const i2 = await renderPdf(await (await fetch(files.url2)).blob(), "동", dObj, uN, pN);
+            const i1 = await renderPdf(base64ToBlob(files.data1), "고", dObj, uN, pN);
+            const i2 = await renderPdf(base64ToBlob(files.data2), "동", dObj, uN, pN);
+            
             await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ key: sessionKey, action: 'save', file1Data: i1, fileName1: `${uN}_고지의무.jpg`, file2Data: i2, fileName2: `${uN}_필수동의.jpg` }) });
             $('processStatus').innerText = "✅ 전송 완료!";
         } catch (e) { $('processStatus').innerText = "❌ 오류 발생"; } finally { $('process-btn').disabled = false; }
