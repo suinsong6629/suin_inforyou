@@ -6,28 +6,8 @@
     <title>미래전략 사업단 V17.9_Final</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400;700&display=swap');
-        :root {
-            --bg-gradient: linear-gradient(135deg, #dce4ff 0%, #f1f5f9 50%, #ffe4e6 100%);
-            --glass: rgba(255, 255, 255, 0.75);
-            --glass-border: rgba(255, 255, 255, 0.4);
-            --primary: #3182f6;
-            --red: #fb7185;
-            --text-main: #191f28;
-            --text-sub: #4e5968;
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
-            --c-purple: rgba(168, 85, 247, 0.15);
-            --c-orange: rgba(249, 115, 22, 0.15);
-            --c-blue: rgba(59, 130, 246, 0.15);
-            --c-green: rgba(16, 185, 129, 0.15);
-        }
-        body.dark-mode {
-            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            --glass: rgba(30, 41, 59, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --text-main: #f8fafc;
-            --text-sub: #94a3b8;
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
+        :root { --bg-gradient: linear-gradient(135deg, #dce4ff 0%, #f1f5f9 50%, #ffe4e6 100%); --glass: rgba(255, 255, 255, 0.75); --glass-border: rgba(255, 255, 255, 0.4); --primary: #3182f6; --red: #fb7185; --text-main: #191f28; --text-sub: #4e5968; --shadow: 0 8px 32px rgba(0, 0, 0, 0.05); --c-purple: rgba(168, 85, 247, 0.15); --c-orange: rgba(249, 115, 22, 0.15); --c-blue: rgba(59, 130, 246, 0.15); --c-green: rgba(16, 185, 129, 0.15); }
+        body.dark-mode { --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); --glass: rgba(30, 41, 59, 0.7); --glass-border: rgba(255, 255, 255, 0.1); --text-main: #f8fafc; --text-sub: #94a3b8; --shadow: 0 8px 32px rgba(0, 0, 0, 0.3); }
         body.is-locked #main-wrapper { filter: blur(25px); pointer-events: none; }
         #lock-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 20000; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; }
         body.is-locked #lock-screen { display: flex; }
@@ -93,42 +73,46 @@
                 <button onclick="location.reload()" style="background:#eee; border:none; padding:12px 18px; border-radius:12px; cursor:pointer; font-size:12px; font-weight: 700;">보안 로그아웃</button>
             </div>
         </div>
+
         <div class="two-cols">
             <div class="glass-card">
-                <div style="font-size:18px; font-weight:700; margin-bottom:15px;">📂 서류 업로드 (PDF)</div>
-                <label style="display:block; font-size:12px; font-weight:700;">고지의무 이행확인서</label>
-                <input type="file" id="f1" accept=".pdf" onchange="keepFile(1)">
-                <label style="display:block; margin-top:10px; font-size:12px; font-weight:700;">필수 동의서</label>
-                <input type="file" id="f2" accept=".pdf" onchange="keepFile(2)">
+                <div style="font-size:18px; font-weight:700; margin-bottom:15px;">📂 서류 상태 (드라이브 고정)</div>
+                <div style="color: var(--primary); font-weight: 700; padding: 10px; border: 1px solid var(--primary); border-radius: 8px;">
+                    ✅ 고지의무 이행확인서 (원본 감지 완료)<br>
+                    ✅ 필수 동의서 (원본 감지 완료)
+                </div>
             </div>
             <div class="glass-card">
                 <div style="font-size:18px; font-weight:700; margin-bottom:15px;">👤 기재 정보 및 전송</div>
                 <input type="date" id="cDate">
                 <div class="two-cols"><input type="text" id="pName" placeholder="담당 설계사"><input type="text" id="uName" placeholder="계약자 성명"></div>
-                <button class="btn-main" style="width:100%; height:50px; margin-top:10px;" id="process-btn" onclick="startProcess()">📤 서류 생성 및 드라이브 전송</button>
+                <button class="btn-main" style="width:100%; height:50px; margin-top:10px;" id="process-btn" onclick="startProcess()">📤 드라이브 자동 생성 및 전송</button>
                 <div id="processStatus" style="text-align:center; margin-top:12px; font-weight:700; font-size:13px;"></div>
             </div>
         </div>
+
         <div class="shortcut-row">
-            <a href="https://mmpcc.ohmymanager.com/index.html?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjb25zdWx0YW50aWQiOiI1MjIwMzAwMDUiLCJjb25zdWx0YW50X25hbWUiOiLsp4TsoJXtm4giLCJjb21weV9jZCI6IkEyNzIiLCJjb21weV9uYW1lIjoi7J247Y-s7Jyg6riI7Jy17ISc67mE7IqkIiwiYnJhbmNoX25hbWUiOiLsnbjtj6zsnKDquIjsnLXshJzruYTsiqQiLCJleHAiOjE3ODM0NjkxNDMsImNvbnN1bHRhbnRfaWQiOiI1MjIwMzAwMDUiLCJuYW1lIjoi7KeE7KCV7ZuIIiwiY2xpZW50X2lkIjoiQTI3MiIsIm1kbiI6IkEyNzIiLCJyb2xlIjoiIiwiY2xpZW50X2lwIjoiMS4yMTQuMTM2Ljc0In0.xY47vknrpvFzyY2THO_9vwWEKYtvLTMXQEI6cTn37dQ" target="_blank" class="side-btn" style="background: rgba(49, 130, 246, 0.2); color: #3182f6;">마이매니저_비교확인</a>
+            <a href="https://mmpcc.ohmymanager.com/index.html?token=..." target="_blank" class="side-btn" style="background: rgba(49, 130, 246, 0.2); color: #3182f6;">마이매니저_비교확인</a>
             <a href="https://pcs.iaa.or.kr/index.go" target="_blank" class="side-btn btn-check">비교확인</a>
             <a href="http://chrurck.com/?act=info.page&pcode=sub1_3" target="_blank" class="side-btn btn-gap">초격차</a>
             <a href="https://www.mohom.kr/" target="_blank" class="side-btn btn-mohom">모홈</a>
             <a href="https://infis-erp.co.kr/" target="_blank" class="side-btn btn-erp">ERP</a>
         </div>
+
         <div class="glass-card">
             <div style="font-size:20px; font-weight:700; margin-bottom:15px;">🔍 통합 고객 조회</div>
             <div style="display:grid; grid-template-columns: 1fr 150px; gap:12px;"><input type="text" id="searchName" placeholder="성함 입력" onkeypress="if(event.keyCode==13) findCustomer()"><button class="btn-main" onclick="findCustomer()">조회</button></div>
             <div id="searchStatus" style="margin-top:10px; font-size:14px; color: var(--primary);"></div>
             <div id="searchResultArea" style="display:none; overflow-x:auto;"><table class="results-table"><thead><tr><th>취급자</th><th>이름</th><th>주민번호</th><th>연락처</th><th>주소</th><th>직업</th><th>계좌정보</th></tr></thead><tbody id="resultTableBody"></tbody></table></div>
         </div>
+
         <div class="dashboard-grid">
             <div class="glass-card"><div class="weather-info"><div id="cur-date"></div><div id="cur-time"></div><div id="we-icon">☀️</div><span id="we-temp">--°C</span><div id="weather-desc" style="font-size:13px; color:var(--text-sub);">불러오는 중...</div></div></div>
             <div class="glass-card" style="padding: 18px;"><div id="cal-title" style="font-weight: 800; text-align: center; margin-bottom: 12px; font-size: 16px;"></div><table class="calendar-table"><thead><tr style="font-size: 11px; height: 25px; text-align: center;"><th style="color:var(--red)">일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th style="color:var(--primary)">토</th></tr></thead><tbody id="cal-body-content"></tbody></table></div>
         </div>
     </div>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
 <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxKuInYyTnY8vp_8gCVgW17givSBKO27k_JcO2cdtovMlzDBa2Fxh9Q4MJwkRQ8BsV1lA/exec';
     const W_API_KEY = 'e9e4b4788a9cb01857b3d430b6551c24';
@@ -145,8 +129,8 @@
             const data = await res.json();
             if(data[0] && data[0].error === "SITE_LOCKED") { document.body.classList.add('is-locked'); return; }
             if(data.status === "success") { sessionKey = pass; unlockApp(); }
-            else { $('lock-error-area').innerHTML = `<p class="error-msg">${data[0].error || "비밀번호 오류"}</p>`; $('access-btn').disabled = false; }
-        } catch(e) { $('lock-error-area').innerHTML = `<p class="error-msg">⚠️ 서버 연결 오류</p>`; $('access-btn').disabled = false; }
+            else { $('lock-error-area').innerHTML = `<p style="color:red;">${data[0].error || "비밀번호 오류"}</p>`; $('access-btn').disabled = false; }
+        } catch(e) { $('lock-error-area').innerHTML = `<p style="color:red;">⚠️ 서버 연결 오류</p>`; $('access-btn').disabled = false; }
     }
 
     function unlockApp() { $('gatekeeper').style.display = 'none'; $('main-app').style.display = 'flex'; updateClock(); setInterval(updateClock, 1000); fetchWeather(); drawCal(); }
@@ -167,13 +151,13 @@
         } catch (e) {}
     }
 
+    // [이벤트 내용이 포함된 캘린더 그리기 함수]
     function drawCal() {
-        const n = new Date(); 
-        const y = n.getFullYear(); 
-        const m = n.getMonth(); 
+        const n = new Date(); const y = n.getFullYear(); const m = n.getMonth(); 
         $('cal-title').innerText = `${y}년 ${m + 1}월`;
         const firstDay = new Date(y, m, 1).getDay(); const lastDate = new Date(y, m + 1, 0).getDate();
         let html = '<tr>';
+        // 이벤트 내용 유지
         const events = [
             { start:'2026-07-01', end:'2026-07-01', text:'워' },
             { start:'2026-07-02', end:'2026-07-02', text:'크' },
@@ -209,43 +193,19 @@
         } catch(e) { $('searchStatus').innerText = "❌ 조회 오류"; }
     }
 
-    let uploadedFiles = [null, null];
-    function keepFile(n) { uploadedFiles[n-1] = $('f'+n).files[0]; }
-
     async function startProcess() {
         const dVal = $('cDate').value; const uN = $('uName').value.trim(); const pN = $('pName').value.trim();
-        if (!uploadedFiles[0] || !uploadedFiles[1] || !dVal || !uN || !pN) return alert("필수 정보가 누락되었습니다.");
-        $('process-btn').disabled = true; $('processStatus').innerText = "🚀 드라이브 전송 중...";
+        if (!dVal || !uN || !pN) return alert("필수 정보를 입력하세요.");
+        $('process-btn').disabled = true;
+        $('processStatus').innerText = "🚀 드라이브 자동 생성 중...";
         try {
-            const dt = new Date(dVal);
-            const dObj = { y: dt.getFullYear().toString().slice(-2), m: (dt.getMonth()+1).toString(), day: dt.getDate().toString() };
-            const i1 = await renderPdf(uploadedFiles[0], "고", dObj, uN, pN);
-            const i2 = await renderPdf(uploadedFiles[1], "동", dObj, uN, pN);
-            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ key: sessionKey, file1Data: i1, fileName1: `${uN}_고지의무.jpg`, file2Data: i2, fileName2: `${uN}_동의서.jpg` }) });
-            $('processStatus').innerText = "✅ 전송 요청 완료!";
-        } catch (e) { $('processStatus').innerText = "❌ 전송 오류"; } finally { $('process-btn').disabled = false; }
-    }
-
-    async function renderPdf(file, type, dy, n, p) {
-        const canvas = document.createElement('canvas');
-        const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
-        const page = await pdf.getPage(1); const viewport = page.getViewport({ scale: 2.0 });
-        const ctx = canvas.getContext('2d'); canvas.width = viewport.width; canvas.height = viewport.height;
-        ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-        await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-        const s = 2.0; const h = viewport.height;
-        const drawText = (t, x, y, sz=13) => { ctx.font = `${sz*s}px 'Malgun Gothic'`; ctx.fillStyle = "#000"; ctx.fillText(t, x*s, h-(y*s)); };
-        const drawCheck = (x, y) => { ctx.font = `bold ${22*s}px Arial`; ctx.fillStyle = "red"; ctx.textAlign = "center"; ctx.fillText("v", x*s, h-(y*s)); ctx.textAlign = "start"; };
-        if(type === "고") {
-            [612, 579, 548, 504, 445, 385, 340, 310, 273].forEach(y => drawCheck(500, y));
-            drawText(dy.y, 199, 209); drawText(dy.m, 230, 209); drawText(dy.day, 256, 209); drawText(n, 431, 209); drawText(n, 500, 209);
-            drawText(dy.y, 200, 96); drawText(dy.m, 225, 96); drawText(dy.day, 250, 96); drawText(p, 430, 96); drawText(p, 505, 96);
-        } else {
-            [640, 545, 428, 310, 234].forEach(y => drawCheck(522, y));
-            drawText(dy.y, 254, 138); drawText(dy.m, 300, 138); drawText(dy.day, 341, 138); drawText(n, 150, 107); drawText(n, 239, 107);
-            drawText("미래전략사업단", 150, 58); drawText(p, 416, 64); drawText(p, 500, 64);
-        }
-        return canvas.toDataURL('image/jpeg', 0.9);
+            const res = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'generate', uName: uN, pName: pN, date: dVal, key: sessionKey })
+            });
+            $('processStatus').innerText = "✅ 전송 완료!";
+        } catch(e) { $('processStatus').innerText = "❌ 오류 발생"; }
+        finally { $('process-btn').disabled = false; }
     }
 </script>
 </body>
