@@ -73,17 +73,15 @@
         </div>
         <div class="two-cols">
             <div class="glass-card">
-                <div style="font-size:18px; font-weight:700; margin-bottom:15px;">📂 서류 업로드 (PDF)</div>
-                <label style="display:block; font-size:12px; font-weight:700;">고지의무 이행확인서</label>
-                <input type="file" id="f1" accept=".pdf" onchange="keepFile(1)">
-                <label style="display:block; margin-top:10px; font-size:12px; font-weight:700;">필수 동의서</label>
-                <input type="file" id="f2" accept=".pdf" onchange="keepFile(2)">
+                <div style="font-size:18px; font-weight:700; margin-bottom:15px;">📂 드라이브 자동 연동</div>
+                <input type="text" id="fileId1" placeholder="고지의무 이행확인서 드라이브 ID">
+                <input type="text" id="fileId2" placeholder="필수 동의서 드라이브 ID">
             </div>
             <div class="glass-card">
-                <div style="font-size:18px; font-weight:700; margin-bottom:15px;">👤 기재 정보 및 전송</div>
+                <div style="font-size:18px; font-weight:700; margin-bottom:15px;">👤 기재 정보 및 마스킹 전송</div>
                 <input type="date" id="cDate">
                 <div class="two-cols"><input type="text" id="pName" placeholder="담당 설계사"><input type="text" id="uName" placeholder="계약자 성명"></div>
-                <button class="btn-main" style="width:100%; height:50px; margin-top:10px;" id="process-btn" onclick="startProcess()">📤 서류 생성 및 드라이브 전송</button>
+                <button class="btn-main" style="width:100%; height:50px; margin-top:10px;" id="process-btn" onclick="startProcess()">📤 드라이브 자동 처리</button>
                 <div id="processStatus" style="text-align:center; margin-top:12px; font-weight:700; font-size:13px;"></div>
             </div>
         </div>
@@ -139,7 +137,7 @@
         const firstDay = new Date(y, m, 1).getDay(); const lastDate = new Date(y, m + 1, 0).getDate();
         let html = '<tr>';
         
-        // 이벤트 데이터 정의 (이 부분을 원본대로 모두 포함했습니다)
+        // 이벤트 데이터 정의 (원본대로 유지)
         const events = [
             { start:'2026-07-01', end:'2026-07-03', text:'워크샵' },
             { start:'2026-07-06', end:'2026-07-06', text:'윤성휴무' },
@@ -171,26 +169,26 @@
         } catch(e) { $('searchStatus').innerText = "❌ 조회 오류"; }
     }
 
-    let uploadedFiles = [null, null];
-    function keepFile(n) { uploadedFiles[n-1] = $('f'+n).files[0]; }
-
     async function startProcess() {
+        const id1 = $('fileId1').value.trim(); const id2 = $('fileId2').value.trim();
         const dVal = $('cDate').value; const uN = $('uName').value.trim(); const pN = $('pName').value.trim();
-        if (!uploadedFiles[0] || !uploadedFiles[1] || !dVal || !uN || !pN) return alert("필수 정보가 누락되었습니다.");
-        $('process-btn').disabled = true; $('processStatus').innerText = "🚀 드라이브 전송 중...";
+        if (!id1 || !id2 || !dVal || !uN || !pN) return alert("드라이브 ID 및 필수 정보를 입력하세요.");
+        $('process-btn').disabled = true; $('processStatus').innerText = "🚀 드라이브 파일 불러오기 중...";
         try {
             const dt = new Date(dVal);
             const dObj = { y: dt.getFullYear().toString().slice(-2), m: (dt.getMonth()+1).toString(), day: dt.getDate().toString() };
-            const i1 = await renderPdf(uploadedFiles[0], "고", dObj, uN, pN);
-            const i2 = await renderPdf(uploadedFiles[1], "동", dObj, uN, pN);
+            const file1 = await fetch(`${SCRIPT_URL}?action=getFile&id=${id1}&key=${sessionKey}`).then(r => r.blob());
+            const file2 = await fetch(`${SCRIPT_URL}?action=getFile&id=${id2}&key=${sessionKey}`).then(r => r.blob());
+            const i1 = await renderPdf(file1, "고", dObj, uN, pN);
+            const i2 = await renderPdf(file2, "동", dObj, uN, pN);
             await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ key: sessionKey, file1Data: i1, fileName1: `${uN}_고지의무.jpg`, file2Data: i2, fileName2: `${uN}_동의서.jpg` }) });
-            $('processStatus').innerText = "✅ 전송 요청 완료!";
-        } catch (e) { $('processStatus').innerText = "❌ 전송 오류"; } finally { $('process-btn').disabled = false; }
+            $('processStatus').innerText = "✅ 마스킹 및 전송 완료!";
+        } catch (e) { $('processStatus').innerText = "❌ 처리 오류"; } finally { $('process-btn').disabled = false; }
     }
 
-    async function renderPdf(file, type, dy, n, p) {
+    async function renderPdf(blob, type, dy, n, p) {
         const canvas = document.createElement('canvas');
-        const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+        const pdf = await pdfjsLib.getDocument({ data: await blob.arrayBuffer() }).promise;
         const page = await pdf.getPage(1);
         const baseViewport = page.getViewport({ scale: 1.0 });
         const scale = 2.0; 
