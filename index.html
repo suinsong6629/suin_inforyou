@@ -6,7 +6,7 @@
     <title>미래전략 사업단 V17.9_Final</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400;700&display=swap');
-        :root { --bg-gradient: linear-gradient(135deg, #dce4ff 0%, #f1f5f9 50%, #ffe4e6 100%); --glass: rgba(255, 255, 255, 0.75); --glass-border: rgba(255, 255, 255, 0.4); --primary: #3182f6; --red: #fb7185; --text-main: #191f28; --text-sub: #4e5968; --shadow: 0 8px 32px rgba(0, 0, 0, 0.05); --c-purple: rgba(168, 85, 247, 0.15); --c-orange: rgba(249, 115, 22, 0.15); --c-blue: rgba(59, 130, 246, 0.15); --c-green: rgba(16, 185, 129, 0.15); --c-red: rgba(225, 29, 72, 0.15); }
+        :root { --bg-gradient: linear-gradient(135deg, #dce4ff 0%, #f1f5f9 50%, #ffe4e6 100%); --glass: rgba(255, 255, 255, 0.75); --glass-border: rgba(255, 255, 255, 0.4); --primary: #3182f6; --red: #fb7185; --text-main: #191f28; --text-sub: #4e5968; --shadow: 0 8px 32px rgba(0, 0, 0, 0.05); --c-purple: rgba(168, 85, 247, 0.15); --c-orange: rgba(249, 115, 22, 0.15); --c-blue: rgba(59, 130, 246, 0.15); --c-green: rgba(16, 185, 129, 0.15); --c-red: rgba(225, 29, 72, 0.15); --c-teal: rgba(20, 184, 166, 0.15); }
         body.dark-mode { --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); --glass: rgba(30, 41, 59, 0.7); --glass-border: rgba(255, 255, 255, 0.1); --text-main: #f8fafc; --text-sub: #94a3b8; --shadow: 0 8px 32px rgba(0, 0, 0, 0.3); }
         body.is-locked #main-wrapper { filter: blur(25px); pointer-events: none; }
         #lock-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 20000; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; }
@@ -36,6 +36,8 @@
         .btn-check { background: var(--c-green); color: #10b981; }
         .btn-mohom { background: var(--c-blue); color: #3b82f6; }
         .btn-red { background: var(--c-red); color: #e11d48; }
+        .btn-hana { background: var(--c-orange); color: #ea580c; }
+        .btn-hanwha { background: var(--c-teal); color: #0d9488; }
         .calendar-table { width: 100%; border-collapse: separate; border-spacing: 2px; table-layout: fixed; }
         .calendar-td { height: 90px; vertical-align: top; padding: 8px; border: 1px solid rgba(125,125,125,0.1); border-radius: 10px; background: rgba(255,255,255,0.2); }
         .day-num { font-weight: 700; font-size: 12px; }
@@ -86,6 +88,12 @@
                 <a href="http://chrurck.com/?act=info.page&pcode=sub1_3" target="_blank" class="glass-card btn-check" style="text-decoration:none; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:700; box-sizing:border-box; padding:10px; text-align:center;">초격차</a>
                 <a href="https://www.mohom.kr/" target="_blank" class="glass-card btn-mohom" style="text-decoration:none; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:700; box-sizing:border-box; padding:10px; text-align:center;">모홈</a>
                 <a href="https://infis-erp.co.kr/" target="_blank" class="glass-card btn-erp" style="text-decoration:none; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:700; box-sizing:border-box; padding:10px; text-align:center;">ERP</a>
+            </div>
+        </div>
+        <div class="glass-card" style="padding: 15px;">
+            <div class="shortcut-row" style="grid-template-columns: repeat(2, 1fr);">
+                <a href="https://sfa.saleshana.com/wq/login" target="_blank" class="side-btn btn-hana">하나손보</a>
+                <a href="https://portal.hwgeneralins.com/3rdParty/loginFormPage_v2.jsp?NONCE=fLX1wU9Qk4zz0Q1SM33HG813%2FTviqmUKNPizBKRc2qrjUEfo2NXTOmEh52aQpjmovaop8ANYTxDqRHAaoKj%2FDw%3D%3D&UURL=https%3A%2F%2Fportal.hwgeneralins.com%2Fnls3%2Ffcs" target="_blank" class="side-btn btn-hanwha">한화손보</a>
             </div>
         </div>
         <div class="glass-card" style="display:none;">
