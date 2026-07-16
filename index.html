@@ -6,7 +6,7 @@
     <title>미래전략 사업단 V17.9_Final</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400;700&display=swap');
-        :root { --bg-gradient: linear-gradient(135deg, #dce4ff 0%, #f1f5f9 50%, #ffe4e6 100%); --glass: rgba(255, 255, 255, 0.75); --glass-border: rgba(255, 255, 255, 0.4); --primary: #3182f6; --red: #fb7185; --text-main: #191f28; --text-sub: #4e5968; --shadow: 0 8px 32px rgba(0, 0, 0, 0.05); --c-purple: rgba(168, 85, 247, 0.15); --c-orange: rgba(249, 115, 22, 0.15); --c-blue: rgba(59, 130, 246, 0.15); --c-green: rgba(16, 185, 129, 0.15); --c-red: rgba(225, 29, 72, 0.15); --c-teal: rgba(20, 184, 166, 0.15); --c-teal-strong: rgba(13, 148, 136, 0.45); --c-orange-strong: rgba(234, 88, 12, 0.45); }
+        :root { --bg-gradient: linear-gradient(135deg, #dce4ff 0%, #f1f5f9 50%, #ffe4e6 100%); --glass: rgba(255, 255, 255, 0.75); --glass-border: rgba(255, 255, 255, 0.4); --primary: #3182f6; --red: #fb7185; --text-main: #191f28; --text-sub: #4e5968; --shadow: 0 8px 32px rgba(0, 0, 0, 0.05); }
         body.dark-mode { --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); --glass: rgba(30, 41, 59, 0.7); --glass-border: rgba(255, 255, 255, 0.1); --text-main: #f8fafc; --text-sub: #94a3b8; --shadow: 0 8px 32px rgba(0, 0, 0, 0.3); }
         body.is-locked #main-wrapper { filter: blur(25px); pointer-events: none; }
         #lock-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 20000; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; }
@@ -29,19 +29,13 @@
         .weather-info { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; text-align: center; height: 100%; }
         #we-icon { font-size: 55px; }
         #cur-time { font-size: 38px; font-weight: 800; color: var(--primary); }
-        .shortcut-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; width: 100%; }
-        .side-btn { height: 55px; border-radius: 16px; text-decoration: none; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
-        .btn-erp { background: var(--c-purple); color: #7c3aed; }
-        .btn-gap { background: var(--c-orange); color: #ea580c; }
-        .btn-check { background: var(--c-green); color: #10b981; }
-        .btn-mohom { background: var(--c-blue); color: #3b82f6; }
-        .btn-red { background: var(--c-red); color: #e11d48; }
-        .btn-hana { background: var(--c-orange); color: #ea580c; }
-        .btn-hanwha { background: var(--c-teal); color: #0d9488; }
-        .logo-btn { padding: 8px 14px !important; }
-        .logo-btn img { width: 100%; height: 100%; object-fit: contain; display: block; }
-        .logo-btn.tone-hana { background: var(--c-teal-strong); }
-        .logo-btn.tone-hanwha { background: var(--c-orange-strong); }
+        .qa-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+        .qa-tile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 18px 8px; border-radius: 20px; background: var(--glass); border: 1px solid var(--glass-border); text-decoration: none; box-shadow: 0 2px 10px rgba(15,23,42,0.05); transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+        .qa-tile:hover { transform: translateY(-4px); box-shadow: 0 14px 28px -8px var(--tile-a); border-color: var(--tile-a); }
+        .qa-icon { width: 46px; height: 46px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; color: #fff; letter-spacing: -0.3px; background: linear-gradient(135deg, var(--tile-a), var(--tile-b)); box-shadow: 0 6px 14px -6px var(--tile-a); }
+        .qa-label { font-size: 12.5px; font-weight: 700; color: var(--text-main); text-align: center; line-height: 1.3; white-space: nowrap; }
+        @media (max-width: 900px) { .qa-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 520px) { .qa-grid { grid-template-columns: repeat(2, 1fr); } .qa-label { white-space: normal; } }
         .calendar-table { width: 100%; border-collapse: separate; border-spacing: 2px; table-layout: fixed; }
         .calendar-td { height: 90px; vertical-align: top; padding: 8px; border: 1px solid rgba(125,125,125,0.1); border-radius: 10px; background: rgba(255,255,255,0.2); }
         .day-num { font-weight: 700; font-size: 12px; }
@@ -78,26 +72,41 @@
                 <button onclick="location.reload()" style="background:#eee; border:none; padding:12px 18px; border-radius:12px; cursor:pointer; font-size:12px; font-weight: 700;">보안 로그아웃</button>
             </div>
         </div>
-        <div class="two-cols">
-            <div class="glass-card">
-                <div style="font-size:18px; font-weight:700; margin-bottom:15px;">👤 기재 정보 및 마스킹 전송</div>
-                <input type="date" id="cDate">
-                <div class="two-cols"><input type="text" id="pName" placeholder="담당 설계사"><input type="text" id="uName" placeholder="계약자 성명"></div>
-                <button class="btn-main" style="width:100%; height:50px; margin-top:10px;" id="process-btn" onclick="startProcess()">📤 드라이브 자동 처리</button>
-                <div id="processStatus" style="text-align:center; margin-top:12px; font-weight:700; font-size:13px;"></div>
-            </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 12px;">
-                <!-- 마이매니저_비교확인 토큰 만료일: 2026-07-09 (매일 갱신 필요) -->
-                <a href="https://mmpcc.ohmymanager.com/index.html?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjb25zdWx0YW50aWQiOiI1MjIwMzAwMDUiLCJjb25zdWx0YW50X25hbWUiOiLsp4TsoJXtm4giLCJjb21weV9jZCI6IkEyNzIiLCJjb21weV9uYW1lIjoi7J247Y-s7Jyg6riI7Jy17ISc67mE7IqkIiwiYnJhbmNoX25hbWUiOiLsnbjtj6zsnKDquIjsnLXshJzruYTsiqQiLCJleHAiOjE3ODQyNDc4OTcsImNvbnN1bHRhbnRfaWQiOiI1MjIwMzAwMDUiLCJuYW1lIjoi7KeE7KCV7ZuIIiwiY2xpZW50X2lkIjoiQTI3MiIsIm1kbiI6IkEyNzIiLCJyb2xlIjoiIiwiY2xpZW50X2lwIjoiMS4yMTQuMTM2Ljc0In0.E0b4W314cWbERPvGPQacxtMZZ6ce2dFrsEzpY_YI5xw" target="_blank" class="glass-card btn-red" style="text-decoration:none; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:700; box-sizing:border-box; padding:10px; text-align:center;">마이매니저_비교확인</a>
-                <a href="http://chrurck.com/?act=info.page&pcode=sub1_3" target="_blank" class="glass-card btn-check" style="text-decoration:none; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:700; box-sizing:border-box; padding:10px; text-align:center;">초격차</a>
-                <a href="https://www.mohom.kr/" target="_blank" class="glass-card btn-mohom" style="text-decoration:none; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:700; box-sizing:border-box; padding:10px; text-align:center;">모홈</a>
-                <a href="https://infis-erp.co.kr/" target="_blank" class="glass-card btn-erp" style="text-decoration:none; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:700; box-sizing:border-box; padding:10px; text-align:center;">ERP</a>
-            </div>
+        <div class="glass-card">
+            <div style="font-size:18px; font-weight:700; margin-bottom:15px;">👤 기재 정보 및 마스킹 전송</div>
+            <input type="date" id="cDate">
+            <div class="two-cols"><input type="text" id="pName" placeholder="담당 설계사"><input type="text" id="uName" placeholder="계약자 성명"></div>
+            <button class="btn-main" style="width:100%; height:50px; margin-top:10px;" id="process-btn" onclick="startProcess()">📤 드라이브 자동 처리</button>
+            <div id="processStatus" style="text-align:center; margin-top:12px; font-weight:700; font-size:13px;"></div>
         </div>
-        <div class="glass-card" style="padding: 15px;">
-            <div class="shortcut-row" style="grid-template-columns: repeat(2, 1fr);">
-                <a href="https://sfa.saleshana.com/wq/login" target="_blank" class="side-btn" style="background: var(--c-teal-strong); color: #ffffff; font-size: 27px;">하나손보 바로가기</a>
-                <a href="https://portal.hwgeneralins.com/3rdParty/loginFormPage_v2.jsp?NONCE=fLX1wU9Qk4zz0Q1SM33HG813%2FTviqmUKNPizBKRc2qrjUEfo2NXTOmEh52aQpjmovaop8ANYTxDqRHAaoKj%2FDw%3D%3D&UURL=https%3A%2F%2Fportal.hwgeneralins.com%2Fnls3%2Ffcs" target="_blank" class="side-btn" style="background: var(--c-orange-strong); color: #ffffff; font-size: 27px;">한화손보 바로가기</a>
+        <div class="glass-card">
+            <div style="font-size:18px; font-weight:700; margin-bottom:15px;">⚡ 빠른 이동</div>
+            <div class="qa-grid">
+                <!-- 마이매니저_비교확인 토큰 만료일: 2026-07-09 (매일 갱신 필요) -->
+                <a href="https://mmpcc.ohmymanager.com/index.html?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjb25zdWx0YW50aWQiOiI1MjIwMzAwMDUiLCJjb25zdWx0YW50X25hbWUiOiLsp4TsoJXtm4giLCJjb21weV9jZCI6IkEyNzIiLCJjb21weV9uYW1lIjoi7J247Y-s7Jyg6riI7Jy17ISc67mE7IqkIiwiYnJhbmNoX25hbWUiOiLsnbjtj6zsnKDquIjsnLXshJzruYTsiqQiLCJleHAiOjE3ODQyNDc4OTcsImNvbnN1bHRhbnRfaWQiOiI1MjIwMzAwMDUiLCJuYW1lIjoi7KeE7KCV7ZuIIiwiY2xpZW50X2lkIjoiQTI3MiIsIm1kbiI6IkEyNzIiLCJyb2xlIjoiIiwiY2xpZW50X2lwIjoiMS4yMTQuMTM2Ljc0In0.E0b4W314cWbERPvGPQacxtMZZ6ce2dFrsEzpY_YI5xw" target="_blank" class="qa-tile" style="--tile-a:#fb7185; --tile-b:#e11d48;">
+                    <span class="qa-icon">MM</span>
+                    <span class="qa-label">마이매니저</span>
+                </a>
+                <a href="http://chrurck.com/?act=info.page&pcode=sub1_3" target="_blank" class="qa-tile" style="--tile-a:#34d399; --tile-b:#059669;">
+                    <span class="qa-icon">초</span>
+                    <span class="qa-label">초격차</span>
+                </a>
+                <a href="https://www.mohom.kr/" target="_blank" class="qa-tile" style="--tile-a:#60a5fa; --tile-b:#2563eb;">
+                    <span class="qa-icon">모</span>
+                    <span class="qa-label">모홈</span>
+                </a>
+                <a href="https://infis-erp.co.kr/" target="_blank" class="qa-tile" style="--tile-a:#c084fc; --tile-b:#7c3aed;">
+                    <span class="qa-icon">ERP</span>
+                    <span class="qa-label">ERP</span>
+                </a>
+                <a href="https://sfa.saleshana.com/wq/login" target="_blank" class="qa-tile" style="--tile-a:#2dd4bf; --tile-b:#0f766e;">
+                    <span class="qa-icon">하나</span>
+                    <span class="qa-label">하나손보</span>
+                </a>
+                <a href="https://portal.hwgeneralins.com/3rdParty/loginFormPage_v2.jsp?NONCE=fLX1wU9Qk4zz0Q1SM33HG813%2FTviqmUKNPizBKRc2qrjUEfo2NXTOmEh52aQpjmovaop8ANYTxDqRHAaoKj%2FDw%3D%3D&UURL=https%3A%2F%2Fportal.hwgeneralins.com%2Fnls3%2Ffcs" target="_blank" class="qa-tile" style="--tile-a:#fb923c; --tile-b:#c2410c;">
+                    <span class="qa-icon">한화</span>
+                    <span class="qa-label">한화손보</span>
+                </a>
             </div>
         </div>
         <div class="glass-card" style="display:none;">
