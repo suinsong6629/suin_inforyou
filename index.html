@@ -41,7 +41,13 @@
         .day-num { font-weight: 700; font-size: 12px; }
         .event-bar { height: 20px; background: rgba(251, 113, 133, 0.2); border-bottom: 2.5px solid var(--red); font-size: 10px; font-weight: 700; color: #b91c1c; display: flex; align-items: center; justify-content: center; border-radius: 4px; margin-bottom: 2px; overflow: hidden; white-space: nowrap; }
         .today { background: rgba(49, 130, 246, 0.15) !important; outline: 2px solid var(--primary) !important; outline-offset: -2px; }
-        input, select { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(125,125,125,0.2); margin-bottom: 12px; background: rgba(255,255,255,0.5); color: inherit; outline: none; }
+        input, select { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(125,125,125,0.2); margin-bottom: 12px; background: rgba(255,255,255,0.5); color: inherit; outline: none; transition: border-color .15s ease, box-shadow .15s ease; }
+        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(49,130,246,0.15); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+        .field { display: flex; flex-direction: column; gap: 6px; }
+        .field label { font-size: 12px; font-weight: 700; color: var(--text-sub); padding-left: 2px; }
+        .field input { margin-bottom: 0; }
+        @media (max-width: 700px) { .form-row { grid-template-columns: 1fr; } }
         .btn-main { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 16px; }
         .results-table { width: 100%; border-collapse: collapse; min-width: 1000px; margin-top: 15px; }
         .results-table th { background: rgba(0,0,0,0.05); padding: 12px; text-align: left; font-size: 13px; }
@@ -74,8 +80,11 @@
         </div>
         <div class="glass-card">
             <div style="font-size:18px; font-weight:700; margin-bottom:15px;">👤 기재 정보 및 마스킹 전송</div>
-            <input type="date" id="cDate">
-            <div class="two-cols"><input type="text" id="pName" placeholder="담당 설계사"><input type="text" id="uName" placeholder="계약자 성명"></div>
+            <div class="form-row">
+                <div class="field"><label for="cDate">처리 일자</label><input type="date" id="cDate"></div>
+                <div class="field"><label for="pName">담당 설계사</label><input type="text" id="pName" placeholder="이름 입력"></div>
+                <div class="field"><label for="uName">계약자 성명</label><input type="text" id="uName" placeholder="이름 입력"></div>
+            </div>
             <button class="btn-main" style="width:100%; height:50px; margin-top:10px;" id="process-btn" onclick="startProcess()">📤 드라이브 자동 처리</button>
             <div id="processStatus" style="text-align:center; margin-top:12px; font-weight:700; font-size:13px;"></div>
         </div>
