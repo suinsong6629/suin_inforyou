@@ -7,7 +7,6 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400;700&display=swap');
         :root { --bg-gradient: linear-gradient(135deg, #dce4ff 0%, #f1f5f9 50%, #ffe4e6 100%); --glass: rgba(255, 255, 255, 0.75); --glass-border: rgba(255, 255, 255, 0.4); --primary: #3182f6; --red: #fb7185; --text-main: #191f28; --text-sub: #4e5968; --shadow: 0 8px 32px rgba(0, 0, 0, 0.05); }
-        body.dark-mode { --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); --glass: rgba(30, 41, 59, 0.7); --glass-border: rgba(255, 255, 255, 0.1); --text-main: #f8fafc; --text-sub: #94a3b8; --shadow: 0 8px 32px rgba(0, 0, 0, 0.3); }
         body.is-locked #main-wrapper { filter: blur(25px); pointer-events: none; }
         #lock-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 20000; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; }
         body.is-locked #lock-screen { display: flex; }
@@ -18,13 +17,6 @@
         .lock-card { background: var(--glass); padding: 50px; border-radius: 30px; box-shadow: var(--shadow); text-align: center; width: 100%; max-width: 420px; border: 1px solid var(--glass-border); backdrop-filter: blur(15px); }
         #main-app { display: none; flex-direction: column; gap: 20px; width: 100%; }
         .glass-card { background: var(--glass); border-radius: 24px; padding: 25px; box-shadow: var(--shadow); border: 1px solid var(--glass-border); backdrop-filter: blur(20px); }
-        .switch-container { display: flex; align-items: center; gap: 10px; }
-        .switch { position: relative; display: inline-block; width: 46px; height: 24px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #e2e8f0; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: #4cd964; }
-        input:checked + .slider:before { transform: translateX(22px); }
         .dashboard-grid { display: grid; grid-template-columns: 280px 1fr; gap: 20px; align-items: stretch; }
         .weather-info { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; text-align: center; height: 100%; }
         #we-icon { font-size: 55px; }
@@ -71,24 +63,35 @@
     </div>
     <div id="main-app">
         <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <h1 style="font-size: 26px; color: var(--primary); margin: 0;">미래전략 사업단 통합 시스템</h1>
+            <h1 style="font-size: 26px; color: var(--primary); margin: 0;">수인 관리페이지</h1>
             <div style="display: flex; align-items: center; gap: 15px;">
-                <div class="switch-container">
-                    <span style="font-size: 12px; font-weight: 700;">다크 모드</span>
-                    <label class="switch"><input type="checkbox" id="darkToggle"><span class="slider"></span></label>
+                <div style="display:flex; align-items:center; gap:10px; font-size:13px; font-weight:700; color:var(--text-sub);">
+                    <span id="cur-date"></span>
+                    <span id="cur-time" style="font-size:16px; color:var(--primary);"></span>
+                    <span style="display:flex; align-items:center; gap:4px;"><span id="we-icon" style="font-size:18px;">☀️</span><span id="we-temp">--°C</span></span>
                 </div>
                 <button onclick="location.reload()" style="background:#eee; border:none; padding:12px 18px; border-radius:12px; cursor:pointer; font-size:12px; font-weight: 700;">보안 로그아웃</button>
             </div>
         </div>
-        <div class="glass-card">
-            <div style="font-size:18px; font-weight:700; margin-bottom:15px;">👤 기재 정보 및 마스킹 전송</div>
-            <div class="form-row">
-                <div class="field"><label for="cDate">처리 일자</label><input type="date" id="cDate"></div>
-                <div class="field"><label for="pName">담당 설계사</label><input type="text" id="pName" placeholder="이름 입력"></div>
-                <div class="field"><label for="uName">계약자 성명</label><input type="text" id="uName" placeholder="이름 입력"></div>
+        <div class="two-cols qa-two-cols">
+            <div class="glass-card">
+                <div style="font-size:18px; font-weight:700; margin-bottom:15px;">👤 마스킹 전송</div>
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    <div class="field"><label for="cDate">처리 일자</label><input type="date" id="cDate"></div>
+                    <div class="field"><label for="pName">담당 설계사</label><input type="text" id="pName" placeholder="이름 입력"></div>
+                    <div class="field"><label for="uName">계약자 성명</label><input type="text" id="uName" placeholder="이름 입력"></div>
+                    <button class="btn-main" style="width:100%; height:50px; margin-top:2px;" id="process-btn" onclick="startProcess()">📤 전송</button>
+                </div>
+                <div id="processStatus" style="text-align:center; margin-top:12px; font-weight:700; font-size:13px;"></div>
             </div>
-            <button class="btn-main" style="width:100%; height:50px; margin-top:10px;" id="process-btn" onclick="startProcess()">📤 드라이브 자동 처리</button>
-            <div id="processStatus" style="text-align:center; margin-top:12px; font-weight:700; font-size:13px;"></div>
+            <div class="glass-card">
+                <div style="font-size:20px; font-weight:700; margin-bottom:15px;">🔍 통합 고객 조회</div>
+                <div style="display:grid; grid-template-columns: 1fr 100px; gap:12px;"><input type="text" id="searchName" placeholder="성함 입력" onkeypress="if(event.keyCode==13) findCustomer()"><button class="btn-main" onclick="findCustomer()">조회</button></div>
+                <div id="searchStatus" style="margin-top:10px; font-size:14px; color: var(--primary);"></div>
+                <div id="searchResultArea" style="display:none;">
+                    <div id="resultList" style="display:flex; flex-direction:column; gap:10px; margin-top:10px;"></div>
+                </div>
+            </div>
         </div>
         <div class="two-cols qa-two-cols">
             <div class="glass-card">
@@ -140,16 +143,7 @@
                 를 자동으로 찾아 불러옵니다.
             </div>
         </div>
-        <div class="glass-card">
-            <div style="font-size:20px; font-weight:700; margin-bottom:15px;">🔍 통합 고객 조회</div>
-            <div style="display:grid; grid-template-columns: 1fr 150px; gap:12px;"><input type="text" id="searchName" placeholder="성함 입력" onkeypress="if(event.keyCode==13) findCustomer()"><button class="btn-main" onclick="findCustomer()">조회</button></div>
-            <div id="searchStatus" style="margin-top:10px; font-size:14px; color: var(--primary);"></div>
-            <div id="searchResultArea" style="display:none; overflow-x:auto;"><table class="results-table"><thead><tr><th>취급자</th><th>이름</th><th>주민번호</th><th>연락처</th><th>주소</th><th>직업</th><th>계좌정보</th></tr></thead><tbody id="resultTableBody"></tbody></table></div>
-        </div>
-        <div class="dashboard-grid">
-            <div class="glass-card"><div class="weather-info"><div id="cur-date"></div><div id="cur-time"></div><div id="we-icon">☀️</div><span id="we-temp">--°C</span><div id="weather-desc" style="font-size:13px; color:var(--text-sub);">불러오는 중...</div></div></div>
-            <div class="glass-card" style="padding: 18px;"><div id="cal-title" style="font-weight: 800; text-align: center; margin-bottom: 12px; font-size: 16px;"></div><table class="calendar-table"><thead><tr style="font-size: 11px; height: 25px; text-align: center;"><th style="color:var(--red)">일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th style="color:var(--primary)">토</th></tr></thead><tbody id="cal-body-content"></tbody></table></div>
-        </div>
+        <div class="glass-card" style="padding: 18px;"><div id="cal-title" style="font-weight: 800; text-align: center; margin-bottom: 12px; font-size: 16px;"></div><table class="calendar-table"><thead><tr style="font-size: 11px; height: 25px; text-align: center;"><th style="color:var(--red)">일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th style="color:var(--primary)">토</th></tr></thead><tbody id="cal-body-content"></tbody></table></div>
     </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -159,9 +153,7 @@
     let sessionKey = "";
     const $ = id => document.getElementById(id);
 
-    window.onload = () => { 
-        $('darkToggle').addEventListener('change', () => document.body.classList.toggle('dark-mode')); 
-    };
+    function unlockApp() { $('gatekeeper').style.display = 'none'; $('main-app').style.display = 'flex'; updateClock(); setInterval(updateClock, 1000); fetchWeather(); drawCal(); }
 
     async function tryAccess() {
         const pass = $('entry-pass').value.trim(); if(!pass) return;
@@ -175,9 +167,8 @@
         } catch(e) { $('lock-error-area').innerHTML = `<p style="color:red; font-size:12px;">⚠️ 서버 연결 오류</p>`; $('access-btn').disabled = false; }
     }
 
-    function unlockApp() { $('gatekeeper').style.display = 'none'; $('main-app').style.display = 'flex'; updateClock(); setInterval(updateClock, 1000); fetchWeather(); drawCal(); }
     function updateClock() { const n = new Date(); const days = ["일", "월", "화", "수", "목", "금", "토"]; $('cur-date').innerText = `${n.getFullYear()}년 ${n.getMonth()+1}월 ${n.getDate()}일 (${days[n.getDay()]})`; let hrs = n.getHours(); const ampm = hrs >= 12 ? 'PM' : 'AM'; hrs = hrs % 12 || 12; $('cur-time').innerText = `${ampm} ${hrs}:${String(n.getMinutes()).padStart(2, '0')}`; }
-    async function fetchWeather() { try { const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Seoul&appid=${W_API_KEY}&units=metric&lang=kr`); const d = await res.json(); $('we-temp').innerText = `${Math.round(d.main.temp)}°C`; $('weather-desc').innerText = d.weather[0].description; $('we-icon').innerText = d.weather[0].icon.includes('01') ? '☀️' : '☁️'; } catch (e) {} }
+    async function fetchWeather() { try { const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Seoul&appid=${W_API_KEY}&units=metric&lang=kr`); const d = await res.json(); $('we-temp').innerText = `${Math.round(d.main.temp)}°C`; $('we-icon').innerText = d.weather[0].icon.includes('01') ? '☀️' : '☁️'; } catch (e) {} }
 
     function drawCal() {
         const n = new Date(); const y = n.getFullYear(); const m = n.getMonth(); 
@@ -211,9 +202,14 @@
         try {
             const res = await fetch(`${SCRIPT_URL}?action=search&name=${encodeURIComponent(name)}&key=${encodeURIComponent(sessionKey)}`);
             const results = await res.json();
-            const tbody = $('resultTableBody'); tbody.innerHTML = '';
+            const list = $('resultList'); list.innerHTML = '';
             if(!results || results.length === 0) { $('searchStatus').innerText = `❌ 결과 없음`; $('searchResultArea').style.display = 'none'; return; }
-            results.forEach(item => { const tr = document.createElement('tr'); tr.innerHTML = `<td>${item.handler}</td><td style="font-weight:700;">${item.name}</td><td>${item.residentId}</td><td>${item.phone}</td><td>${item.address}</td><td>${item.job}</td><td>${item.account}</td>`; tbody.appendChild(tr); });
+            results.forEach(item => {
+                const card = document.createElement('div');
+                card.style.cssText = 'background:rgba(255,255,255,0.5); border-radius:12px; padding:14px; font-size:13px; line-height:1.9;';
+                card.innerHTML = `<div style="font-weight:700; font-size:15px; margin-bottom:4px;">${item.name}</div><div><b>취급자:</b> ${item.handler}</div><div><b>주민번호:</b> ${item.residentId}</div><div><b>연락처:</b> ${item.phone}</div><div><b>주소:</b> ${item.address}</div><div><b>직업:</b> ${item.job}</div><div><b>계좌정보:</b> ${item.account}</div>`;
+                list.appendChild(card);
+            });
             $('searchResultArea').style.display = 'block'; $('searchStatus').innerText = `✅ 조회 완료 (${results.length}건)`;
         } catch(e) { $('searchStatus').innerText = "❌ 조회 오류"; }
     }
