@@ -293,7 +293,7 @@
             const i2 = await renderPdf(filesData.data2, "고", dObj, uN, pN);
 
             $('processStatus').innerText = "📤 전송 중...";
-            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'save', key: sessionKey, file1Data: i1, fileName1: `${uN}_고지의무.jpg`, file2Data: i2, fileName2: `${uN}_동의서.jpg` }) });
+            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'save', key: sessionKey, file1Data: i1, fileName1: `${uN}_동의서.jpg`, file2Data: i2, fileName2: `${uN}_고지의무.jpg` }) });
             $('processStatus').innerText = "✅ 마스킹 및 전송 완료!";
         } catch (e) { console.error(e); $('processStatus').innerText = "❌ 오류: " + e.message; } finally { $('process-btn').disabled = false; }
     }
