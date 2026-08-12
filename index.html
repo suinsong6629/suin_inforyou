@@ -45,9 +45,11 @@
         .perf-total-value { font-size: 28px; font-weight: 800; color: var(--primary); text-align: right; }
         .perf-change { font-size: 14px; font-weight: 800; }
         .perf-charts-row { display: grid; grid-template-columns: 1fr 240px; gap: 24px; align-items: stretch; }
-        .perf-chart-col, .perf-donut-col { position: relative; height: 220px; }
-        .perf-donut-col { display: flex; flex-direction: column; }
-        @media (max-width: 700px) { .perf-charts-row { grid-template-columns: 1fr; } .perf-donut-col { height: 260px; } }
+        .perf-chart-col { position: relative; height: 220px; }
+        .perf-donut-col { display: flex; flex-direction: column; gap: 8px; }
+        .perf-donut-canvas-wrap { position: relative; flex: 1; min-height: 190px; }
+        .perf-donut-select { width: auto; padding: 6px 28px 6px 10px; font-size: 12px; font-weight: 700; margin-bottom: 0; align-self: flex-end; border-radius: 8px; background-color: rgba(255,255,255,0.6); cursor: pointer; }
+        @media (max-width: 700px) { .perf-charts-row { grid-template-columns: 1fr; } .perf-donut-col { height: 300px; } }
     </style>
 </head>
 <body>
@@ -146,11 +148,18 @@
                         <div class="perf-total-value" id="perf-current-total">-</div>
                         <div class="perf-change" id="perf-change"></div>
                     </div>
+                    <div class="perf-total-label" id="perf-current-count" style="margin-top:2px;"></div>
                 </div>
             </div>
             <div class="perf-charts-row">
                 <div class="perf-chart-col"><canvas id="perfChart"></canvas></div>
-                <div class="perf-donut-col"><canvas id="perfDonutChart"></canvas></div>
+                <div class="perf-donut-col">
+                    <select id="donutMetricSelect" class="perf-donut-select" onchange="onDonutMetricChange()">
+                        <option value="premium">실적</option>
+                        <option value="count">계약</option>
+                    </select>
+                    <div class="perf-donut-canvas-wrap"><canvas id="perfDonutChart"></canvas></div>
+                </div>
             </div>
         </div>
         <div class="glass-card" style="display:none;">
@@ -272,10 +281,18 @@
             $('perf-current-total').style.color = trendColor;
             $('perf-change').innerText = changeText;
             $('perf-change').style.color = trendColor;
+            $('perf-current-count').innerText = `총 ${(d.currentMonthCount || 0).toLocaleString()}건`;
 
             renderPerfChart(d.monthly, trendColor);
-            renderPerfDonut(d.companyBreakdown || []);
+
+            lastCompanyBreakdown = d.companyBreakdown || [];
+            renderPerfDonut(lastCompanyBreakdown, $('donutMetricSelect').value);
         } catch (e) { $('perf-month-label').innerText = "불러오기 실패"; console.error(e); }
+    }
+
+    let lastCompanyBreakdown = [];
+    function onDonutMetricChange() {
+        renderPerfDonut(lastCompanyBreakdown, $('donutMetricSelect').value);
     }
 
     function renderPerfChart(monthly, lineColor) {
@@ -338,7 +355,7 @@
     let perfDonutInstance = null;
     const DONUT_PALETTE = ['#34d399', '#60a5fa', '#fbbf24', '#fb7185', '#a78bfa', '#22d3ee', '#fb923c', '#4ade80', '#f472b6', '#38bdf8'];
 
-    function renderPerfDonut(companyBreakdown) {
+    function renderPerfDonut(companyBreakdown, metric) {
         const canvas = document.getElementById('perfDonutChart');
         const ctx = canvas.getContext('2d');
         if (perfDonutInstance) perfDonutInstance.destroy();
@@ -348,10 +365,17 @@
             return;
         }
 
-        const labels = companyBreakdown.map(c => c.company);
-        const values = companyBreakdown.map(c => c.total);
+        const isCount = metric === 'count';
+        // 실적(금액) 기준으로는 이미 내림차순 정렬되어 있음 - 계약 건수 기준일 땐 건수 내림차순으로 재정렬
+        const sorted = isCount
+            ? [...companyBreakdown].sort((a, b) => b.count - a.count)
+            : companyBreakdown;
+
+        const labels = sorted.map(c => c.company);
+        const values = sorted.map(c => isCount ? c.count : c.total);
         const total = values.reduce((a, b) => a + b, 0);
         const colors = labels.map((_, i) => DONUT_PALETTE[i % DONUT_PALETTE.length]);
+        const valueLabel = (v) => isCount ? `${Math.round(v).toLocaleString()}건` : `${Math.round(v).toLocaleString()}원`;
 
         perfDonutInstance = new Chart(ctx, {
             type: 'doughnut',
@@ -406,7 +430,7 @@
                         callbacks: {
                             label: (c) => {
                                 const pct = total > 0 ? Math.round((c.parsed / total) * 100) : 0;
-                                return `${Math.round(c.parsed).toLocaleString()}원 (${pct}%)`;
+                                return `${valueLabel(c.parsed)} (${pct}%)`;
                             }
                         }
                     }
