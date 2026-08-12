@@ -39,17 +39,22 @@
         .btn-main { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 16px; }
         .two-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         @media (max-width: 700px) { .two-cols { grid-template-columns: 1fr; } }
-        .perf-head { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
-        .perf-total-label { font-size: 12px; color: var(--text-sub); font-weight: 700; text-align: right; }
-        .perf-total-row { display: flex; align-items: baseline; gap: 8px; justify-content: flex-end; }
-        .perf-total-value { font-size: 28px; font-weight: 800; color: var(--primary); text-align: right; }
-        .perf-change { font-size: 14px; font-weight: 800; }
-        .perf-charts-row { display: grid; grid-template-columns: 1fr 240px; gap: 24px; align-items: stretch; }
-        .perf-chart-col { position: relative; height: 220px; }
+        .perf-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 18px; }
+        .perf-stats-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+        .perf-total-label { font-size: 12px; color: var(--text-sub); font-weight: 700; }
+        .perf-total-row { display: flex; align-items: baseline; gap: 8px; }
+        .perf-total-value { font-size: 22px; font-weight: 800; color: var(--primary); }
+        .perf-change { font-size: 13px; font-weight: 800; }
+        .perf-charts-row { display: grid; grid-template-columns: 4fr 5fr; gap: 24px; align-items: stretch; }
+        .perf-chart-col { position: relative; height: 240px; }
         .perf-donut-col { display: flex; flex-direction: column; gap: 8px; }
-        .perf-donut-canvas-wrap { position: relative; flex: 1; min-height: 190px; }
-        .perf-donut-select { width: auto; padding: 6px 28px 6px 10px; font-size: 12px; font-weight: 700; margin-bottom: 0; align-self: flex-end; border-radius: 8px; background-color: rgba(255,255,255,0.6); cursor: pointer; }
-        @media (max-width: 700px) { .perf-charts-row { grid-template-columns: 1fr; } .perf-donut-col { height: 300px; } }
+        .perf-donut-canvas-wrap { position: relative; height: 220px; }
+        .perf-donut-select { width: auto; padding: 6px 28px 6px 10px; font-size: 12px; font-weight: 700; margin-bottom: 0; border-radius: 8px; background-color: rgba(255,255,255,0.6); cursor: pointer; }
+        .perf-donut-legend { display: grid; grid-template-columns: repeat(2, max-content); column-gap: 7ch; row-gap: 7px; justify-content: center; }
+        .perf-donut-legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--text-sub); overflow: hidden; }
+        .perf-donut-legend-swatch { width: 8px; height: 8px; min-width: 8px; border-radius: 2px; }
+        .perf-donut-legend-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        @media (max-width: 700px) { .perf-charts-row { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -142,23 +147,24 @@
         <div class="glass-card">
             <div class="perf-head">
                 <div style="font-size:18px; font-weight:700;">📊 월별 실적</div>
-                <div>
+                <div class="perf-stats-row">
                     <div class="perf-total-label" id="perf-month-label">불러오는 중...</div>
                     <div class="perf-total-row">
                         <div class="perf-total-value" id="perf-current-total">-</div>
                         <div class="perf-change" id="perf-change"></div>
                     </div>
-                    <div class="perf-total-label" id="perf-current-count" style="margin-top:2px;"></div>
+                    <div class="perf-total-label" id="perf-current-count"></div>
+                    <select id="donutMetricSelect" class="perf-donut-select" onchange="onDonutMetricChange()">
+                        <option value="premium">실적</option>
+                        <option value="count">계약</option>
+                    </select>
                 </div>
             </div>
             <div class="perf-charts-row">
                 <div class="perf-chart-col"><canvas id="perfChart"></canvas></div>
                 <div class="perf-donut-col">
-                    <select id="donutMetricSelect" class="perf-donut-select" onchange="onDonutMetricChange()">
-                        <option value="premium">실적</option>
-                        <option value="count">계약</option>
-                    </select>
                     <div class="perf-donut-canvas-wrap"><canvas id="perfDonutChart"></canvas></div>
+                    <div class="perf-donut-legend" id="perfDonutLegend"></div>
                 </div>
             </div>
         </div>
@@ -358,10 +364,12 @@
     function renderPerfDonut(companyBreakdown, metric) {
         const canvas = document.getElementById('perfDonutChart');
         const ctx = canvas.getContext('2d');
+        const legendEl = $('perfDonutLegend');
         if (perfDonutInstance) perfDonutInstance.destroy();
 
         if (!companyBreakdown || companyBreakdown.length === 0) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            legendEl.innerHTML = '';
             return;
         }
 
@@ -376,6 +384,20 @@
         const total = values.reduce((a, b) => a + b, 0);
         const colors = labels.map((_, i) => DONUT_PALETTE[i % DONUT_PALETTE.length]);
         const valueLabel = (v) => isCount ? `${Math.round(v).toLocaleString()}건` : `${Math.round(v).toLocaleString()}원`;
+
+        // 범례 텍스트: 계약 건수 모드는 "회사명 N건", 실적 모드는 "회사명 xx%"
+        const legendText = (i) => {
+            if (isCount) return `${labels[i]} ${Math.round(values[i]).toLocaleString()}건`;
+            const pct = total > 0 ? Math.round((values[i] / total) * 100) : 0;
+            return `${labels[i]} ${pct}%`;
+        };
+
+        legendEl.innerHTML = labels.map((label, i) => `
+            <div class="perf-donut-legend-item">
+                <span class="perf-donut-legend-swatch" style="background:${colors[i]};"></span>
+                <span class="perf-donut-legend-text">${legendText(i)}</span>
+            </div>
+        `).join('');
 
         perfDonutInstance = new Chart(ctx, {
             type: 'doughnut',
@@ -393,29 +415,9 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 cutout: '62%',
+                layout: { padding: { top: 22, bottom: 0, left: 0, right: 0 } },
                 plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            color: '#4e5968',
-                            font: { size: 11, weight: '700' },
-                            boxWidth: 8,
-                            boxHeight: 8,
-                            padding: 10,
-                            generateLabels: (chart) => {
-                                const data = chart.data;
-                                return data.labels.map((label, i) => {
-                                    const pct = total > 0 ? Math.round((data.datasets[0].data[i] / total) * 100) : 0;
-                                    return {
-                                        text: `${label} ${pct}%`,
-                                        fillStyle: data.datasets[0].backgroundColor[i],
-                                        strokeStyle: '#fff',
-                                        index: i
-                                    };
-                                });
-                            }
-                        }
-                    },
+                    legend: { display: false },
                     tooltip: {
                         displayColors: false,
                         backgroundColor: '#ffffff',
