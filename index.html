@@ -156,6 +156,7 @@
                     <div class="perf-total-label" id="perf-current-count"></div>
                     <select id="donutMetricSelect" class="perf-donut-select" onchange="onDonutMetricChange()">
                         <option value="premium">실적</option>
+                        <option value="amount">보험료</option>
                         <option value="count">계약</option>
                     </select>
                 </div>
@@ -374,7 +375,8 @@
         }
 
         const isCount = metric === 'count';
-        // 실적(금액) 기준으로는 이미 내림차순 정렬되어 있음 - 계약 건수 기준일 땐 건수 내림차순으로 재정렬
+        const isAmount = metric === 'amount';
+        // 실적/보험료(금액) 기준으로는 이미 내림차순 정렬되어 있음 - 계약 건수 기준일 땐 건수 내림차순으로 재정렬
         const sorted = isCount
             ? [...companyBreakdown].sort((a, b) => b.count - a.count)
             : companyBreakdown;
@@ -385,9 +387,10 @@
         const colors = labels.map((_, i) => DONUT_PALETTE[i % DONUT_PALETTE.length]);
         const valueLabel = (v) => isCount ? `${Math.round(v).toLocaleString()}건` : `${Math.round(v).toLocaleString()}원`;
 
-        // 범례 텍스트: 계약 건수 모드는 "회사명 N건", 실적 모드는 "회사명 xx%"
+        // 범례 텍스트: 계약(건) / 보험료(원, 콤마) / 실적(퍼센트)
         const legendText = (i) => {
             if (isCount) return `${labels[i]} ${Math.round(values[i]).toLocaleString()}건`;
+            if (isAmount) return `${labels[i]} ${Math.round(values[i]).toLocaleString()}원`;
             const pct = total > 0 ? Math.round((values[i] / total) * 100) : 0;
             return `${labels[i]} ${pct}%`;
         };
