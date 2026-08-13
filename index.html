@@ -77,12 +77,13 @@
         .agentperf-capture-btn:hover { background: rgba(255,255,255,0.9); }
         #agentperf-month-label { font-size: 22px; font-weight: 800; color: var(--text-main); }
         .agentperf-table-col { height: 240px; overflow-y: auto; border-radius: 12px; background: rgba(255,255,255,0.35); }
-        .agentperf-table-col--month { background: rgba(49,130,246,0.07); border: 1px solid rgba(49,130,246,0.12); }
+        .agentperf-table-col--month { background: rgba(49,130,246,0.07); border: 1px solid rgba(49,130,246,0.12); border-radius: 12px 12px 0 0; height: 190px; }
         .agentperf-table-col--month .agentperf-table thead th { background: rgba(49,130,246,0.16); color: var(--primary); }
-        .agentperf-table-col--month .agentperf-total-row td { background: rgba(49,130,246,0.14); color: var(--primary); font-weight: 800; border-top: 2px solid rgba(49,130,246,0.3); }
+        .agentperf-table-col--month .agentperf-table td, .agentperf-table-col--month .agentperf-table th { border: none; }
+        .agentperf-month-block { display: flex; flex-direction: column; height: 240px; }
+        .agentperf-total-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 10px; background: rgba(49,130,246,0.18); color: var(--primary); font-weight: 800; font-size: 13px; border-radius: 0 0 12px 12px; border: 1px solid rgba(49,130,246,0.12); border-top: none; }
         .agentperf-table-col--company { border: 1px solid rgba(125,125,125,0.1); }
         .agentperf-table-col--company .agentperf-table thead th { background: rgba(0,0,0,0.045); color: var(--text-sub); }
-        .agentperf-table tfoot td { position: sticky; bottom: 0; }
         .agentperf-table { width: 100%; border-collapse: collapse; font-size: 13px; }
         .agentperf-table thead th { position: sticky; top: 0; background: rgba(255,255,255,0.9); backdrop-filter: blur(4px); z-index: 1; }
         .agentperf-table th { text-align: left; padding: 8px 10px; background: rgba(0,0,0,0.04); font-weight: 700; color: var(--text-sub); }
@@ -248,14 +249,16 @@
                 <div class="perf-total-label" id="agentperf-current-count"></div>
             </div>
             <div class="perf-charts-row">
-                <div class="agentperf-table-col agentperf-table-col--month">
-                    <table class="agentperf-table" id="agentMonthlyTable">
-                        <thead><tr><th>월</th><th style="text-align:right;">실적</th></tr></thead>
-                        <tbody id="agentMonthlyTableBody"></tbody>
-                        <tfoot>
-                            <tr class="agentperf-total-row"><td>합계</td><td class="num" id="agentMonthlyTotalCell">-</td></tr>
-                        </tfoot>
-                    </table>
+                <div class="agentperf-month-block">
+                    <div class="agentperf-table-col agentperf-table-col--month">
+                        <table class="agentperf-table" id="agentMonthlyTable">
+                            <thead><tr><th>월</th><th style="text-align:right;">실적</th></tr></thead>
+                            <tbody id="agentMonthlyTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="agentperf-total-bar">
+                        <span>합계</span><span id="agentMonthlyTotalCell">-</span>
+                    </div>
                 </div>
                 <div class="agentperf-table-col agentperf-table-col--company">
                     <table class="agentperf-table" id="agentPerfTable">
