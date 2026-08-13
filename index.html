@@ -39,6 +39,19 @@
         .btn-main { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 16px; }
         .two-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         @media (max-width: 700px) { .two-cols { grid-template-columns: 1fr; } }
+
+        /* 상단 아이콘 버튼 (자물쇠 로그아웃) */
+        .icon-btn { width: 44px; height: 44px; border-radius: 12px; border: none; background: #eee; color: var(--text-sub); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: background .15s ease, transform .15s ease, color .15s ease; flex-shrink: 0; }
+        .icon-btn:hover { color: var(--primary); background: #e2e2e2; transform: translateY(-1px); }
+
+        /* 결과 카드 내 필드 + 복사 아이콘 */
+        .result-field-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 3px 0; }
+        .result-field-row .rf-label { font-weight: 700; flex-shrink: 0; }
+        .result-field-row .rf-value { flex: 1; text-align: right; word-break: break-all; }
+        .copy-icon { background: none; border: none; cursor: pointer; font-size: 13px; color: var(--text-sub); padding: 2px 4px; border-radius: 6px; flex-shrink: 0; }
+        .copy-icon:hover { background: rgba(0,0,0,0.06); }
+
+        /* 월별 실적 대시보드 */
         .perf-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 18px; }
         .perf-stats-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
         .perf-total-label { font-size: 12px; color: var(--text-sub); font-weight: 700; }
@@ -55,6 +68,45 @@
         .perf-donut-legend-swatch { width: 8px; height: 8px; min-width: 8px; border-radius: 2px; }
         .perf-donut-legend-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         @media (max-width: 700px) { .perf-charts-row { grid-template-columns: 1fr; } }
+
+        /* 설계사별 실적 대시보드 */
+        .agentperf-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 18px; }
+        .agentperf-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .agentperf-select { width: auto; padding: 8px 28px 8px 12px; margin-bottom: 0; border-radius: 10px; font-weight: 700; font-size: 13px; background-color: rgba(255,255,255,0.6); cursor: pointer; }
+        .agentperf-capture-btn { padding: 8px 14px; border-radius: 10px; border: none; background: rgba(255,255,255,0.6); cursor: pointer; font-weight: 700; font-size: 12px; color: var(--text-sub); }
+        .agentperf-capture-btn:hover { background: rgba(255,255,255,0.9); }
+        .agentperf-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+        .agentperf-table th { text-align: left; padding: 8px 10px; background: rgba(0,0,0,0.04); font-weight: 700; color: var(--text-sub); }
+        .agentperf-table td { padding: 8px 10px; border-bottom: 1px solid rgba(125,125,125,0.1); }
+        .agentperf-table td.num { text-align: right; font-weight: 700; }
+
+        /* 설계사 코드 검색: 플로팅 버튼 + 슬라이드 패널 (좁은 화면) / 우측 여백 고정 패널 (넓은 화면) */
+        .agent-fab { position: fixed; right: 22px; bottom: 22px; z-index: 9000; display: flex; align-items: center; gap: 8px; padding: 14px 18px; border-radius: 999px; border: none; cursor: pointer; background: var(--primary); color: #fff; font-weight: 800; font-size: 14px; box-shadow: 0 10px 24px -6px rgba(49,130,246,0.5); transition: transform .15s ease; }
+        .agent-fab:hover { transform: translateY(-2px); }
+        .agent-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.35); z-index: 9998; opacity: 0; pointer-events: none; transition: opacity .2s ease; }
+        .agent-overlay.open { opacity: 1; pointer-events: auto; }
+        .agent-panel { position: fixed; top: 0; right: 0; height: 100vh; width: 380px; max-width: 92vw; background: var(--glass); backdrop-filter: blur(20px); border-left: 1px solid var(--glass-border); box-shadow: -12px 0 30px rgba(0,0,0,0.15); z-index: 9999; transform: translateX(100%); transition: transform .25s ease; display: flex; flex-direction: column; }
+        .agent-panel.open { transform: translateX(0); }
+        .agent-panel-head { padding: 20px; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; }
+        .agent-panel-body { padding: 16px 20px; }
+        .agent-panel-results { flex: 1; overflow-y: auto; padding: 0 20px 20px; }
+        .agent-close-btn { background: none; border: none; cursor: pointer; font-size: 18px; color: var(--text-sub); }
+        .agent-info-row, .agent-code-box { background: rgba(255,255,255,0.5); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; }
+        .agent-info-label { font-size: 11px; color: var(--text-sub); font-weight: 700; margin-bottom: 2px; }
+        .agent-info-value-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .agent-info-value { font-size: 14px; font-weight: 700; word-break: break-all; }
+        .agent-copy-btn { background: none; border: none; cursor: pointer; font-size: 14px; color: var(--text-sub); flex-shrink: 0; }
+        .agent-code-company { font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+        .agent-code-line { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; gap: 8px; }
+        .agent-code-line .k { font-size: 12px; color: var(--text-sub); flex-shrink: 0; }
+        .agent-code-line .v { font-size: 14px; font-weight: 600; word-break: break-all; flex: 1; text-align: right; }
+        .agent-section-title { font-weight: 700; color: var(--primary); margin: 16px 0 6px; }
+        /* 화면이 충분히 넓을 때(=오른쪽 여백이 넉넉할 때)는 슬라이드 패널 대신 여백에 고정 표시 */
+        @media (min-width: 1680px) {
+            .agent-fab { display: none; }
+            .agent-overlay { display: none !important; }
+            .agent-panel { position: fixed; top: 120px; right: 24px; height: auto; max-height: 75vh; width: 280px; transform: none; border-radius: 24px; border: 1px solid var(--glass-border); box-shadow: var(--shadow); }
+        }
     </style>
 </head>
 <body>
@@ -78,7 +130,9 @@
                     <span id="cur-time" style="font-size:16px; color:var(--primary);"></span>
                     <span style="display:flex; align-items:center; gap:4px;"><span id="we-icon" style="font-size:18px;">☀️</span><span id="we-temp">--°C</span></span>
                 </div>
-                <button onclick="location.reload()" style="background:#eee; border:none; padding:12px 18px; border-radius:12px; cursor:pointer; font-size:12px; font-weight: 700;">보안 로그아웃</button>
+                <button onclick="location.reload()" class="icon-btn" title="보안 로그아웃">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>
+                </button>
             </div>
         </div>
         <div class="two-cols qa-two-cols">
@@ -169,6 +223,33 @@
                 </div>
             </div>
         </div>
+        <div class="glass-card" id="agentPerfCard">
+            <div class="agentperf-head">
+                <div style="font-size:18px; font-weight:700;">🧑‍💼 설계사별 실적</div>
+                <div class="agentperf-controls">
+                    <select id="agentRepSelect" class="agentperf-select" onchange="onAgentRepChange()"></select>
+                    <button type="button" class="agentperf-capture-btn" id="agentCaptureBtn" onclick="captureAgentCard()">📸 이미지로 저장</button>
+                </div>
+            </div>
+            <div class="perf-stats-row" style="margin-bottom:14px;">
+                <div class="perf-total-label" id="agentperf-month-label">불러오는 중...</div>
+                <div class="perf-total-row">
+                    <div class="perf-total-value" id="agentperf-current-total">-</div>
+                </div>
+                <div class="perf-total-label" id="agentperf-current-count"></div>
+            </div>
+            <div class="perf-charts-row">
+                <div class="perf-chart-col"><canvas id="agentPerfChart"></canvas></div>
+                <div class="perf-donut-col">
+                    <div class="perf-donut-canvas-wrap"><canvas id="agentPerfDonutChart"></canvas></div>
+                    <div class="perf-donut-legend" id="agentPerfDonutLegend"></div>
+                </div>
+            </div>
+            <table class="agentperf-table" id="agentPerfTable">
+                <thead><tr><th>보험사</th><th style="text-align:right;">건수</th><th style="text-align:right;">실적</th></tr></thead>
+                <tbody id="agentPerfTableBody"></tbody>
+            </table>
+        </div>
         <div class="glass-card" style="display:none;">
             <div style="font-size:18px; font-weight:700; margin-bottom:15px;">📂 드라이브 자동 연동</div>
             <div style="font-size:13px; color:var(--text-sub); line-height:1.8; background:rgba(0,0,0,0.03); padding:14px; border-radius:12px;">
@@ -179,17 +260,45 @@
             </div>
         </div>
         <div class="glass-card" style="padding: 18px;"><div id="cal-title" style="font-weight: 800; text-align: center; margin-bottom: 12px; font-size: 16px;"></div><table class="calendar-table"><thead><tr style="font-size: 11px; height: 25px; text-align: center;"><th style="color:var(--red)">일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th style="color:var(--primary)">토</th></tr></thead><tbody id="cal-body-content"></tbody></table></div>
+
+        <!-- 설계사 코드 검색: 플로팅 버튼 + 슬라이드 패널 (넓은 화면에선 CSS로 우측 여백 고정 패널로 전환) -->
+        <button type="button" class="agent-fab" onclick="toggleAgentPanel()">🔑 코드검색</button>
+        <div class="agent-overlay" id="agentOverlay" onclick="closeAgentPanel()"></div>
+        <div class="agent-panel" id="agentPanel">
+            <div class="agent-panel-head">
+                <div style="font-size:16px; font-weight:800;">🔑 설계사 코드 검색</div>
+                <button type="button" class="agent-close-btn" onclick="closeAgentPanel()">✕</button>
+            </div>
+            <div class="agent-panel-body">
+                <div style="display:flex; gap:8px;">
+                    <input type="text" id="agentQuery" placeholder="이름 또는 이름 키워드" style="margin-bottom:0;" onkeypress="if(event.keyCode==13) doAgentSearch()">
+                    <button type="button" class="icon-btn" style="flex-shrink:0;" onclick="doAgentSearch()" title="검색">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </button>
+                </div>
+                <div id="agentStatus" style="margin-top:8px; font-size:13px; color:var(--text-sub);"></div>
+            </div>
+            <div class="agent-panel-results" id="agentResultArea"></div>
+        </div>
     </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx2TfR2pFEo2SdY-m_Za-ISMxF65Z_j528vc73DnWzMFMY6qYYEcuNUpxzPxnGm89mobQ/exec';
     const W_API_KEY = 'e9e4b4788a9cb01857b3d430b6551c24';
     let sessionKey = "";
     const $ = id => document.getElementById(id);
 
-    function unlockApp() { $('gatekeeper').style.display = 'none'; $('main-app').style.display = 'flex'; updateClock(); setInterval(updateClock, 1000); fetchWeather(); drawCal(); fetchMonthlyStats(); }
+    function unlockApp() {
+        $('gatekeeper').style.display = 'none';
+        $('main-app').style.display = 'flex';
+        updateClock(); setInterval(updateClock, 1000);
+        fetchWeather(); drawCal();
+        fetchMonthlyStats();
+        fetchAgentStats();
+    }
 
     async function tryAccess() {
         const pass = $('entry-pass').value.trim(); if(!pass) return;
@@ -234,6 +343,26 @@
         $('cal-body-content').innerHTML = html + '</tr>';
     }
 
+    // 공용 클립보드 복사 유틸 (통합 고객 조회 / 설계사 코드 검색 공용)
+    function copyToClipboard(btn, value) {
+        const text = String(value == null ? '' : value);
+        const done = () => {
+            const orig = btn.innerText;
+            btn.innerText = '✓';
+            setTimeout(() => { btn.innerText = orig; }, 900);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(done).catch(done);
+        } else {
+            try {
+                const ta = document.createElement('textarea');
+                ta.value = text; document.body.appendChild(ta); ta.select();
+                document.execCommand('copy'); document.body.removeChild(ta);
+            } catch (e) {}
+            done();
+        }
+    }
+
     async function findCustomer() {
         const name = $('searchName').value.trim(); if(!name) return;
         $('searchStatus').innerText = "🔎 통합 검색 중...";
@@ -244,8 +373,22 @@
             if(!results || results.length === 0) { $('searchStatus').innerText = `❌ 결과 없음`; $('searchResultArea').style.display = 'none'; return; }
             results.forEach(item => {
                 const card = document.createElement('div');
-                card.style.cssText = 'background:rgba(255,255,255,0.5); border-radius:12px; padding:14px; font-size:13px; line-height:1.9;';
-                card.innerHTML = `<div style="font-weight:700; font-size:15px; margin-bottom:4px;">${item.name}</div><div><b>취급자:</b> ${item.handler}</div><div><b>주민번호:</b> ${item.residentId}</div><div><b>연락처:</b> ${item.phone}</div><div><b>주소:</b> ${item.address}</div><div><b>직업:</b> ${item.job}</div><div><b>계좌정보:</b> ${item.account}</div>`;
+                card.style.cssText = 'background:rgba(255,255,255,0.5); border-radius:12px; padding:14px; font-size:13px;';
+                card.innerHTML = `<div style="font-weight:700; font-size:15px; margin-bottom:6px;">${item.name}</div>`;
+                const fields = [
+                    ['취급자', item.handler], ['주민번호', item.residentId], ['연락처', item.phone],
+                    ['주소', item.address], ['직업', item.job], ['계좌정보', item.account]
+                ];
+                fields.forEach(([label, value]) => {
+                    const row = document.createElement('div');
+                    row.className = 'result-field-row';
+                    row.innerHTML = `<span class="rf-label">${label}:</span><span class="rf-value">${value != null ? value : ''}</span>`;
+                    const copyBtn = document.createElement('button');
+                    copyBtn.type = 'button'; copyBtn.className = 'copy-icon'; copyBtn.innerText = '⧉';
+                    copyBtn.onclick = () => copyToClipboard(copyBtn, value);
+                    row.appendChild(copyBtn);
+                    card.appendChild(row);
+                });
                 list.appendChild(card);
             });
             $('searchResultArea').style.display = 'block'; $('searchStatus').innerText = `✅ 조회 완료 (${results.length}건)`;
@@ -360,7 +503,7 @@
     }
 
     let perfDonutInstance = null;
-    const DONUT_PALETTE = ['#34d399', '#60a5fa', '#fbbf24', '#fb7185', '#a78bfa', '#22d3ee', '#fb923c', '#4ade80', '#f472b6', '#38bdf8'];
+    const DONUT_PALETTE = ['#a5b4fc', '#7dd3fc', '#fcd34d', '#fda4af', '#c4b5fd', '#5eead4', '#fdba74', '#f9a8d4', '#67e8f9', '#bef264'];
 
     function renderPerfDonut(companyBreakdown, metric) {
         const canvas = document.getElementById('perfDonutChart');
@@ -376,7 +519,6 @@
 
         const isCount = metric === 'count';
         const isAmount = metric === 'amount';
-        // 실적/보험료(금액) 기준으로는 이미 내림차순 정렬되어 있음 - 계약 건수 기준일 땐 건수 내림차순으로 재정렬
         const sorted = isCount
             ? [...companyBreakdown].sort((a, b) => b.count - a.count)
             : companyBreakdown;
@@ -387,7 +529,6 @@
         const colors = labels.map((_, i) => DONUT_PALETTE[i % DONUT_PALETTE.length]);
         const valueLabel = (v) => isCount ? `${Math.round(v).toLocaleString()}건` : `${Math.round(v).toLocaleString()}원`;
 
-        // 범례 텍스트: 계약(건) / 보험료(원, 콤마) / 실적(퍼센트)
         const legendText = (i) => {
             if (isCount) return `${labels[i]} ${Math.round(values[i]).toLocaleString()}건`;
             if (isAmount) return `${labels[i]} ${Math.round(values[i]).toLocaleString()}원`;
@@ -442,6 +583,232 @@
                 }
             }
         });
+    }
+
+    // ---------------- 설계사별 실적 대시보드 ----------------
+    let agentStatsData = null;
+    let agentPerfChartInstance = null;
+    let agentPerfDonutInstance = null;
+
+    async function fetchAgentStats() {
+        try {
+            const res = await fetch(`${SCRIPT_URL}?action=agentStats&key=${encodeURIComponent(sessionKey)}`);
+            const d = await res.json();
+            if (d.error) { $('agentperf-month-label').innerText = "불러오기 실패"; console.error(d.error); return; }
+            agentStatsData = d;
+            const select = $('agentRepSelect');
+            select.innerHTML = d.reps.map(r => `<option value="${r.name}">${r.name}</option>`).join('');
+            if (d.reps.length > 0) renderAgentPerf(d.reps[0].name);
+            else { $('agentperf-month-label').innerText = "데이터 없음"; $('agentperf-current-total').innerText = '-'; }
+        } catch (e) { $('agentperf-month-label').innerText = "불러오기 실패"; console.error(e); }
+    }
+
+    function onAgentRepChange() {
+        renderAgentPerf($('agentRepSelect').value);
+    }
+
+    function renderAgentPerf(repName) {
+        if (!agentStatsData) return;
+        const rep = agentStatsData.reps.find(r => r.name === repName);
+        if (!rep) return;
+
+        $('agentperf-month-label').innerText = `${agentStatsData.year}년 ${agentStatsData.currentMonth}월 · ${rep.name}`;
+        $('agentperf-current-total').innerText = `${Math.round(rep.currentTotal).toLocaleString()}원`;
+        $('agentperf-current-count').innerText = `총 ${(rep.currentMonthCount || 0).toLocaleString()}건`;
+
+        // 라인 그래프 (해당 설계사의 당해년도 월별 추이)
+        const ctx = document.getElementById('agentPerfChart').getContext('2d');
+        const labels = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+        if (agentPerfChartInstance) agentPerfChartInstance.destroy();
+        agentPerfChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: rep.monthly,
+                    borderColor: '#3182f6',
+                    backgroundColor: '#3182f61f',
+                    borderWidth: 3,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    pointBackgroundColor: '#3182f6',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    tension: 0.35,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { intersect: false, mode: 'nearest', axis: 'x' },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        displayColors: false, backgroundColor: '#ffffff', titleColor: '#191f28', bodyColor: '#191f28',
+                        borderColor: 'rgba(0,0,0,0.08)', borderWidth: 1, padding: 12, cornerRadius: 12,
+                        titleFont: { size: 12, weight: '700' }, bodyFont: { size: 15, weight: '800' },
+                        callbacks: { title: (items) => `${items[0].label}`, label: (c) => `${Math.round(c.parsed.y).toLocaleString()}원` }
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#4e5968', font: { size: 11 } } },
+                    y: { display: false, grid: { display: false } }
+                }
+            }
+        });
+
+        // 도넛 그래프 (당월 보험사별 비중)
+        const dctx = document.getElementById('agentPerfDonutChart').getContext('2d');
+        const legendEl = $('agentPerfDonutLegend');
+        if (agentPerfDonutInstance) agentPerfDonutInstance.destroy();
+        const cb = rep.companyBreakdown || [];
+        if (cb.length === 0) {
+            dctx.clearRect(0, 0, dctx.canvas.width, dctx.canvas.height);
+            legendEl.innerHTML = '';
+        } else {
+            const dLabels = cb.map(c => c.company);
+            const dValues = cb.map(c => c.total);
+            const dTotal = dValues.reduce((a, b) => a + b, 0);
+            const dColors = dLabels.map((_, i) => DONUT_PALETTE[i % DONUT_PALETTE.length]);
+            legendEl.innerHTML = dLabels.map((label, i) => {
+                const pct = dTotal > 0 ? Math.round((dValues[i] / dTotal) * 100) : 0;
+                return `<div class="perf-donut-legend-item"><span class="perf-donut-legend-swatch" style="background:${dColors[i]};"></span><span class="perf-donut-legend-text">${label} ${pct}%</span></div>`;
+            }).join('');
+            agentPerfDonutInstance = new Chart(dctx, {
+                type: 'doughnut',
+                data: { labels: dLabels, datasets: [{ data: dValues, backgroundColor: dColors, borderColor: '#ffffff', borderWidth: 2, hoverOffset: 6 }] },
+                options: {
+                    responsive: true, maintainAspectRatio: false, cutout: '62%',
+                    layout: { padding: { top: 22, bottom: 0, left: 0, right: 0 } },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            displayColors: false, backgroundColor: '#ffffff', titleColor: '#191f28', bodyColor: '#191f28',
+                            borderColor: 'rgba(0,0,0,0.08)', borderWidth: 1, padding: 12, cornerRadius: 12,
+                            titleFont: { size: 12, weight: '700' }, bodyFont: { size: 14, weight: '800' },
+                            callbacks: { label: (c) => { const pct = dTotal > 0 ? Math.round((c.parsed / dTotal) * 100) : 0; return `${Math.round(c.parsed).toLocaleString()}원 (${pct}%)`; } }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 표
+        const tbody = $('agentPerfTableBody');
+        if (cb.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-sub);">당월 계약 내역 없음</td></tr>`;
+        } else {
+            tbody.innerHTML = cb.map(c => `<tr><td>${c.company}</td><td class="num">${c.count.toLocaleString()}건</td><td class="num">${Math.round(c.total).toLocaleString()}원</td></tr>`).join('');
+        }
+    }
+
+    async function captureAgentCard() {
+        const card = $('agentPerfCard');
+        const controls = document.querySelector('.agentperf-controls');
+        const captureBtn = $('agentCaptureBtn');
+        const originalText = captureBtn.innerText;
+        captureBtn.innerText = '⏳ 저장 중...';
+        controls.style.visibility = 'hidden';
+        try {
+            const canvas = await html2canvas(card, { backgroundColor: '#ffffff', scale: 2 });
+            const link = document.createElement('a');
+            const repName = $('agentRepSelect').value || '설계사';
+            const dateStr = new Date().toISOString().slice(0, 10);
+            link.download = `${repName}_실적_${dateStr}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        } catch (e) {
+            console.error(e);
+            alert('이미지 저장에 실패했습니다.');
+        } finally {
+            controls.style.visibility = 'visible';
+            captureBtn.innerText = originalText;
+        }
+    }
+
+    // ---------------- 설계사 코드 검색 (플로팅 패널 / 여백 고정 패널) ----------------
+    function toggleAgentPanel() {
+        const isOpen = $('agentPanel').classList.contains('open');
+        if (isOpen) closeAgentPanel(); else openAgentPanel();
+    }
+    function openAgentPanel() {
+        $('agentPanel').classList.add('open');
+        $('agentOverlay').classList.add('open');
+        setTimeout(() => $('agentQuery').focus(), 150);
+    }
+    function closeAgentPanel() {
+        $('agentPanel').classList.remove('open');
+        $('agentOverlay').classList.remove('open');
+    }
+
+    async function doAgentSearch() {
+        const q = $('agentQuery').value.trim();
+        if (!q) return;
+        $('agentStatus').innerText = "검색 중...";
+        $('agentResultArea').innerHTML = '';
+        try {
+            const res = await fetch(`${SCRIPT_URL}?action=agentCode&q=${encodeURIComponent(q)}&key=${encodeURIComponent(sessionKey)}`);
+            const d = await res.json();
+            if (d.error) { $('agentStatus').innerText = "❌ " + d.error; return; }
+            renderAgentResult(d);
+        } catch (e) { $('agentStatus').innerText = "❌ 검색 오류"; }
+    }
+
+    function renderAgentResult(d) {
+        const area = $('agentResultArea');
+        area.innerHTML = '';
+        if (d.kind === 'none') { $('agentStatus').innerText = `'${$('agentQuery').value.trim()}' 결과 없음`; return; }
+        $('agentStatus').innerText = '';
+
+        if (d.kind === 'full') {
+            const first = d.rows[0];
+            area.appendChild(agentInfoRow('이름', first.name));
+            area.appendChild(agentInfoRow('연락처', first.phone));
+            area.appendChild(agentInfoRow('주민번호', first.residentId));
+            const secTitle = document.createElement('div');
+            secTitle.className = 'agent-section-title';
+            secTitle.innerText = '보험사 코드';
+            area.appendChild(secTitle);
+            d.rows.forEach(r => area.appendChild(agentCodeBox(r)));
+        } else if (d.kind === 'field') {
+            if (d.field === 'company') {
+                const uniq = [...new Set(d.rows.map(r => r.company).filter(Boolean))];
+                uniq.forEach(c => area.appendChild(agentInfoRow('보험사', c)));
+            } else {
+                const labelMap = { phone: '연락처', residentId: '주민번호' };
+                const value = d.rows[0][d.field];
+                area.appendChild(agentInfoRow(labelMap[d.field] || d.field, value));
+            }
+        } else if (d.kind === 'rows') {
+            const first = d.rows[0];
+            area.appendChild(agentInfoRow('연락처', first.phone));
+            area.appendChild(agentInfoRow('주민번호', first.residentId));
+            d.rows.forEach(r => area.appendChild(agentCodeBox(r)));
+        }
+    }
+
+    function agentInfoRow(label, value) {
+        const row = document.createElement('div');
+        row.className = 'agent-info-row';
+        const safeVal = String(value == null ? '' : value).replace(/'/g, "\\'");
+        row.innerHTML = `<div class="agent-info-label">${label}</div><div class="agent-info-value-row"><span class="agent-info-value">${value != null ? value : '-'}</span><button type="button" class="agent-copy-btn">⧉</button></div>`;
+        row.querySelector('.agent-copy-btn').onclick = (e) => copyToClipboard(e.currentTarget, value);
+        return row;
+    }
+
+    function agentCodeBox(r) {
+        const box = document.createElement('div');
+        box.className = 'agent-code-box';
+        box.innerHTML = `
+            <div class="agent-code-company">${r.company || '-'}</div>
+            <div class="agent-code-line"><span class="k">코드</span><span class="v">${r.code || '-'}</span><button type="button" class="agent-copy-btn">⧉</button></div>
+            <div class="agent-code-line"><span class="k">PW</span><span class="v">${r.password || '-'}</span><button type="button" class="agent-copy-btn">⧉</button></div>
+        `;
+        const btns = box.querySelectorAll('.agent-copy-btn');
+        btns[0].onclick = (e) => copyToClipboard(e.currentTarget, r.code);
+        btns[1].onclick = (e) => copyToClipboard(e.currentTarget, r.password);
+        return box;
     }
 
     async function startProcess() {
