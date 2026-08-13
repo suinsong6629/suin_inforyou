@@ -45,9 +45,11 @@
         .icon-btn:hover { color: var(--primary); background: #e2e2e2; transform: translateY(-1px); }
 
         /* 결과 카드 내 필드 + 복사 아이콘 */
-        .result-field-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 3px 0; }
+        .result-field-row { display: flex; align-items: center; gap: 6px; padding: 3px 0; }
         .result-field-row .rf-label { font-weight: 700; flex-shrink: 0; }
-        .result-field-row .rf-value { flex: 1; text-align: right; word-break: break-all; }
+        .result-field-row .rf-value { word-break: break-all; }
+        .result-card-head { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+        .result-card-head .rc-name { font-weight: 700; font-size: 15px; }
         .copy-icon { background: none; border: none; cursor: pointer; font-size: 13px; color: var(--text-sub); padding: 2px 4px; border-radius: 6px; flex-shrink: 0; }
         .copy-icon:hover { background: rgba(0,0,0,0.06); }
 
@@ -392,19 +394,26 @@
             results.forEach(item => {
                 const card = document.createElement('div');
                 card.style.cssText = 'background:rgba(255,255,255,0.5); border-radius:12px; padding:14px; font-size:13px;';
-                card.innerHTML = `<div style="font-weight:700; font-size:15px; margin-bottom:6px;">${item.name}</div>`;
+
                 const fields = [
                     ['취급자', item.handler], ['주민번호', item.residentId], ['연락처', item.phone],
                     ['주소', item.address], ['직업', item.job], ['계좌정보', item.account]
                 ];
+
+                const head = document.createElement('div');
+                head.className = 'result-card-head';
+                head.innerHTML = `<span class="rc-name">${item.name}</span>`;
+                const copyAllBtn = document.createElement('button');
+                copyAllBtn.type = 'button'; copyAllBtn.className = 'copy-icon'; copyAllBtn.innerText = '⧉';
+                const fullText = [item.name, ...fields.map(([label, value]) => `${label}: ${value != null ? value : ''}`)].join('\n');
+                copyAllBtn.onclick = () => copyToClipboard(copyAllBtn, fullText);
+                head.appendChild(copyAllBtn);
+                card.appendChild(head);
+
                 fields.forEach(([label, value]) => {
                     const row = document.createElement('div');
                     row.className = 'result-field-row';
                     row.innerHTML = `<span class="rf-label">${label}:</span><span class="rf-value">${value != null ? value : ''}</span>`;
-                    const copyBtn = document.createElement('button');
-                    copyBtn.type = 'button'; copyBtn.className = 'copy-icon'; copyBtn.innerText = '⧉';
-                    copyBtn.onclick = () => copyToClipboard(copyBtn, value);
-                    row.appendChild(copyBtn);
                     card.appendChild(row);
                 });
                 list.appendChild(card);
