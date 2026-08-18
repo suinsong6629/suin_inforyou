@@ -119,6 +119,8 @@
         .report-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 16px; }
         .report-controls { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
         .report-date-picker { width: auto; padding: 7px 10px; margin-bottom: 0; border-radius: 8px; font-size: 13px; font-weight: 700; background-color: rgba(255,255,255,0.6); cursor: pointer; flex-shrink: 0; }
+        .report-refresh-btn { padding: 7px 12px; border-radius: 8px; border: none; background: rgba(255,255,255,0.6); cursor: pointer; font-weight: 700; font-size: 12px; color: var(--text-sub); white-space: nowrap; flex-shrink: 0; }
+        .report-refresh-btn:hover { background: rgba(255,255,255,0.9); }
         .report-toggle { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--text-sub); cursor: pointer; white-space: nowrap; flex-shrink: 0; }
         .report-copy-btn { padding: 8px 14px; border-radius: 10px; border: none; background: var(--primary); color: #fff; cursor: pointer; font-weight: 700; font-size: 12px; }
         .report-copy-btn:hover { opacity: 0.9; }
@@ -131,6 +133,8 @@
         .report-table th.report-group-total { background: #fde8ea; color: #b91c1c; }
         .report-table td.report-group-total { background: rgba(253,232,234,0.35); }
         .report-table td.report-rep-name { text-align: center; font-weight: 700; background: #f7f7f7; }
+        .report-table td.report-rep-name-top { border-bottom: none; vertical-align: bottom; padding-bottom: 3px; }
+        .report-table td.report-rep-name-bottom { border-top: none; }
         .report-table td.report-row-label { text-align: center; font-weight: 700; color: var(--text-sub); background: #fdf6e3; }
         .report-table tr.report-cumulative td { font-weight: 800; }
         .report-table tr.report-grandtotal td { background: #dceafe; font-weight: 800; color: var(--primary); }
@@ -338,6 +342,7 @@
                 <div style="font-size:18px; font-weight:700;">📋 일일실적 리포트</div>
                 <div class="report-controls">
                     <input type="date" id="reportDatePicker" class="report-date-picker" onchange="fetchDailyReport(this.value)">
+                    <button type="button" class="report-refresh-btn" onclick="fetchDailyReport($('reportDatePicker').value)" title="같은 날짜로 다시 조회">🔄 업데이트</button>
                     <span class="perf-total-label num-font" id="reportDateLabel"></span>
                     <label class="report-toggle"><input type="checkbox" id="reportIncludeCEO" onchange="renderDailyReport()"> 대표 포함</label>
                     <button type="button" class="report-copy-btn" onclick="copyDailyReport()">📋 표 복사</button>
@@ -1080,13 +1085,14 @@
             const rowToday = document.createElement('tr');
             rowToday.className = altClass.trim();
             rowToday.innerHTML = `
-                <td class="report-rep-name" rowspan="2">${rep.name}${rep.isCEO ? ' 👑' : ''}</td>
+                <td class="report-rep-name report-rep-name-top">${rep.name}${rep.isCEO ? ' 👑' : ''}</td>
                 <td class="report-row-label">당일</td>
                 ${buildCells(rep.today, true)}
             `;
             const rowCum = document.createElement('tr');
             rowCum.className = ('report-cumulative' + altClass).trim();
             rowCum.innerHTML = `
+                <td class="report-rep-name report-rep-name-bottom"></td>
                 <td class="report-row-label">누계</td>
                 ${buildCells(rep.cumulative, true)}
             `;
@@ -1098,13 +1104,14 @@
         const grandToday = document.createElement('tr');
         grandToday.className = 'report-grandtotal';
         grandToday.innerHTML = `
-            <td class="report-rep-name" rowspan="2">누계</td>
+            <td class="report-rep-name report-rep-name-top">누계</td>
             <td class="report-row-label">당일</td>
             ${buildCells(grand.today, true)}
         `;
         const grandCum = document.createElement('tr');
         grandCum.className = 'report-grandtotal';
         grandCum.innerHTML = `
+            <td class="report-rep-name report-rep-name-bottom"></td>
             <td class="report-row-label">누계</td>
             ${buildCells(grand.cumulative, true)}
         `;
@@ -1116,13 +1123,14 @@
             const ceoToday = document.createElement('tr');
             ceoToday.className = 'report-grandtotal-ceo';
             ceoToday.innerHTML = `
-                <td class="report-rep-name" rowspan="2">누계(전체)</td>
+                <td class="report-rep-name report-rep-name-top">누계(전체)</td>
                 <td class="report-row-label">당일</td>
                 ${buildCells(grandWithCEO.today, true)}
             `;
             const ceoCum = document.createElement('tr');
             ceoCum.className = 'report-grandtotal-ceo';
             ceoCum.innerHTML = `
+                <td class="report-rep-name report-rep-name-bottom"></td>
                 <td class="report-row-label">누계</td>
                 ${buildCells(grandWithCEO.cumulative, true)}
             `;
