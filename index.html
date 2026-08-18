@@ -134,6 +134,8 @@
         .report-table td.report-row-label { text-align: center; font-weight: 700; color: var(--text-sub); background: #fdf6e3; }
         .report-table tr.report-cumulative td { font-weight: 800; }
         .report-table tr.report-grandtotal td { background: #dceafe; font-weight: 800; color: var(--primary); }
+        .report-table tr.report-grandtotal-ceo td { background: #fef3c7; font-weight: 800; color: #b45309; }
+        .report-table tr.report-row-alt { background: rgba(0,0,0,0.028); }
         .report-table td.report-dash { color: rgba(125,125,125,0.4); }
 
         /* 설계사 코드 검색: 플로팅 버튼 + 슬라이드 패널 (좁은 화면) / 우측 여백 고정 패널 (넓은 화면) */
@@ -1073,15 +1075,17 @@
             return cells.join('');
         }
 
-        reps.forEach(rep => {
+        reps.forEach((rep, idx) => {
+            const altClass = (idx % 2 === 1) ? ' report-row-alt' : '';
             const rowToday = document.createElement('tr');
+            rowToday.className = altClass.trim();
             rowToday.innerHTML = `
                 <td class="report-rep-name" rowspan="2">${rep.name}${rep.isCEO ? ' 👑' : ''}</td>
                 <td class="report-row-label">당일</td>
                 ${buildCells(rep.today, true)}
             `;
             const rowCum = document.createElement('tr');
-            rowCum.className = 'report-cumulative';
+            rowCum.className = ('report-cumulative' + altClass).trim();
             rowCum.innerHTML = `
                 <td class="report-row-label">누계</td>
                 ${buildCells(rep.cumulative, true)}
@@ -1110,14 +1114,14 @@
         // 누계(대표): 대표 포함 체크 시에만 표시 - 대표를 포함한 전체(팀+대표) 합계
         if (includeCEO) {
             const ceoToday = document.createElement('tr');
-            ceoToday.className = 'report-grandtotal';
+            ceoToday.className = 'report-grandtotal-ceo';
             ceoToday.innerHTML = `
                 <td class="report-rep-name" rowspan="2">누계(전체)</td>
                 <td class="report-row-label">당일</td>
                 ${buildCells(grandWithCEO.today, true)}
             `;
             const ceoCum = document.createElement('tr');
-            ceoCum.className = 'report-grandtotal';
+            ceoCum.className = 'report-grandtotal-ceo';
             ceoCum.innerHTML = `
                 <td class="report-row-label">누계</td>
                 ${buildCells(grandWithCEO.cumulative, true)}
