@@ -457,13 +457,25 @@
 
     // 보안 강화: 비밀번호/세션키가 URL(주소)에 절대 노출되지 않도록, 모든 요청을 POST 본문에 담아 전송
     // (Content-Type을 text/plain으로 둬야 Apps Script가 프리플라이트 없이 바로 받을 수 있음)
-    async function postToScript(action, params) {
-        const res = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ action, key: sessionKey, ...(params || {}) })
-        });
-        return res.json();
+    // 일시적인 네트워크/구글 쪽 지연으로 실패할 경우를 대비해 자동으로 1회 재시도함
+    async function fetchJsonWithRetry(bodyObj, retries = 1) {
+        for (let attempt = 0; ; attempt++) {
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(bodyObj)
+                });
+                return await res.json();
+            } catch (e) {
+                if (attempt >= retries) throw e;
+                await new Promise(r => setTimeout(r, 700 * (attempt + 1)));
+            }
+        }
+    }
+
+    async function postToScript(action, params, retries = 1) {
+        return fetchJsonWithRetry({ action, key: sessionKey, ...(params || {}) }, retries);
     }
 
     // 숫자 카운트업 애니메이션 유틸 (KPI 숫자가 0 -> 실제값으로 부드럽게 올라가도록)
@@ -506,15 +518,20 @@
         }
     }
 
-    function unlockApp() {
+    async function unlockApp() {
         $('gatekeeper').style.display = 'none';
         $('main-app').style.display = 'flex';
         updateClock(); setInterval(updateClock, 1000);
-        fetchWeather(); fetchCalendarEvents();
-        fetchMonthlyStats();
-        fetchAgentStats();
-        fetchLinks();
-        fetchDailyReport();
+        fetchWeather(); // 별도 외부 API라 병렬로 둬도 무방
+
+        // 다시 동시 처리로 (속도 유지) — 대신 각 요청은 postToScript의 자동 재시도로 안정성 확보
+        await Promise.all([
+            fetchCalendarEvents(),
+            fetchMonthlyStats(),
+            fetchAgentStats(),
+            fetchLinks(),
+            fetchDailyReport()
+        ]);
     }
 
     // 매일 바뀌는 마이매니저 링크를 스프레드시트(링크설정 시트 B1)에서 읽어와 버튼에 반영
@@ -531,12 +548,7 @@
         const pass = $('entry-pass').value.trim(); if(!pass) return;
         $('access-btn').disabled = true; $('access-btn').innerText = "인증 중...";
         try {
-            const res = await fetch(SCRIPT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ action: 'auth', key: pass })
-            });
-            const data = await res.json();
+            const data = await fetchJsonWithRetry({ action: 'auth', key: pass });
 
             if (data.status === "success") {
                 sessionKey = pass;
