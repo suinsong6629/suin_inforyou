@@ -138,17 +138,17 @@
         .report-table th, .report-table td { padding: 6px 10px; border: 1px solid rgba(125,125,125,0.1); text-align: right; }
         .report-table th { background: #f2f2f2; color: var(--text-sub); font-weight: 700; text-align: center; }
         .report-table th.report-group-total { background: #fde8ea; color: #b91c1c; }
-        .report-table td.report-group-total { background: rgba(253,232,234,0.35); }
-        .report-table td.report-rep-name { text-align: center; vertical-align: middle; font-weight: 700; background: #f7f7f7; }
-        .report-table td.report-rep-name-top { border-bottom: none; vertical-align: bottom; padding-bottom: 3px; }
-        .report-table td.report-rep-name-bottom { border-top: none; }
+        .report-table td.report-group-total { background: #fdf6e3; }
+        .report-table th.report-group-hdr { background: #dcf3e2; }
+        .report-table td.report-rep-name { text-align: center; vertical-align: middle; font-weight: 700; }
         .report-table th.report-group-start, .report-table td.report-group-start { border-left: 2px solid rgba(60,60,60,0.35); }
         .report-table tr.report-hr-strong > * { border-top: 2px solid rgba(60,60,60,0.35); }
         .report-table td.report-row-label { text-align: center; font-weight: 700; color: var(--text-sub); background: #fdf6e3; }
         .report-table tr.report-cumulative td { font-weight: 800; }
-        .report-table tr.report-grandtotal td { background: #dceafe; font-weight: 800; color: var(--primary); }
+        .report-table tr.report-grandtotal td { background: #eef5fd; font-weight: 800; color: var(--primary); }
         .report-table tr.report-grandtotal-ceo td { background: #fef3c7; font-weight: 800; color: #b45309; }
         .report-table tr.report-row-alt { background: rgba(0,0,0,0.028); }
+        .report-table tr.report-row-alt td.report-row-label, .report-table tr.report-row-alt td.report-group-total { background: #f9ecc4; }
         .report-table td.report-dash { color: rgba(125,125,125,0.4); }
 
         /* 설계사 코드 검색: 플로팅 버튼 + 슬라이드 패널 (좁은 화면) / 우측 여백 고정 패널 (넓은 화면) */
@@ -496,8 +496,8 @@
             { start:'2026-08-27', end:'2026-08-28', text:'수인휴가' },
             { start:'2026-08-17', end:'2026-08-17', text:'대체휴무' },
             { start:'2026-08-03', end:'2026-08-03', text:'전체미팅' },
-            { start:'2026-08-24', end:'2026-08-24', text:'은지 오후반차' },
-            { start:'2026-08-06', end:'2026-08-06', text:'심수빈님 입사' }
+            { start:'2026-08-06', end:'2026-08-06', text:'심수빈님 입사' },
+            { start:'2026-08-24', end:'2026-08-24', text:'은지 오후반차' }
         ];
 
         for(let i=0; i<firstDay; i++) html += '<td class="calendar-td"></td>';
@@ -1084,12 +1084,12 @@
             <th rowspan="2">담당자</th>
             <th rowspan="2">구분</th>
             <th colspan="2" class="report-group-total report-group-start">전체</th>
-            ${groups.map(g => `<th colspan="2" class="report-group-start">${g}</th>`).join('')}
+            ${groups.map(g => `<th colspan="2" class="report-group-start report-group-hdr">${g}</th>`).join('')}
         `;
         const headRow2 = document.createElement('tr');
         headRow2.className = 'report-hr-strong';
         headRow2.innerHTML = `
-            <th class="report-group-total report-group-start">보험료</th><th class="report-group-total">환산</th>
+            <th class="report-group-start">보험료</th><th>환산</th>
             ${groups.map(() => `<th class="report-group-start">보험료</th><th>환산</th>`).join('')}
         `;
         thead.appendChild(headRow1);
@@ -1182,39 +1182,20 @@
         const orig = btn.innerText;
         btn.innerText = '⏳ 이미지 생성 중...';
 
-        // 캡처용 복제본 생성: rowspan 셀(담당자/누계/누계(전체))을 위·아래 2개의 독립 셀로 분리해서
-        // html2canvas가 rowspan 배경을 잘못 그리는 문제를 캡처본에서만 우회 (화면에 보이는 실제 표는 그대로 유지)
-        const clone = table.cloneNode(true);
-        clone.querySelectorAll('td[rowspan="2"]').forEach(cell => {
-            const row1 = cell.parentElement;
-            const row2 = row1.nextElementSibling;
-            if (!row2) return;
-            const topCell = cell.cloneNode(true);
-            topCell.removeAttribute('rowspan');
-            topCell.classList.add('report-rep-name-top');
-            const bottomCell = document.createElement('td');
-            bottomCell.className = (cell.className + ' report-rep-name-bottom').trim();
-            row1.replaceChild(topCell, cell);
-            row2.insertBefore(bottomCell, row2.firstChild);
-        });
-
-        // 캡처 이미지에 날짜가 보이도록, 복제본 맨 위에 날짜 캡션 행 삽입
+        // 캡처 이미지에 날짜가 보이도록, 표 맨 위에 날짜 캡션 행을 임시로 삽입
         const groups = (dailyReportData && dailyReportData.groups) || [];
         const totalCols = 2 + 2 + groups.length * 2; // 담당자,구분 + 전체(2) + 그룹별(2씩)
-        const dateText = (dailyReportData && dailyReportData.dateStr) ? `${dailyReportData.dateStr} 실적` : '실적';
-        const cloneThead = clone.querySelector('thead');
+        const dateOnly = (dailyReportData && dailyReportData.dateStr) ? dailyReportData.dateStr : '';
+        const thead = table.querySelector('thead');
         const captionRow = document.createElement('tr');
-        captionRow.innerHTML = `<th colspan="${totalCols}" style="background:#191f28; color:#fff; font-size:14px; padding:10px; text-align:center;">${dateText}</th>`;
-        cloneThead.insertBefore(captionRow, cloneThead.firstChild);
-
-        // 복제본을 화면 밖(보이지 않는 위치)에 배치해서 렌더링만 되도록 함
-        const captureWrap = document.createElement('div');
-        captureWrap.style.cssText = 'position:fixed; left:-99999px; top:0; background:#ffffff;';
-        captureWrap.appendChild(clone);
-        document.body.appendChild(captureWrap);
+        captionRow.innerHTML = `<th colspan="${totalCols}" style="background:#ffffff; font-size:16px; padding:12px; text-align:center; border:none;">
+            <span style="color:#166534; font-weight:800;">인포유금융서비스 미래전략사업단 일일실적</span>
+            <span style="color:#dc2626; font-weight:800;"> (${dateOnly})</span>
+        </th>`;
+        thead.insertBefore(captionRow, thead.firstChild);
 
         try {
-            const canvas = await html2canvas(clone, { backgroundColor: '#ffffff', scale: 2 });
+            const canvas = await html2canvas(table, { backgroundColor: '#ffffff', scale: 2 });
             const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
             if (!blob) throw new Error('이미지 생성 실패');
 
@@ -1235,7 +1216,7 @@
             btn.innerText = orig;
             alert('복사에 실패했습니다. 브라우저 클립보드 권한을 확인해주세요.');
         } finally {
-            document.body.removeChild(captureWrap);
+            captionRow.remove();
         }
     }
 </script>
