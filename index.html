@@ -1,756 +1,1453 @@
-// === [코드.gs] 앱스 스크립트 전체 코드 ===
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>미래전략 사업단 V17.9_Final</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
+        @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum:wght@400;700&display=swap');
+        :root { --bg-gradient: linear-gradient(135deg, #dce4ff 0%, #f1f5f9 50%, #ffe4e6 100%); --card-bg: #ffffff; --card-border: rgba(0,0,0,0.06); --primary: #3182f6; --red: #fb7185; --text-main: #191f28; --text-sub: #4e5968; --shadow: 0 4px 16px rgba(0, 0, 0, 0.06); --surface: #f5f6f8; }
+        body.is-locked #main-wrapper { filter: blur(25px); pointer-events: none; }
+        #lock-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 20000; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; }
+        body.is-locked #lock-screen { display: flex; }
+        * { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; box-sizing: border-box; }
+        html { overflow-x: hidden; }
+        body { background: var(--bg-gradient); background-attachment: fixed; min-height: 100vh; margin: 0; display: flex; justify-content: center; align-items: flex-start; padding: 40px 20px; color: var(--text-main); overflow-x: hidden; }
+        #main-wrapper { width: 100%; max-width: 1200px; display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+        #gatekeeper { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-gradient); display: flex; align-items: center; justify-content: center; z-index: 10000; }
+        .lock-card { background: var(--card-bg); padding: 50px; border-radius: 30px; box-shadow: var(--shadow); text-align: center; width: 100%; max-width: 420px; border: 1px solid var(--card-border); }
+        #main-app { display: none; flex-direction: column; gap: 20px; width: 100%; }
+        .glass-card { background: var(--card-bg); border-radius: 24px; padding: 25px; box-shadow: var(--shadow); border: 1px solid var(--card-border); min-width: 0; }
+        .qa-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 12px; }
+        .qa-grid-2x2 { grid-template-columns: repeat(2, 1fr); }
+        .qa-tile-logo { padding: 18px 14px; background: #ffffff; }
+        .qa-tile-logo img { width: 82%; height: auto; max-height: 60px; object-fit: contain; display: block; margin: 0 auto; }
+        .qa-tile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 18px 8px; border-radius: 20px; background: var(--card-bg); border: 1px solid var(--card-border); text-decoration: none; box-shadow: 0 2px 10px rgba(15,23,42,0.05); transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; min-height: 106px; box-sizing: border-box; }
+        .qa-tile:hover { transform: translateY(-4px); box-shadow: 0 14px 28px -8px var(--tile-a); border-color: var(--tile-a); }
+        .qa-tile-text { font-size: 30px; font-weight: 800; color: var(--text-sub); text-align: center; transition: color .18s ease; }
+        .qa-tile:hover .qa-tile-text { color: var(--tile-a); }
+        @media (max-width: 520px) { .qa-two-cols { grid-template-columns: 1fr; } }
+        .calendar-table { width: 100%; border-collapse: separate; border-spacing: 2px; table-layout: fixed; }
+        .calendar-td { height: 90px; vertical-align: top; padding: 8px; border: 1px solid rgba(125,125,125,0.1); border-radius: 10px; background: var(--surface); }
+        .day-num { font-weight: 700; font-size: 12px; }
+        .event-bar { height: 20px; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; border-radius: 4px; margin-bottom: 2px; overflow: hidden; white-space: nowrap; border-bottom: 2.5px solid; }
+        .today { background: rgba(49, 130, 246, 0.15) !important; outline: 2px solid var(--primary) !important; outline-offset: -2px; }
+        input, select { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(125,125,125,0.2); margin-bottom: 12px; background: var(--surface); color: inherit; outline: none; transition: border-color .15s ease, box-shadow .15s ease; }
+        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(49,130,246,0.15); }
+        .field { display: flex; flex-direction: column; gap: 6px; }
+        .field label { font-size: 12px; font-weight: 700; color: var(--text-sub); padding-left: 2px; }
+        .field input { margin-bottom: 0; }
+        .btn-main { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 16px; }
+        .two-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 700px) { .two-cols { grid-template-columns: 1fr; } }
 
-// 1. 보안 인증 함수
-function auth(key) {
-  return key === "mm1010!!";
-}
+        /* 상단 아이콘 버튼 (자물쇠 로그아웃) */
+        .icon-btn { width: 44px; height: 44px; border-radius: 12px; border: none; background: #eee; color: var(--text-sub); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: background .15s ease, transform .15s ease, color .15s ease; flex-shrink: 0; }
+        .icon-btn:hover { color: var(--primary); background: #e2e2e2; transform: translateY(-1px); }
 
-function jsonOut(obj) {
-  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
-}
+        /* 탭 메뉴 */
+        .tab-nav { display: flex; gap: 10px; margin-bottom: 4px; }
+        .tab-btn { padding: 10px 20px; border-radius: 14px; border: 1px solid var(--card-border); background: var(--card-bg); color: var(--text-sub); font-weight: 700; font-size: 14px; cursor: pointer; transition: background .15s ease, color .15s ease, transform .15s ease; }
+        .tab-btn:hover { background: var(--surface); transform: translateY(-1px); }
+        .tab-btn.active { background: var(--primary); color: #fff; box-shadow: 0 6px 14px -6px rgba(49,130,246,0.5); }
+        .tab-content { display: flex; flex-direction: column; gap: 20px; }
+        .ev-swatch-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+        .ev-swatch { width: 28px; height: 28px; border-radius: 8px; border: 2px solid transparent; cursor: pointer; padding: 0; }
+        .ev-swatch.active { border-color: var(--text-main); }
+        .ev-color-custom { width: 60px; height: 36px; padding: 2px; border-radius: 8px; border: 1px solid rgba(125,125,125,0.2); cursor: pointer; }
+        .admin-event-row { display: flex; align-items: center; gap: 10px; background: var(--surface); border-radius: 12px; padding: 10px 14px; }
+        .admin-event-swatch { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; }
+        .admin-event-info { flex: 1; font-size: 13px; }
+        .admin-event-date { color: var(--text-sub); font-size: 12px; font-weight: 700; }
+        .admin-event-del { background: none; border: none; cursor: pointer; font-size: 15px; color: var(--text-sub); flex-shrink: 0; padding: 4px 8px; border-radius: 6px; }
+        .admin-event-del:hover { background: rgba(251,113,133,0.15); color: var(--red); }
 
-// ▼▼▼ 보안 강화: 로그인 시도 잠금(브루트포스 방지) ▼▼▼
-// PropertiesService에 실패 횟수/잠금 해제 시각을 저장해서, 비밀번호를 5회 연속 틀리면
-// 5분간 모든 로그인 시도를 차단합니다. (사이트 전체에 공용으로 적용됨)
-var AUTH_MAX_ATTEMPTS = 5;
-var AUTH_LOCK_MINUTES = 5;
+        /* 결과 카드 내 필드 + 복사 아이콘 */
+        .result-field-row { display: flex; align-items: center; gap: 6px; padding: 3px 0; }
+        .result-field-row .rf-label { font-weight: 700; flex-shrink: 0; }
+        .result-field-row .rf-value { word-break: break-all; }
+        .result-card-head { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+        .result-card-head .rc-name { font-weight: 700; font-size: 15px; }
+        .copy-icon { background: none; border: none; cursor: pointer; font-size: 13px; color: var(--text-sub); padding: 2px 4px; border-radius: 6px; flex-shrink: 0; }
+        .copy-icon:hover { background: rgba(0,0,0,0.06); }
 
-function handleAuthPost(key) {
-  var props = PropertiesService.getScriptProperties();
-  var now = Date.now();
-  var lockUntil = parseInt(props.getProperty('AUTH_LOCK_UNTIL') || '0', 10);
+        /* 월별 실적 대시보드 */
+        .perf-head { display: grid; grid-template-columns: 4fr 5fr; gap: 24px; align-items: center; margin-bottom: 18px; }
+        .perf-stats-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+        .perf-stats-right { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+        .perf-month-nav { display: flex; align-items: center; gap: 4px; }
+        .perf-nav-btn { width: 22px; height: 22px; border-radius: 6px; border: none; background: rgba(0,0,0,0.05); color: var(--text-sub); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s ease, color .15s ease; flex-shrink: 0; }
+        .perf-nav-btn:hover { background: rgba(49,130,246,0.15); color: var(--primary); }
+        .perf-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+        .perf-total-label { font-size: 12px; color: var(--text-sub); font-weight: 700; }
+        .perf-total-row { display: flex; align-items: baseline; gap: 8px; }
+        .perf-total-value { font-size: 26px; font-weight: 800; color: var(--primary); }
+        .perf-change { font-size: 13px; font-weight: 800; }
+        .perf-charts-row { display: grid; grid-template-columns: 4fr 5fr; gap: 24px; align-items: stretch; }
 
-  if (now < lockUntil) {
-    var remain = Math.ceil((lockUntil - now) / 1000);
-    return jsonOut({ status: 'locked', remainingSeconds: remain });
-  }
+        /* 차트 + 합계 바 (월별실적/설계사별실적 공용) — 차트는 장식 없이 플레인, 합계 바만 강조색 */
+        .perf-chart-block { display: flex; flex-direction: column; height: 240px; }
+        .perf-chart-block .perf-chart-col { height: 190px; }
+        .perf-chart-col { position: relative; }
+        .perf-summary-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 10px; background: rgba(49,130,246,0.14); color: var(--primary); font-weight: 800; font-size: 13px; border-radius: 12px; margin-top: 8px; }
+        .perf-summary-bar span:last-child { font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Segoe UI', Roboto, sans-serif !important; font-variant-numeric: tabular-nums; }
 
-  if (auth(key)) {
-    props.deleteProperty('AUTH_FAIL_COUNT');
-    props.deleteProperty('AUTH_LOCK_UNTIL');
-    return jsonOut({ status: 'success' });
-  }
+        /* 보험사별 표 (월별실적/설계사별실적 공용 틸 톤) */
+        .perf-bar-block { display: flex; flex-direction: column; gap: 8px; }
+        .perf-bar-col { height: 240px; overflow-y: auto; border-radius: 12px; background: #ffffff; border: 1px solid rgba(13,148,136,0.14); }
+        .perf-bar-table { width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 0; font-size: 13px; }
+        .perf-bar-table th:first-child, .perf-bar-table td:first-child { width: 96px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .perf-bar-table thead th { position: sticky; top: 0; text-align: left; padding: 8px 10px; background: #d9f0ed; color: #0d9488; font-weight: 700; z-index: 1; }
+        .perf-bar-table td { padding: 8px 10px; border-bottom: 1px solid rgba(125,125,125,0.1); }
+        .perf-bar-table td.num { text-align: right; font-weight: 700; }
+        .perf-bar-table tbody tr { transition: background .12s ease; }
+        .perf-bar-table tbody tr:hover { background: rgba(13,148,136,0.08); }
+        .perf-bar-table .bar-fill { background: linear-gradient(90deg, rgba(13,148,136,0.05), rgba(13,148,136,0.22)); }
+        .perf-donut-select { width: auto; padding: 6px 28px 6px 10px; font-size: 12px; font-weight: 700; margin-bottom: 0; border-radius: 8px; background-color: var(--surface); cursor: pointer; }
+        @media (max-width: 700px) { .perf-charts-row, .perf-head { grid-template-columns: 1fr; } }
 
-  var failCount = parseInt(props.getProperty('AUTH_FAIL_COUNT') || '0', 10) + 1;
+        /* 설계사별 실적 대시보드 */
+        .agentperf-select { width: auto; padding: 8px 28px 8px 12px; margin-bottom: 0; border-radius: 10px; font-weight: 700; font-size: 13px; background-color: var(--surface); cursor: pointer; }
 
-  if (failCount >= AUTH_MAX_ATTEMPTS) {
-    var newLockUntil = now + AUTH_LOCK_MINUTES * 60 * 1000;
-    props.setProperty('AUTH_LOCK_UNTIL', String(newLockUntil));
-    props.deleteProperty('AUTH_FAIL_COUNT');
-    return jsonOut({ status: 'locked', remainingSeconds: AUTH_LOCK_MINUTES * 60 });
-  }
+        /* 보험사별 표: 헤더를 스크롤 영역 밖으로 완전히 분리 (sticky 헤더의 렌더링 버그를 원천 차단) — 월별실적과 동일한 틸 톤 */
+        .agentperf-table-col--company { height: 240px; border-radius: 12px; border: 1px solid rgba(13,148,136,0.14); background: #ffffff; display: flex; flex-direction: column; overflow: hidden; }
+        .agentperf-row-head { display: grid; grid-template-columns: 96px 52px 1fr; gap: 8px; padding: 8px 10px; background: #d9f0ed; color: #0d9488; font-weight: 700; font-size: 13px; flex-shrink: 0; }
+        .agentperf-row-head span:not(:first-child) { text-align: right; }
+        .agentperf-scroll { flex: 1; overflow-y: auto; }
+        .agentperf-row { display: grid; grid-template-columns: 96px 52px 1fr; gap: 8px; padding: 8px 10px; align-items: center; font-size: 13px; border-bottom: 1px solid rgba(125,125,125,0.1); transition: background .12s ease; }
+        .agentperf-row > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .agentperf-row:hover { background: rgba(13,148,136,0.08); }
+        .agentperf-row .num { text-align: right; font-weight: 700; font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Segoe UI', Roboto, sans-serif !important; font-variant-numeric: tabular-nums; }
+        .agentperf-row .bar-cell { position: relative; }
 
-  props.setProperty('AUTH_FAIL_COUNT', String(failCount));
-  return jsonOut({ status: 'fail', attemptsLeft: AUTH_MAX_ATTEMPTS - failCount });
-}
-// ▲▲▲ 보안 강화 끝 ▲▲▲
+        /* 숫자 전용 폰트: 사이트 전체 폰트(Gowun Dodum)와 분리해서 자릿수가 딱 맞게 정렬 */
+        .num-font { font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Segoe UI', Roboto, sans-serif !important; font-variant-numeric: tabular-nums; letter-spacing: -0.2px; }
 
-// ▼▼▼ 신규 추가: 관리자 인증 (캘린더 이벤트 관리용, 사이트 로그인과 별도 비밀번호) ▼▼▼
-// ⚠️ 아래 비밀번호는 반드시 원하시는 값으로 바꿔서 사용해주세요.
-function adminAuth(key) {
-  return key === "admin1234!!";
-}
+        /* 표 안 데이터바 (Excel data bar 스타일): 값 크기에 비례한 배경 막대 */
+        .bar-cell { position: relative; }
+        .bar-fill { position: absolute; left: 0; top: 4px; bottom: 4px; border-radius: 6px; background: linear-gradient(90deg, rgba(49,130,246,0.05), rgba(49,130,246,0.18)); z-index: 0; transition: width .4s ease; }
+        .bar-cell .bar-text { position: relative; z-index: 1; }
+        .bar-cell.bar-total .bar-fill { background: linear-gradient(90deg, rgba(13,148,136,0.08), rgba(13,148,136,0.28)); }
 
-var ADMIN_MAX_ATTEMPTS = 5;
-var ADMIN_LOCK_MINUTES = 5;
+        /* 스켈레톤 로딩 */
+        .skeleton-text { color: transparent !important; background: linear-gradient(90deg, rgba(0,0,0,0.06) 25%, rgba(0,0,0,0.12) 37%, rgba(0,0,0,0.06) 63%); background-size: 400% 100%; animation: skeleton-shimmer 1.4s ease infinite; border-radius: 6px; display: inline-block; min-width: 90px; }
+        @keyframes skeleton-shimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
 
-function handleAdminAuthPost(key) {
-  var props = PropertiesService.getScriptProperties();
-  var now = Date.now();
-  var lockUntil = parseInt(props.getProperty('ADMIN_LOCK_UNTIL') || '0', 10);
+        /* 일일실적 리포트 */
+        .report-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 16px; }
+        .report-controls { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+        .report-date-picker { width: auto; padding: 7px 10px; margin-bottom: 0; border-radius: 8px; font-size: 13px; font-weight: 700; background-color: var(--surface); cursor: pointer; flex-shrink: 0; }
+        .report-refresh-btn { width: 32px; height: 32px; padding: 0; border-radius: 8px; border: none; background: var(--surface); cursor: pointer; font-size: 14px; color: var(--text-sub); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .report-refresh-btn:hover { background: #eef0f3; }
+        .report-toggle { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--text-sub); cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+        .report-copy-btn { padding: 8px 14px; border-radius: 10px; border: none; background: var(--primary); color: #fff; cursor: pointer; font-weight: 700; font-size: 12px; }
+        .report-copy-btn:hover { opacity: 0.9; }
+        .report-table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid rgba(125,125,125,0.12); transition: opacity .2s ease; }
+        .report-table-wrap.is-loading { opacity: 0.35; pointer-events: none; }
+        .report-date-picker:disabled { opacity: 0.6; cursor: not-allowed; }
+        .report-table, .report-table * { font-family: 'Gowun Dodum', sans-serif !important; }
+        .report-table { border-collapse: collapse; font-size: 12px; white-space: nowrap; }
+        .report-table th, .report-table td { padding: 6px 10px; border: 1px solid rgba(125,125,125,0.1); text-align: right; }
+        .report-table th { background: #f2f2f2; color: var(--text-sub); font-weight: 700; text-align: center; }
+        .report-table th.report-group-total { background: #fde8ea; color: #b91c1c; }
+        .report-table td.report-group-total { background: #fdf6e3; }
+        .report-table th.report-group-hdr { background: #dcf3e2; }
+        .report-table td.report-rep-name { text-align: center; vertical-align: middle; font-weight: 700; }
+        .report-table th.report-group-start, .report-table td.report-group-start { border-left: 2px solid rgba(60,60,60,0.35); }
+        .report-table tr.report-hr-strong > * { border-top: 2px solid rgba(60,60,60,0.35); }
+        .report-table td.report-row-label { text-align: center; font-weight: 700; color: var(--text-sub); background: #fdf6e3; }
+        .report-table tr.report-cumulative td { font-weight: 800; }
+        .report-table tr.report-grandtotal td { background: #eef5fd; font-weight: 800; color: var(--primary); }
+        .report-table tr.report-grandtotal-ceo td { background: #fef3c7; font-weight: 800; color: #b45309; }
+        .report-table tr.report-row-alt { background: rgba(0,0,0,0.028); }
+        .report-table tr.report-row-alt td.report-row-label, .report-table tr.report-row-alt td.report-group-total { background: #f9ecc4; }
+        .report-table td.report-dash { color: rgba(125,125,125,0.4); }
 
-  if (now < lockUntil) {
-    var remain = Math.ceil((lockUntil - now) / 1000);
-    return jsonOut({ status: 'locked', remainingSeconds: remain });
-  }
-
-  if (adminAuth(key)) {
-    props.deleteProperty('ADMIN_FAIL_COUNT');
-    props.deleteProperty('ADMIN_LOCK_UNTIL');
-    return jsonOut({ status: 'success' });
-  }
-
-  var failCount = parseInt(props.getProperty('ADMIN_FAIL_COUNT') || '0', 10) + 1;
-
-  if (failCount >= ADMIN_MAX_ATTEMPTS) {
-    var newLockUntil = now + ADMIN_LOCK_MINUTES * 60 * 1000;
-    props.setProperty('ADMIN_LOCK_UNTIL', String(newLockUntil));
-    props.deleteProperty('ADMIN_FAIL_COUNT');
-    return jsonOut({ status: 'locked', remainingSeconds: ADMIN_LOCK_MINUTES * 60 });
-  }
-
-  props.setProperty('ADMIN_FAIL_COUNT', String(failCount));
-  return jsonOut({ status: 'fail', attemptsLeft: ADMIN_MAX_ATTEMPTS - failCount });
-}
-// ▲▲▲ 신규 추가 끝 ▲▲▲
-
-// 2. GET 요청은 보안상 전면 차단 (비밀번호를 포함한 모든 요청은 반드시 POST로만 처리)
-function doGet(e) {
-  return jsonOut({ error: "이 서버는 GET 요청을 지원하지 않습니다. POST로 요청해주세요." });
-}
-
-// ▼▼▼ 보안 강화: 검색/파일조회를 별도 함수로 분리 (doPost에서 재사용) ▼▼▼
-function handleSearch(name) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var rows = sheet.getDataRange().getValues();
-
-  var order = [];
-  var dedupMap = {};
-  for (var i = 1; i < rows.length; i++) {
-    if (rows[i][1].toString().indexOf(name) !== -1) {
-      var rrn = rows[i][2] ? rows[i][2].toString().trim() : ('__row_' + i);
-      if (!(rrn in dedupMap)) order.push(rrn);
-      dedupMap[rrn] = rows[i];
-    }
-  }
-
-  var results = order.map(function (rrn) {
-    var r = dedupMap[rrn];
-    return { handler: r[0], name: r[1], residentId: r[2], phone: r[3], address: r[4], job: r[5], account: r[6] };
-  });
-
-  return jsonOut(results);
-}
-
-function handleFetchFiles() {
-  var folder = DriveApp.getFolderById("1iU-4NJ9RLjslb_75RXfQDV-8IH2zGAfU");
-  var files = folder.getFiles();
-  var result = {};
-  while (files.hasNext()) {
-    var f = files.next();
-    var base64 = Utilities.base64Encode(f.getBlob().getBytes());
-    var mime = f.getMimeType();
-    if (f.getName().includes("고지의무")) result.data1 = "data:" + mime + ";base64," + base64;
-    if (f.getName().includes("동의")) result.data2 = "data:" + mime + ";base64," + base64;
-  }
-  return jsonOut(result);
-}
-// ▲▲▲ 보안 강화 끝 ▲▲▲
-
-// 3. POST 요청: 이제 모든 기능(로그인 포함)이 이 함수 하나로 처리됩니다.
-//    비밀번호/세션키가 더 이상 URL(주소)에 실리지 않고 요청 본문(body)에만 담겨 전송됩니다.
-function doPost(e) {
-  var data;
-  try {
-    data = JSON.parse(e.postData.contents);
-  } catch (err) {
-    return jsonOut({ error: "잘못된 요청 형식입니다." });
-  }
-  var action = data.action;
-
-  // 로그인은 인증 여부와 무관하게 가장 먼저 처리 (잠금 체크 포함)
-  if (action === 'auth') {
-    return handleAuthPost(data.key);
-  }
-
-  // 그 외 모든 액션은 인증 필요
-  if (!auth(data.key)) {
-    return jsonOut({ error: "인증 실패" });
-  }
-
-  if (action === 'search') {
-    return handleSearch(data.name);
-  }
-
-  if (action === 'fetchFiles') {
-    return handleFetchFiles();
-  }
-
-  if (action === 'monthlyStats') {
-    return getMonthlyStats();
-  }
-
-  if (action === 'agentCode') {
-    return getAgentCode(data.q);
-  }
-
-  if (action === 'agentStats') {
-    return getAgentStats();
-  }
-
-  if (action === 'getLinks') {
-    return getLinks();
-  }
-
-  if (action === 'dailyReport') {
-    return getDailyReport(data.date);
-  }
-
-  // ▼▼▼ 신규 추가: 캘린더 이벤트 관리 ▼▼▼
-  if (action === 'getCalendarEvents') {
-    return getCalendarEvents();
-  }
-
-  if (action === 'adminAuth') {
-    return handleAdminAuthPost(data.adminKey);
-  }
-
-  if (action === 'addCalendarEvent') {
-    if (!adminAuth(data.adminKey)) return jsonOut({ error: "관리자 인증이 필요합니다." });
-    return addCalendarEvent(data);
-  }
-
-  if (action === 'deleteCalendarEvent') {
-    if (!adminAuth(data.adminKey)) return jsonOut({ error: "관리자 인증이 필요합니다." });
-    return deleteCalendarEvent(data.id);
-  }
-  // ▲▲▲ 신규 추가 끝 ▲▲▲
-
-  if (action === 'save') {
-    var folder = DriveApp.getFolderById("19NrIB46JUwXZ8O76Ad3_hURDkyXCzx4e");
-    saveBase64AsImage(data.file1Data, data.fileName1, folder);
-    saveBase64AsImage(data.file2Data, data.fileName2, folder);
-    return jsonOut({ status: "success" });
-  }
-
-  return jsonOut({ error: "알 수 없는 요청입니다." });
-}
-
-// 4. Base64 이미지 변환 및 드라이브 저장 유틸리티
-function saveBase64AsImage(base64, name, folder) {
-  try {
-    var contentType = base64.substring(5, base64.indexOf(';'));
-    var bytes = Utilities.base64Decode(base64.split(',')[1]);
-    var blob = Utilities.newBlob(bytes, contentType, name);
-    folder.createFile(blob);
-  } catch (e) {
-    Logger.log("저장 오류: " + e.toString());
-  }
-  
-}
-function testPermissions() {
-  var folder = DriveApp.getFolderById("1iU-4NJ9RLjslb_75RXfQDV-8IH2zGAfU");
-  Logger.log("폴더 이름: " + folder.getName());
-}
-
-function getMonthlyStats() {
-  try {
-    var SOURCE_SS_ID = "13nN2yoNGdqBbZ5w2TZQmzkh9FZ0cKsKkahwWQe3qBB8";
-    var SHEET_NAME = "고객리스트";
-
-    var ss = SpreadsheetApp.openById(SOURCE_SS_ID);
-    var sheet = ss.getSheetByName(SHEET_NAME);
-    if (!sheet) {
-      return ContentService.createTextOutput(JSON.stringify({error: "고객리스트 시트를 찾을 수 없습니다."})).setMimeType(ContentService.MimeType.JSON);
-    }
-
-    var now = new Date();
-    var curYear = now.getFullYear();
-    var curMonth = now.getMonth() + 1;
-    var monthly = [0,0,0,0,0,0,0,0,0,0,0,0];
-    var monthCounts = [0,0,0,0,0,0,0,0,0,0,0,0];
-    // 월별(0~11) 보험사별 { total, count } 집계
-    var companyStatsByMonth = [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}];
-
-    var lastRow = sheet.getLastRow();
-    if (lastRow >= 2) {
-      var data = sheet.getRange(2, 1, lastRow - 1, 12).getValues();
-
-      data.forEach(function (row) {
-        var dateVal = row[1];
-        var companyVal = row[9];
-        var premiumVal = row[11];
-
-        var d = null;
-        if (dateVal instanceof Date) {
-          d = dateVal;
-        } else if (typeof dateVal === 'string' && dateVal.trim() !== '') {
-          var parts = dateVal.trim().split(/[.\-\/]/).filter(function(p){ return p !== ''; });
-          if (parts.length === 3) {
-            d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
-          }
+        /* 설계사 코드 검색: 플로팅 버튼 + 슬라이드 패널 (좁은 화면) / 우측 여백 고정 패널 (넓은 화면) */
+        .agent-fab { position: fixed; right: 22px; bottom: 22px; z-index: 9000; display: flex; align-items: center; gap: 8px; padding: 14px 18px; border-radius: 999px; border: none; cursor: pointer; background: var(--primary); color: #fff; font-weight: 800; font-size: 14px; box-shadow: 0 10px 24px -6px rgba(49,130,246,0.5); transition: transform .15s ease; }
+        .agent-fab:hover { transform: translateY(-2px); }
+        .agent-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.35); z-index: 9998; opacity: 0; pointer-events: none; transition: opacity .2s ease; }
+        .agent-overlay.open { opacity: 1; pointer-events: auto; }
+        .agent-panel { position: fixed; top: 0; right: 0; height: 100vh; width: 380px; max-width: 92vw; background: var(--card-bg); border-left: 1px solid var(--card-border); box-shadow: -12px 0 30px rgba(0,0,0,0.15); z-index: 9999; transform: translateX(100%); transition: transform .25s ease; display: flex; flex-direction: column; }
+        .agent-panel.open { transform: translateX(0); }
+        .agent-panel-head { padding: 20px; border-bottom: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center; }
+        .agent-panel-body { padding: 16px 20px; }
+        .agent-panel-results { flex: 1; overflow-y: auto; padding: 0 20px 20px; }
+        .agent-close-btn { background: none; border: none; cursor: pointer; font-size: 18px; color: var(--text-sub); }
+        .agent-info-row, .agent-code-box { background: var(--surface); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; }
+        .agent-info-label { font-size: 11px; color: var(--text-sub); font-weight: 700; margin-bottom: 2px; }
+        .agent-info-value-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .agent-info-value { font-size: 14px; font-weight: 700; word-break: break-all; }
+        .agent-copy-btn { background: none; border: none; cursor: pointer; font-size: 14px; color: var(--text-sub); flex-shrink: 0; }
+        .agent-code-company { font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+        .agent-code-line { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; gap: 8px; }
+        .agent-code-line .k { font-size: 12px; color: var(--text-sub); flex-shrink: 0; }
+        .agent-code-line .v { font-size: 14px; font-weight: 600; word-break: break-all; flex: 1; text-align: right; }
+        .agent-section-title { font-weight: 700; color: var(--primary); margin: 16px 0 6px; }
+        /* 화면이 충분히 넓을 때(=오른쪽 여백이 넉넉할 때)는 슬라이드 패널 대신 여백에 고정 표시 */
+        @media (min-width: 1680px) {
+            .agent-fab { display: none; }
+            .agent-overlay { display: none !important; }
+            .agent-panel { position: fixed; top: 120px; right: 24px; height: auto; max-height: 75vh; width: 280px; transform: none; border-radius: 24px; border: 1px solid var(--card-border); box-shadow: var(--shadow); }
         }
-        if (!d || isNaN(d.getTime())) return;
-        if (d.getFullYear() !== curYear) return;
+    </style>
+</head>
+<body>
+<div id="lock-screen"><div style="font-size: 80px; margin-bottom: 20px;">🔒</div><h1>사이트 잠김</h1><p>관리자가 암호를 변경한 후 다시 이용 가능합니다.</p></div>
+<div id="main-wrapper">
+    <div id="gatekeeper">
+        <div class="lock-card">
+            <div style="font-size: 60px; margin-bottom: 20px;">🛡️</div>
+            <h2>시스템 보안 인증</h2>
+            <input type="password" id="entry-pass" placeholder="비밀번호 입력" onkeypress="if(event.keyCode==13) tryAccess()">
+            <button class="btn-main" style="width:100%" id="access-btn" onclick="tryAccess()">보안 접속 시작</button>
+            <div id="lock-error-area"></div>
+        </div>
+    </div>
+    <div id="main-app">
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h1 style="font-size: 26px; color: var(--primary); margin: 0;">수인 관리페이지</h1>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="display:flex; align-items:center; gap:10px; font-size:13px; font-weight:700; color:var(--text-sub);">
+                    <span id="cur-date"></span>
+                    <span id="cur-time" style="font-size:16px; color:var(--primary);"></span>
+                    <span style="display:flex; align-items:center; gap:4px;"><span id="we-icon" style="font-size:18px;">☀️</span><span id="we-temp">--°C</span></span>
+                </div>
+                <button onclick="location.reload()" class="icon-btn" title="보안 로그아웃">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>
+                </button>
+            </div>
+        </div>
+        <div class="tab-nav">
+            <button type="button" class="tab-btn active" id="tabBtnHome" onclick="switchTab('home')">🏠 홈</button>
+            <button type="button" class="tab-btn" id="tabBtnReports" onclick="switchTab('reports')">📊 실적 리포트</button>
+            <button type="button" class="tab-btn" id="tabBtnAdmin" onclick="switchTab('admin')">⚙️ 관리자</button>
+        </div>
+        <div id="tab-home" class="tab-content">
+        <div class="two-cols qa-two-cols">
+            <div class="glass-card">
+                <div style="font-size:18px; font-weight:700; margin-bottom:15px;">👤 마스킹 전송</div>
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    <div class="field"><label for="cDate">처리 일자</label><input type="date" id="cDate"></div>
+                    <div class="field"><label for="pName">담당 설계사</label><input type="text" id="pName" placeholder="이름 입력"></div>
+                    <div class="field"><label for="uName">계약자 성명</label><input type="text" id="uName" placeholder="이름 입력"></div>
+                    <button class="btn-main" style="width:100%; height:50px; margin-top:2px;" id="process-btn" onclick="startProcess()">📤 전송</button>
+                </div>
+                <div id="processStatus" style="text-align:center; margin-top:12px; font-weight:700; font-size:13px;"></div>
+            </div>
+            <div class="glass-card">
+                <div style="font-size:20px; font-weight:700; margin-bottom:15px;">🔍 통합 고객 조회</div>
+                <div style="display:grid; grid-template-columns: 1fr 100px; gap:12px;"><input type="text" id="searchName" placeholder="성함 입력" onkeypress="if(event.keyCode==13) findCustomer()"><button class="btn-main" onclick="findCustomer()">조회</button></div>
+                <div id="searchStatus" style="margin-top:10px; font-size:14px; color: var(--primary);"></div>
+                <div id="searchResultArea" style="display:none;">
+                    <div id="resultList" style="display:flex; flex-direction:column; gap:10px; margin-top:10px;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="two-cols qa-two-cols">
+            <div class="glass-card">
+                <div style="font-size:18px; font-weight:700; margin-bottom:15px;">🖥️ 업무시스템</div>
+                <div class="qa-grid qa-grid-2x2">
+                    <!-- 마이매니저 링크: 접속 시 스프레드시트(링크설정 시트 B1)의 최신 링크로 자동 교체됩니다. 아래는 예전 값이라 만료되어도 무방합니다. -->
+                    <a id="mmpccLink" href="https://mmpcc.ohmymanager.com/index.html?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjb25zdWx0YW50aWQiOiI1MjIwMzAwMDUiLCJjb25zdWx0YW50X25hbWUiOiLsp4TsoJXtm4giLCJjb21weV9jZCI6IkEyNzIiLCJjb21weV9uYW1lIjoi7J247Y-s7Jyg6riI7Jy17ISc67mE7IqkIiwiYnJhbmNoX25hbWUiOiLsnbjtj6zsnKDquIjsnLXshJzruYTsiqQiLCJleHAiOjE3ODY2NjUzNDcsImNvbnN1bHRhbnRfaWQiOiI1MjIwMzAwMDUiLCJuYW1lIjoi7KeE7KCV7ZuIIiwiY2xpZW50X2lkIjoiQTI3MiIsIm1kbiI6IkEyNzIiLCJyb2xlIjoiIiwiY2xpZW50X2lwIjoiMS4yMTQuMTM2Ljc0In0.9_zIvQQVM2Iaixhy4ZAVonxEZYiMD5-Pg1mvr1c3bbw" target="_blank" class="qa-tile" style="--tile-a:#fb7185; --tile-b:#e11d48;">
+                        <span class="qa-tile-text">마이매니저</span>
+                    </a>
+                    <a href="http://chrurck.com/?act=info.page&pcode=sub1_3" target="_blank" class="qa-tile" style="--tile-a:#34d399; --tile-b:#059669;">
+                        <span class="qa-tile-text">초격차</span>
+                    </a>
+                    <a href="https://www.mohom.kr/" target="_blank" class="qa-tile" style="--tile-a:#60a5fa; --tile-b:#2563eb;">
+                        <span class="qa-tile-text">모홈</span>
+                    </a>
+                    <a href="https://infis-erp.co.kr/" target="_blank" class="qa-tile" style="--tile-a:#c084fc; --tile-b:#7c3aed;">
+                        <span class="qa-tile-text">ERP</span>
+                    </a>
+                </div>
+            </div>
+            <div class="glass-card">
+                <div style="font-size:18px; font-weight:700; margin-bottom:15px;">🏢 보험사 전산</div>
+                <div class="qa-grid qa-grid-2x2">
+                    <a href="https://sfa.saleshana.com/wq/login" target="_blank" class="qa-tile qa-tile-logo" style="--tile-a:#2dd4bf; --tile-b:#0f766e;" title="하나손보">
+                        <img src="image/hana.png" alt="하나손보">
+                    </a>
+                    <a href="https://portal.hwgeneralins.com/3rdParty/loginFormPage_v2.jsp?NONCE=fLX1wU9Qk4zz0Q1SM33HG813%2FTviqmUKNPizBKRc2qrjUEfo2NXTOmEh52aQpjmovaop8ANYTxDqRHAaoKj%2FDw%3D%3D&UURL=https%3A%2F%2Fportal.hwgeneralins.com%2Fnls3%2Ffcs" target="_blank" class="qa-tile qa-tile-logo" style="--tile-a:#fb923c; --tile-b:#c2410c;" title="한화손보">
+                        <img src="image/hanwha.png" alt="한화손보">
+                    </a>
+                    <a href="https://metplus.metlife.co.kr/nexacro/AgentPortal/index.jsp" target="_blank" class="qa-tile qa-tile-logo" style="--tile-a:#22d3ee; --tile-b:#0e7490;" title="메트라이프">
+                        <img src="image/met.jpg" alt="메트라이프">
+                    </a>
+                    <a href="https://ga.shinhanlife.co.kr:11043/colomga010m.msv" target="_blank" class="qa-tile qa-tile-logo" style="--tile-a:#818cf8; --tile-b:#4338ca;" title="신한라이프">
+                        <img src="image/shinhan.jpg" alt="신한라이프">
+                    </a>
+                    <a href="https://sfa.kblife.co.kr/scr/m/sfa-login?request=sfaLogin" target="_blank" class="qa-tile qa-tile-logo" style="--tile-a:#fbbf24; --tile-b:#d97706;" title="KB라이프">
+                        <img src="image/kb.jpg" alt="KB라이프">
+                    </a>
+                    <a href="https://www.loveageplan.com/websquare/websquare.jsp?w2xPath=/view/lap/ui/lg/lga/PLGA010M00.xml" target="_blank" class="qa-tile qa-tile-logo" style="--tile-a:#fb7185; --tile-b:#be123c;" title="미래에셋생명">
+                        <img src="image/mirae.png" alt="미래에셋생명">
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="glass-card" style="display:none;">
+            <div style="font-size:18px; font-weight:700; margin-bottom:15px;">📂 드라이브 자동 연동</div>
+            <div style="font-size:13px; color:var(--text-sub); line-height:1.8; background:rgba(0,0,0,0.03); padding:14px; border-radius:12px;">
+                지정된 드라이브 폴더에서 파일명에<br>
+                · <b>"고지의무"</b>가 포함된 파일 → 고지의무 이행확인서<br>
+                · <b>"동의"</b>가 포함된 파일 → 필수 동의서<br>
+                를 자동으로 찾아 불러옵니다.
+            </div>
+        </div>
+        <div class="glass-card" style="padding: 18px;"><div id="cal-title" style="font-weight: 800; text-align: center; margin-bottom: 12px; font-size: 16px;"></div><table class="calendar-table"><thead><tr style="font-size: 11px; height: 25px; text-align: center;"><th style="color:var(--red)">일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th style="color:var(--primary)">토</th></tr></thead><tbody id="cal-body-content"></tbody></table></div>
 
-        var premium = 0;
-        if (typeof premiumVal === 'number') {
-          premium = premiumVal;
-        } else if (typeof premiumVal === 'string') {
-          premium = parseFloat(premiumVal.replace(/[^0-9.-]/g, '')) || 0;
+        </div>
+        <div id="tab-reports" class="tab-content" style="display:none;">
+        <div class="glass-card" id="dailyReportCard">
+            <div class="report-head">
+                <div style="font-size:18px; font-weight:700;">📋 일일실적 리포트</div>
+                <div class="report-controls">
+                    <input type="date" id="reportDatePicker" class="report-date-picker" onchange="fetchDailyReport(this.value)">
+                    <button type="button" class="report-refresh-btn" onclick="fetchDailyReport($('reportDatePicker').value)" title="같은 날짜로 다시 조회">🔄</button>
+                    <span class="perf-total-label num-font" id="reportDateLabel"></span>
+                    <label class="report-toggle"><input type="checkbox" id="reportIncludeCEO" onchange="renderDailyReport()"> 대표 포함</label>
+                    <button type="button" class="report-copy-btn" onclick="copyDailyReport()">📋 표 복사</button>
+                </div>
+            </div>
+            <div class="report-table-wrap">
+                <table class="report-table" id="reportTable"></table>
+            </div>
+            <div class="perf-total-label" id="reportUpdatedLabel" style="margin-top:8px;"></div>
+        </div>
+        <div class="glass-card">
+            <div class="perf-head">
+                <div style="font-size:18px; font-weight:700;">📊 월별 실적</div>
+                <div class="perf-stats-row">
+                    <div class="perf-month-nav">
+                        <button type="button" class="perf-nav-btn" id="perfMonthPrevBtn" onclick="movePerfMonth(-1)" title="이전 달">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                        </button>
+                        <div class="perf-total-label skeleton-text" id="perf-month-label">불러오는 중</div>
+                        <button type="button" class="perf-nav-btn" id="perfMonthNextBtn" onclick="movePerfMonth(1)" title="다음 달">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </button>
+                    </div>
+                    <div class="perf-stats-right">
+                        <div class="perf-total-row">
+                            <div class="perf-total-value num-font" id="perf-current-total">-</div>
+                            <div class="perf-change num-font" id="perf-change"></div>
+                        </div>
+                        <div class="perf-total-label num-font" id="perf-current-count"></div>
+                        <select id="donutMetricSelect" class="perf-donut-select" onchange="onDonutMetricChange()">
+                            <option value="premium">비율</option>
+                            <option value="amount">보험료</option>
+                            <option value="count">건수</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="perf-charts-row">
+                <div class="perf-chart-block">
+                    <div class="perf-chart-col"><canvas id="perfChart"></canvas></div>
+                    <div class="perf-summary-bar">
+                        <span>연간 합계</span><span id="perfYearTotalCell">-</span>
+                    </div>
+                </div>
+                <div class="perf-bar-block">
+                    <div class="perf-bar-col">
+                        <table class="perf-bar-table" id="perfBarTable">
+                            <thead><tr><th>보험사</th><th style="text-align:right;">값</th></tr></thead>
+                            <tbody id="perfBarTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="glass-card" id="agentPerfCard">
+            <div class="perf-head">
+                <div style="font-size:18px; font-weight:700;">🧑‍💼 설계사별 실적</div>
+                <div class="perf-stats-row">
+                    <div class="perf-month-nav">
+                        <div class="perf-total-label skeleton-text" id="agentperf-month-label" style="margin-right:6px;">불러오는 중</div>
+                        <select id="agentRepSelect" class="agentperf-select" onchange="onAgentRepChange()"></select>
+                    </div>
+                    <div class="perf-stats-right">
+                        <div class="perf-total-row">
+                            <div class="perf-total-value num-font" id="agentperf-current-total">-</div>
+                        </div>
+                        <div class="perf-total-label num-font" id="agentperf-current-count"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="perf-charts-row">
+                <div class="perf-chart-block">
+                    <div class="perf-chart-col"><canvas id="agentPerfChart"></canvas></div>
+                    <div class="perf-summary-bar">
+                        <span>합계</span><span id="agentMonthlyTotalCell">-</span>
+                    </div>
+                </div>
+                <div class="agentperf-table-col--company">
+                    <div class="agentperf-row-head">
+                        <span>보험사</span><span>건수</span><span>실적</span>
+                    </div>
+                    <div class="agentperf-scroll">
+                        <div id="agentPerfTableBody"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        <div id="tab-admin" class="tab-content" style="display:none;">
+            <div class="glass-card" id="adminGateCard">
+                <div style="font-size:18px; font-weight:700; margin-bottom:15px;">🔐 관리자 인증</div>
+                <div style="max-width:320px;">
+                    <input type="password" id="adminPassInput" placeholder="관리자 비밀번호" onkeypress="if(event.keyCode==13) tryAdminAccess()">
+                    <button class="btn-main" style="width:100%;" id="adminAccessBtn" onclick="tryAdminAccess()">관리자 접속</button>
+                    <div id="adminLoginError" style="margin-top:8px;"></div>
+                </div>
+            </div>
+            <div class="glass-card" id="adminEventCard" style="display:none;">
+                <div style="font-size:18px; font-weight:700; margin-bottom:15px;">📅 캘린더 이벤트 관리</div>
+                <div style="display:flex; flex-direction:column; gap:12px; max-width:420px; margin-bottom:24px;">
+                    <div class="field"><label for="evStart">시작일</label><input type="date" id="evStart"></div>
+                    <div class="field"><label for="evEnd">종료일</label><input type="date" id="evEnd"></div>
+                    <div class="field"><label for="evText">내용</label><input type="text" id="evText" placeholder="예: 전체 미팅"></div>
+                    <div class="field">
+                        <label>색상</label>
+                        <div id="evColorSwatches" class="ev-swatch-row"></div>
+                        <input type="color" id="evColorCustom" value="#fb7185" class="ev-color-custom" onchange="selectedEvColor=this.value; document.querySelectorAll('.ev-swatch').forEach(el=>el.classList.remove('active'));">
+                    </div>
+                    <button class="btn-main" onclick="addCalendarEventUI()">+ 이벤트 추가</button>
+                    <div id="adminAddStatus" style="font-size:12px; font-weight:700;"></div>
+                </div>
+                <div style="font-size:14px; font-weight:700; margin-bottom:10px;">등록된 이벤트</div>
+                <div id="adminEventList" style="display:flex; flex-direction:column; gap:8px;"></div>
+            </div>
+        </div>
+        <!-- 설계사 코드 검색: 플로팅 버튼 + 슬라이드 패널 (넓은 화면에선 CSS로 우측 여백 고정 패널로 전환) -->
+        <button type="button" class="agent-fab" onclick="toggleAgentPanel()">🔑 코드검색</button>
+        <div class="agent-overlay" id="agentOverlay" onclick="closeAgentPanel()"></div>
+        <div class="agent-panel" id="agentPanel">
+            <div class="agent-panel-head">
+                <div style="font-size:16px; font-weight:800;">🔑 설계사 코드 검색</div>
+                <button type="button" class="agent-close-btn" onclick="closeAgentPanel()">✕</button>
+            </div>
+            <div class="agent-panel-body">
+                <div style="display:flex; gap:8px;">
+                    <input type="text" id="agentQuery" placeholder="이름 또는 이름 키워드" style="margin-bottom:0;" onkeypress="if(event.keyCode==13) doAgentSearch()">
+                    <button type="button" class="icon-btn" style="flex-shrink:0;" onclick="doAgentSearch()" title="검색">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </button>
+                </div>
+                <div id="agentStatus" style="margin-top:8px; font-size:13px; color:var(--text-sub);"></div>
+            </div>
+            <div class="agent-panel-results" id="agentResultArea"></div>
+        </div>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx2TfR2pFEo2SdY-m_Za-ISMxF65Z_j528vc73DnWzMFMY6qYYEcuNUpxzPxnGm89mobQ/exec';
+    const W_API_KEY = 'e9e4b4788a9cb01857b3d430b6551c24';
+    let sessionKey = "";
+    const $ = id => document.getElementById(id);
+
+    // 보안 강화: 비밀번호/세션키가 URL(주소)에 절대 노출되지 않도록, 모든 요청을 POST 본문에 담아 전송
+    // (Content-Type을 text/plain으로 둬야 Apps Script가 프리플라이트 없이 바로 받을 수 있음)
+    async function postToScript(action, params) {
+        const res = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action, key: sessionKey, ...(params || {}) })
+        });
+        return res.json();
+    }
+
+    // 숫자 카운트업 애니메이션 유틸 (KPI 숫자가 0 -> 실제값으로 부드럽게 올라가도록)
+    const _animNumState = new WeakMap();
+    function animateNumber(el, toValue, formatFn, duration = 500) {
+        if (_animNumState.has(el)) cancelAnimationFrame(_animNumState.get(el));
+        const fromValue = el.dataset.animFrom !== undefined ? parseFloat(el.dataset.animFrom) : 0;
+        const start = performance.now();
+        function tick(now) {
+            const t = Math.min(1, (now - start) / duration);
+            const eased = 1 - Math.pow(1 - t, 3); // ease-out
+            const cur = fromValue + (toValue - fromValue) * eased;
+            el.innerText = formatFn(cur);
+            if (t < 1) {
+                _animNumState.set(el, requestAnimationFrame(tick));
+            } else {
+                el.innerText = formatFn(toValue);
+                el.dataset.animFrom = toValue;
+            }
         }
-        if (premium <= 0) return;
-
-        var m = d.getMonth();
-        monthly[m] += premium;
-        monthCounts[m] += 1;
-
-        var companyName = String(companyVal || "").trim() || "기타";
-        var stats = companyStatsByMonth[m];
-        if (!stats[companyName]) stats[companyName] = { total: 0, count: 0 };
-        stats[companyName].total += premium;
-        stats[companyName].count += 1;
-      });
+        _animNumState.set(el, requestAnimationFrame(tick));
     }
 
-    // 월별 보험사 breakdown을 실적 큰 순으로 정렬된 배열 12개로 변환
-    var companyBreakdownByMonth = companyStatsByMonth.map(function (stats) {
-      return Object.keys(stats).map(function (name) {
-        return { company: name, total: stats[name].total, count: stats[name].count };
-      }).sort(function (a, b) { return b.total - a.total; });
-    });
-
-    var companyBreakdown = companyBreakdownByMonth[curMonth - 1]; // 하위 호환용 (당월 breakdown)
-    var currentMonthCount = monthCounts[curMonth - 1];
-
-    var result = {
-      year: curYear,
-      currentMonth: curMonth,
-      currentTotal: monthly[curMonth - 1],
-      currentMonthCount: currentMonthCount,
-      monthly: monthly,
-      monthCounts: monthCounts,
-      companyBreakdown: companyBreakdown,
-      companyBreakdownByMonth: companyBreakdownByMonth
-    };
-    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
-
-  } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({error: err.toString()})).setMimeType(ContentService.MimeType.JSON);
-  }
-}
-
-function getAgentCode(query) {
-  try {
-    var SS_ID = "1VMbBFaEHN78U-Dvt-ZfwfjJFWKnbWDmuRtE542YLXe0";
-    var SHEET_NAME = "시트1";
-
-    var ss = SpreadsheetApp.openById(SS_ID);
-    var sheet = ss.getSheetByName(SHEET_NAME);
-    if (!sheet) return agentJsonOut({error: "시트1을 찾을 수 없습니다."});
-
-    var data = sheet.getDataRange().getValues();
-    if (data.length < 2) return agentJsonOut({kind: "none"});
-
-    var headers = data[0];
-    var idx = {};
-    headers.forEach(function (h, i) { idx[String(h).trim()] = i; });
-
-    var need = ["이름", "연락처", "주민번호", "보험사", "코드", "패스워드"];
-    for (var k = 0; k < need.length; k++) {
-      if (!(need[k] in idx)) return agentJsonOut({error: "헤더에 '" + need[k] + "' 열이 없습니다."});
+    function switchTab(name) {
+        const tabs = ['home', 'reports', 'admin'];
+        tabs.forEach(t => { $('tab-' + t).style.display = (t === name) ? 'flex' : 'none'; });
+        $('tabBtnHome').classList.toggle('active', name === 'home');
+        $('tabBtnReports').classList.toggle('active', name === 'reports');
+        $('tabBtnAdmin').classList.toggle('active', name === 'admin');
+        if (name === 'reports') {
+            // 리포트 탭이 숨겨져 있는 동안 생성된 차트는 크기가 0으로 잡혔을 수 있어, 보이는 순간 다시 계산
+            requestAnimationFrame(() => {
+                if (perfChartInstance) perfChartInstance.resize();
+                if (agentPerfChartInstance) agentPerfChartInstance.resize();
+            });
+        }
     }
 
-    var records = [];
-    for (var r = 1; r < data.length; r++) {
-      var row = data[r];
-      records.push({
-        name: String(row[idx["이름"]] || "").trim(),
-        phone: String(row[idx["연락처"]] || "").trim(),
-        residentId: String(row[idx["주민번호"]] || "").trim(),
-        company: String(row[idx["보험사"]] || "").trim(),
-        code: String(row[idx["코드"]] || "").trim(),
-        password: String(row[idx["패스워드"]] || "").trim()
-      });
+    function unlockApp() {
+        $('gatekeeper').style.display = 'none';
+        $('main-app').style.display = 'flex';
+        updateClock(); setInterval(updateClock, 1000);
+        fetchWeather(); fetchCalendarEvents();
+        fetchMonthlyStats();
+        fetchAgentStats();
+        fetchLinks();
+        fetchDailyReport();
     }
 
-    var last = { name: "", phone: "", residentId: "" };
-    records.forEach(function (rec) {
-      ["name", "phone", "residentId"].forEach(function (f) {
-        if (rec[f]) { last[f] = rec[f]; }
-        else if (last[f]) { rec[f] = last[f]; }
-      });
-    });
-
-    query = (query || "").trim();
-    if (!query) return agentJsonOut({ kind: "none" });
-    var tokens = query.split(/\s+/);
-    var qname = tokens[0];
-    var restStr = tokens.slice(1).join(" ").trim();
-    var keywords = [];
-    if (restStr) {
-      keywords = restStr.split(",").map(function (s) { return s.trim(); }).filter(function (s) { return s; });
+    // 매일 바뀌는 마이매니저 링크를 스프레드시트(링크설정 시트 B1)에서 읽어와 버튼에 반영
+    async function fetchLinks() {
+        try {
+            const d = await postToScript('getLinks');
+            if (d.error) { console.error(d.error); return; }
+            if (d.mmpccUrl) { $('mmpccLink').href = d.mmpccUrl; }
+        } catch (e) { console.error(e); }
     }
 
-    var matched = records.filter(function (rec) { return rec.name.indexOf(qname) !== -1; });
-    if (matched.length === 0) return agentJsonOut({ kind: "none" });
+    let lockCountdownTimer = null;
+    async function tryAccess() {
+        const pass = $('entry-pass').value.trim(); if(!pass) return;
+        $('access-btn').disabled = true; $('access-btn').innerText = "인증 중...";
+        try {
+            const res = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'auth', key: pass })
+            });
+            const data = await res.json();
 
-    if (keywords.length === 0) {
-      return agentJsonOut({ kind: "full", name: qname, rows: matched });
+            if (data.status === "success") {
+                sessionKey = pass;
+                $('lock-error-area').innerHTML = '';
+                unlockApp();
+                return;
+            }
+
+            if (data.status === "locked") {
+                startLockCountdown(data.remainingSeconds);
+                return;
+            }
+
+            // 실패 (비밀번호 오류)
+            const leftText = (data.attemptsLeft != null) ? ` (남은 시도: ${data.attemptsLeft}회)` : '';
+            $('lock-error-area').innerHTML = `<p style="color:red; font-size:12px;">비밀번호가 올바르지 않습니다.${leftText}</p>`;
+            $('access-btn').disabled = false; $('access-btn').innerText = "보안 접속 시작";
+        } catch(e) {
+            $('lock-error-area').innerHTML = `<p style="color:red; font-size:12px;">⚠️ 서버 연결 오류</p>`;
+            $('access-btn').disabled = false; $('access-btn').innerText = "보안 접속 시작";
+        }
     }
 
-    var FIELD_KEYWORDS = {
-      "연락처": "phone", "전화": "phone", "전화번호": "phone", "번호": "phone",
-      "주민번호": "residentId", "주민등록번호": "residentId",
-      "보험사": "company"
-    };
-
-    if (keywords.length === 1 && FIELD_KEYWORDS.hasOwnProperty(keywords[0])) {
-      var fieldKey = FIELD_KEYWORDS[keywords[0]];
-      return agentJsonOut({ kind: "field", name: qname, field: fieldKey, rows: matched });
-    }
-
-    var filtered = matched.filter(function (rec) {
-      return keywords.some(function (kw) {
-        return rec.company.indexOf(kw) !== -1 || rec.code.indexOf(kw) !== -1;
-      });
-    });
-    if (filtered.length === 0) return agentJsonOut({ kind: "none" });
-    return agentJsonOut({ kind: "rows", name: qname, keywords: keywords, rows: filtered });
-
-  } catch (err) {
-    return agentJsonOut({ error: err.toString() });
-  }
-}
-
-function agentJsonOut(obj) {
-  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
-}
-
-function getAgentStats() {
-  try {
-    var SOURCE_SS_ID = "13nN2yoNGdqBbZ5w2TZQmzkh9FZ0cKsKkahwWQe3qBB8";
-    var SHEET_NAME = "고객리스트";
-
-    var ss = SpreadsheetApp.openById(SOURCE_SS_ID);
-    var sheet = ss.getSheetByName(SHEET_NAME);
-    if (!sheet) {
-      return ContentService.createTextOutput(JSON.stringify({error: "고객리스트 시트를 찾을 수 없습니다."})).setMimeType(ContentService.MimeType.JSON);
-    }
-
-    var now = new Date();
-    var curYear = now.getFullYear();
-    var curMonth = now.getMonth() + 1;
-
-    var repMap = {};
-
-    function getRep(name) {
-      if (!repMap[name]) {
-        repMap[name] = {
-          monthly: [0,0,0,0,0,0,0,0,0,0,0,0],
-          companyStats: {},
-          currentMonthCount: 0
+    // 로그인 잠금 시 남은 시간을 실시간으로 보여주고, 시간이 다 되면 자동으로 재시도 가능하게 함
+    function startLockCountdown(seconds) {
+        if (lockCountdownTimer) clearInterval(lockCountdownTimer);
+        let remain = seconds;
+        const render = () => {
+            const m = Math.floor(remain / 60);
+            const s = remain % 60;
+            $('lock-error-area').innerHTML = `<p style="color:red; font-size:12px;">🔒 비밀번호를 여러 번 틀려 잠겼습니다. ${m}분 ${s}초 후 다시 시도해주세요.</p>`;
+            $('access-btn').disabled = true; $('access-btn').innerText = `잠김 (${m}:${String(s).padStart(2,'0')})`;
         };
-      }
-      return repMap[name];
+        render();
+        lockCountdownTimer = setInterval(() => {
+            remain -= 1;
+            if (remain <= 0) {
+                clearInterval(lockCountdownTimer);
+                lockCountdownTimer = null;
+                $('lock-error-area').innerHTML = '';
+                $('access-btn').disabled = false; $('access-btn').innerText = "보안 접속 시작";
+                return;
+            }
+            render();
+        }, 1000);
     }
 
-    var lastRow = sheet.getLastRow();
-    if (lastRow >= 2) {
-      var data = sheet.getRange(2, 1, lastRow - 1, 12).getValues();
+    function updateClock() { const n = new Date(); const days = ["일", "월", "화", "수", "목", "금", "토"]; $('cur-date').innerText = `${n.getFullYear()}년 ${n.getMonth()+1}월 ${n.getDate()}일 (${days[n.getDay()]})`; let hrs = n.getHours(); const ampm = hrs >= 12 ? 'PM' : 'AM'; hrs = hrs % 12 || 12; $('cur-time').innerText = `${ampm} ${hrs}:${String(n.getMinutes()).padStart(2, '0')}`; }
+    async function fetchWeather() { try { const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Seoul&appid=${W_API_KEY}&units=metric&lang=kr`); const d = await res.json(); $('we-temp').innerText = `${Math.round(d.main.temp)}°C`; $('we-icon').innerText = d.weather[0].icon.includes('01') ? '☀️' : '☁️'; } catch (e) {} }
 
-      data.forEach(function (row) {
-        var repName = row[0] ? String(row[0]).trim() : '';
-        var dateVal = row[1];
-        var companyVal = row[9];
-        var premiumVal = row[11];
-        if (!repName) return;
+    let calendarEventsData = [];
 
-        var d = null;
-        if (dateVal instanceof Date) {
-          d = dateVal;
-        } else if (typeof dateVal === 'string' && dateVal.trim() !== '') {
-          var parts = dateVal.trim().split(/[.\-\/]/).filter(function(p){ return p !== ''; });
-          if (parts.length === 3) {
-            d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
-          }
+    async function fetchCalendarEvents() {
+        try {
+            const events = await postToScript('getCalendarEvents');
+            calendarEventsData = Array.isArray(events) ? events : [];
+        } catch (e) {
+            console.error(e);
+            calendarEventsData = [];
         }
-        if (!d || isNaN(d.getTime())) return;
-        if (d.getFullYear() !== curYear) return;
+        drawCal();
+    }
 
-        var premium = 0;
-        if (typeof premiumVal === 'number') {
-          premium = premiumVal;
-        } else if (typeof premiumVal === 'string') {
-          premium = parseFloat(premiumVal.replace(/[^0-9.-]/g, '')) || 0;
+    function drawCal() {
+        const n = new Date(); const y = n.getFullYear(); const m = n.getMonth(); 
+        $('cal-title').innerText = `${y}년 ${m + 1}월`;
+        const firstDay = new Date(y, m, 1).getDay(); const lastDate = new Date(y, m + 1, 0).getDate();
+        let html = '<tr>';
+
+        const events = calendarEventsData;
+
+        for(let i=0; i<firstDay; i++) html += '<td class="calendar-td"></td>';
+        for(let d=1; d<=lastDate; d++) {
+            const curIdx = (firstDay + d - 1) % 7; if (d > 1 && curIdx === 0) html += '</tr><tr>';
+            const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            const isToday = (d === n.getDate() && m === n.getMonth() && y === n.getFullYear()) ? 'today' : '';
+            const dayEvents = events.filter(ev => dateStr >= ev.start && dateStr <= ev.end);
+            const evHtml = dayEvents.map(ev => {
+                const c = ev.color || '#fb7185';
+                return `<div class="event-bar" style="background:${c}26; border-color:${c}; color:${c};">${ev.text}</div>`;
+            }).join('');
+            html += `<td class="calendar-td ${isToday}"><span class="day-num">${d}</span><div style="margin-top:2px;">${evHtml}</div></td>`;
         }
-        if (premium <= 0) return;
-
-        var rep = getRep(repName);
-        var m = d.getMonth();
-        rep.monthly[m] += premium;
-
-        if (m === (curMonth - 1)) {
-          var companyName = String(companyVal || "").trim() || "기타";
-          if (!rep.companyStats[companyName]) rep.companyStats[companyName] = { total: 0, count: 0 };
-          rep.companyStats[companyName].total += premium;
-          rep.companyStats[companyName].count += 1;
-          rep.currentMonthCount += 1;
-        }
-      });
+        $('cal-body-content').innerHTML = html + '</tr>';
     }
 
-    var reps = Object.keys(repMap).sort(function (a, b) {
-      return repMap[b].monthly[curMonth - 1] - repMap[a].monthly[curMonth - 1];
-    }).map(function (name) {
-      var r = repMap[name];
-      var companyBreakdown = Object.keys(r.companyStats).map(function (c) {
-        return { company: c, total: r.companyStats[c].total, count: r.companyStats[c].count };
-      }).sort(function (a, b) { return b.total - a.total; });
-
-      return {
-        name: name,
-        monthly: r.monthly,
-        currentTotal: r.monthly[curMonth - 1],
-        currentMonthCount: r.currentMonthCount,
-        companyBreakdown: companyBreakdown
-      };
-    });
-
-    var result = { year: curYear, currentMonth: curMonth, reps: reps };
-    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
-
-  } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({error: err.toString()})).setMimeType(ContentService.MimeType.JSON);
-  }
-}
-
-// ▼▼▼ 신규 추가: 매일 바뀌는 바로가기 링크 조회 (마이매니저 토큰 링크 등) ▼▼▼
-// 이 스크립트가 묶여있는 스프레드시트(고객 검색용 시트와 같은 파일) 안에
-// "링크설정"이라는 이름의 시트를 새로 만들고, B1 셀에 마이매니저 전체 URL을
-// 붙여넣어두면, 웹페이지 접속 시마다 이 셀 값을 읽어와 버튼에 자동으로 반영합니다.
-//
-// 시트 구성 예시 (시트 이름: 링크설정)
-//   A1: 마이매니저링크    B1: https://mmpcc.ohmymanager.com/index.html?token=...(당일 발급 링크 전체)
-function getLinks() {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName("링크설정");
-    if (!sheet) {
-      return ContentService.createTextOutput(JSON.stringify({
-        error: "'링크설정' 시트를 찾을 수 없습니다. 시트를 새로 만들고 A1에 '마이매니저링크', B1에 실제 URL을 입력해주세요."
-      })).setMimeType(ContentService.MimeType.JSON);
-    }
-    var mmpccUrl = sheet.getRange("B1").getValue();
-    return ContentService.createTextOutput(JSON.stringify({
-      mmpccUrl: String(mmpccUrl || "").trim()
-    })).setMimeType(ContentService.MimeType.JSON);
-  } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({error: err.toString()})).setMimeType(ContentService.MimeType.JSON);
-  }
-}
-// ▲▲▲ 신규 추가 끝 ▲▲▲
-
-// ▼▼▼ 신규 추가: 일일실적 리포트 집계 ▼▼▼
-// "실적표" 탭의 A열(담당자 명단, A5부터 2행씩)을 그대로 사용해서
-// 실적이 0건인 사람도 계속 표시되도록 하고,
-// "고객리스트" 탭에서 당일/당월누계 실적을 담당자 × 보험사그룹별로 집계합니다.
-// 대표(진정훈) 포함/제외 두 버전의 합계를 함께 반환합니다.
-function getDailyReport(dateParam) {
-  try {
-    var SS_ID = "13nN2yoNGdqBbZ5w2TZQmzkh9FZ0cKsKkahwWQe3qBB8";
-    var CEO_NAME = "진정훈";
-
-    var ss = SpreadsheetApp.openById(SS_ID);
-    var perfSheet = ss.getSheetByName("실적표");
-    var sourceSheet = ss.getSheetByName("고객리스트");
-    if (!perfSheet) return ContentService.createTextOutput(JSON.stringify({error: "'실적표' 시트를 찾을 수 없습니다."})).setMimeType(ContentService.MimeType.JSON);
-    if (!sourceSheet) return ContentService.createTextOutput(JSON.stringify({error: "'고객리스트' 시트를 찾을 수 없습니다."})).setMimeType(ContentService.MimeType.JSON);
-
-    // 담당자 명단: 실적표 A열, A5부터 2행씩 (기존 실적표 스크립트와 동일한 규칙)
-    var reps = [];
-    for (var i = 5; ; i += 2) {
-      var v = perfSheet.getRange('A' + i).getValue();
-      if (!v) break;
-      var name = v.toString().trim();
-      if (name.length < 2 || name.indexOf('[') === 0 || name.indexOf('누계') !== -1 || name.indexOf('총') !== -1) {
-        if (name.length < 2) continue; else break;
-      }
-      reps.push(name);
-      if (reps.length > 100) break;
-    }
-
-    var COMPANY_GROUPS = {
-      '케이비': ['케이비'],
-      '디비': ['디비'],
-      '흥국화재': ['흥국화재'],
-      '메리츠': ['메리츠'],
-      '삼성화재': ['삼성화재'],
-      '롯데손보': ['롯데손보'],
-      '생명사': ['푸본현대', 'KB라이프', '신한생명', '삼성생명', '메트라이프', '흥국생명', '농협생명', '라이나생명', '한화생명', '교보생명', '동양생명', 'DB생명', 'KDB생명', '하나생명', 'ABL', '미래에셋'],
-      '기타': ['기타', '한화손보', '현대해상', '농협손보', '라이나손보', '하나손보']
-    };
-    var GROUP_ORDER = ['케이비', '디비', '흥국화재', '메리츠', '삼성화재', '롯데손보', '생명사', '기타'];
-
-    function emptyBucket() {
-      var b = { total: { premium: 0, conv: 0 }, groups: {} };
-      GROUP_ORDER.forEach(function (g) { b.groups[g] = { premium: 0, conv: 0 }; });
-      return b;
-    }
-
-    var repData = {};
-    reps.forEach(function (r) {
-      repData[r] = { today: emptyBucket(), cumulative: emptyBucket() };
-    });
-
-    var tz = ss.getSpreadsheetTimeZone();
-    // dateParam(yyyy-MM-dd)이 있으면 해당 날짜를 기준일로, 없으면 오늘을 기준일로 사용
-    var isValidDateParam = dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam);
-    var baseDate = isValidDateParam ? new Date(dateParam.split('-').join('/') + ' 12:00:00') : new Date();
-    var todayString = isValidDateParam ? dateParam : Utilities.formatDate(baseDate, tz, "yyyy-MM-dd");
-    var targetMonthString = todayString.substring(0, 7);
-    var todayBoundary = new Date(todayString.split('-').join('/') + ' 23:59:59');
-
-    var lastRow = sourceSheet.getLastRow();
-    if (lastRow >= 2) {
-      var data = sourceSheet.getRange(2, 1, lastRow - 1, 13).getValues(); // A~M
-
-      data.forEach(function (row) {
-        var repName = row[0] ? row[0].toString().trim() : '';
-        if (!repName || !repData[repName]) return; // 명단(실적표 A열)에 있는 담당자만 집계
-
-        var dateVal = row[1];
-        if (!(dateVal instanceof Date)) return;
-
-        var dataDateString = Utilities.formatDate(dateVal, tz, "yyyy-MM-dd");
-        var dataMonthString = Utilities.formatDate(dateVal, tz, "yyyy-MM");
-        if (dataMonthString !== targetMonthString || dateVal.getTime() > todayBoundary.getTime()) return; // 당월 + 오늘까지만
-
-        var premium = (typeof row[11] === 'number' && row[11] > 0) ? row[11] : 0;
-        var conv = (typeof row[12] === 'number' && row[12] > 0) ? row[12] : 0;
-        if (premium === 0 && conv === 0) return;
-
-        var company = row[9] ? row[9].toString().trim() : '';
-        var group = '기타';
-        for (var key in COMPANY_GROUPS) {
-          if (COMPANY_GROUPS[key].indexOf(company) !== -1) { group = key; break; }
-        }
-
-        var rd = repData[repName];
-        var isToday = (dataDateString === todayString);
-
-        if (isToday) {
-          rd.today.total.premium += premium;
-          rd.today.total.conv += conv;
-          rd.today.groups[group].premium += premium;
-          rd.today.groups[group].conv += conv;
-        }
-        rd.cumulative.total.premium += premium;
-        rd.cumulative.total.conv += conv;
-        rd.cumulative.groups[group].premium += premium;
-        rd.cumulative.groups[group].conv += conv;
-      });
-    }
-
-    var repsOut = reps.map(function (name) {
-      return { name: name, isCEO: (name === CEO_NAME), today: repData[name].today, cumulative: repData[name].cumulative };
-    });
-
-    function addInto(target, src) {
-      target.total.premium += src.total.premium;
-      target.total.conv += src.total.conv;
-      GROUP_ORDER.forEach(function (g) {
-        target.groups[g].premium += src.groups[g].premium;
-        target.groups[g].conv += src.groups[g].conv;
-      });
-    }
-
-    function sumTotals(includeCEO) {
-      var out = { today: emptyBucket(), cumulative: emptyBucket() };
-      repsOut.forEach(function (r) {
-        if (!includeCEO && r.isCEO) return;
-        addInto(out.today, r.today);
-        addInto(out.cumulative, r.cumulative);
-      });
-      return out;
-    }
-
-    var result = {
-      dateStr: Utilities.formatDate(baseDate, tz, "yy년 M월 d일"),
-      updatedAt: Utilities.formatDate(new Date(), tz, "yyyy-MM-dd HH:mm:ss"),
-      groups: GROUP_ORDER,
-      reps: repsOut,
-      grandTotal: {
-        withCEO: sumTotals(true),
-        withoutCEO: sumTotals(false)
-      }
-    };
-    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
-
-  } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({error: err.toString()})).setMimeType(ContentService.MimeType.JSON);
-  }
-}
-// ▲▲▲ 신규 추가 끝 ▲▲▲
-
-// ▼▼▼ 신규 추가: 캘린더 이벤트 관리 (조회/추가/삭제) ▼▼▼
-// 이 스크립트가 묶여있는 스프레드시트(고객 검색용 시트와 같은 파일) 안에
-// "캘린더이벤트"라는 이름의 시트를 두고, 다음 5개 컬럼으로 관리합니다.
-//   A: ID(고유값, 자동 생성)  B: 시작일(yyyy-MM-dd)  C: 종료일(yyyy-MM-dd)  D: 내용  E: 색상(hex, 예: #fb7185)
-// 시트가 없으면 이벤트 추가 시 자동으로 생성됩니다.
-var CALENDAR_SHEET_NAME = "캘린더이벤트";
-
-function getCalendarEvents() {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName(CALENDAR_SHEET_NAME);
-    if (!sheet) return jsonOut([]);
-
-    var lastRow = sheet.getLastRow();
-    if (lastRow < 2) return jsonOut([]);
-
-    var tz = ss.getSpreadsheetTimeZone();
-    var data = sheet.getRange(2, 1, lastRow - 1, 5).getValues();
-
-    function fmtDate(v) {
-      if (v instanceof Date) return Utilities.formatDate(v, tz, "yyyy-MM-dd");
-      return String(v || "").trim();
-    }
-
-    var events = data
-      .filter(function (r) { return r[0]; }) // ID가 있는 행만
-      .map(function (r) {
-        return {
-          id: String(r[0]),
-          start: fmtDate(r[1]),
-          end: fmtDate(r[2]),
-          text: String(r[3] || ""),
-          color: String(r[4] || "#fb7185").trim() || "#fb7185"
+    // 공용 클립보드 복사 유틸 (통합 고객 조회 / 설계사 코드 검색 공용)
+    function copyToClipboard(btn, value) {
+        const text = String(value == null ? '' : value);
+        const done = () => {
+            const orig = btn.innerText;
+            btn.innerText = '✓';
+            setTimeout(() => { btn.innerText = orig; }, 900);
         };
-      });
-
-    return jsonOut(events);
-  } catch (err) {
-    return jsonOut({ error: err.toString() });
-  }
-}
-
-function addCalendarEvent(data) {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName(CALENDAR_SHEET_NAME);
-    if (!sheet) {
-      sheet = ss.insertSheet(CALENDAR_SHEET_NAME);
-      sheet.appendRow(["ID", "시작일", "종료일", "내용", "색상"]);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(done).catch(done);
+        } else {
+            try {
+                const ta = document.createElement('textarea');
+                ta.value = text; document.body.appendChild(ta); ta.select();
+                document.execCommand('copy'); document.body.removeChild(ta);
+            } catch (e) {}
+            done();
+        }
     }
 
-    var start = String(data.start || "").trim();
-    var end = String(data.end || "").trim();
-    var text = String(data.text || "").trim();
-    var color = String(data.color || "#fb7185").trim();
+    async function findCustomer() {
+        const name = $('searchName').value.trim(); if(!name) return;
+        $('searchStatus').innerText = "🔎 통합 검색 중...";
+        try {
+            const results = await postToScript('search', { name });
+            const list = $('resultList'); list.innerHTML = '';
+            if(!results || results.length === 0) { $('searchStatus').innerText = `❌ 결과 없음`; $('searchResultArea').style.display = 'none'; return; }
+            results.forEach(item => {
+                const card = document.createElement('div');
+                card.style.cssText = 'background:var(--surface); border-radius:12px; padding:14px; font-size:13px;';
 
-    if (!start || !end || !text) {
-      return jsonOut({ error: "시작일/종료일/내용을 모두 입력해주세요." });
+                const fields = [
+                    ['취급자', item.handler], ['주민번호', item.residentId], ['연락처', item.phone],
+                    ['주소', item.address], ['직업', item.job], ['계좌정보', item.account]
+                ];
+
+                const head = document.createElement('div');
+                head.className = 'result-card-head';
+                head.innerHTML = `<span class="rc-name">${item.name}</span>`;
+                const copyAllBtn = document.createElement('button');
+                copyAllBtn.type = 'button'; copyAllBtn.className = 'copy-icon'; copyAllBtn.innerText = '⧉';
+                const fullText = [item.name, ...fields.map(([label, value]) => `${label}: ${value != null ? value : ''}`)].join('\n');
+                copyAllBtn.onclick = () => copyToClipboard(copyAllBtn, fullText);
+                head.appendChild(copyAllBtn);
+                card.appendChild(head);
+
+                fields.forEach(([label, value]) => {
+                    const row = document.createElement('div');
+                    row.className = 'result-field-row';
+                    row.innerHTML = `<span class="rf-label">${label}:</span><span class="rf-value">${value != null ? value : ''}</span>`;
+                    card.appendChild(row);
+                });
+                list.appendChild(card);
+            });
+            $('searchResultArea').style.display = 'block'; $('searchStatus').innerText = `✅ 조회 완료 (${results.length}건)`;
+        } catch(e) { $('searchStatus').innerText = "❌ 조회 오류"; }
     }
 
-    var id = Utilities.getUuid();
-    sheet.appendRow([id, start, end, text, color]);
+    let perfChartInstance = null;
+    let perfStatsData = null;   // 서버에서 받은 12개월 전체 데이터
+    let perfViewedMonthIdx = null; // 현재 화면에 표시 중인 월 (0~11)
 
-    return jsonOut({ status: "success", id: id });
-  } catch (err) {
-    return jsonOut({ error: err.toString() });
-  }
-}
+    async function fetchMonthlyStats() {
+        try {
+            const d = await postToScript('monthlyStats');
+            if (d.error) { $('perf-month-label').classList.remove('skeleton-text'); $('perf-month-label').innerText = "불러오기 실패"; console.error(d.error); return; }
+            perfStatsData = d;
+            perfViewedMonthIdx = d.currentMonth - 1;
 
-function deleteCalendarEvent(id) {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName(CALENDAR_SHEET_NAME);
-    if (!sheet) return jsonOut({ status: "success" });
-
-    var lastRow = sheet.getLastRow();
-    if (lastRow < 2) return jsonOut({ status: "success" });
-
-    var ids = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
-    for (var i = 0; i < ids.length; i++) {
-      if (String(ids[i][0]) === String(id)) {
-        sheet.deleteRow(i + 2);
-        break;
-      }
+            // 라인 그래프 색상은 항상 '당월' 기준 전월 대비 증감으로 표시 (화살표로 다른 달을 봐도 그래프 색은 안 바뀜)
+            const curIdx0 = d.currentMonth - 1;
+            const prevIdx0 = curIdx0 - 1;
+            const curVal0 = d.monthly[curIdx0] || 0;
+            const prevVal0 = prevIdx0 >= 0 ? (d.monthly[prevIdx0] || 0) : null;
+            let chartColor = '#4e5968';
+            if (prevVal0 !== null && prevVal0 > 0) {
+                chartColor = (curVal0 - prevVal0) >= 0 ? '#3182f6' : '#fb7185';
+            } else if (prevVal0 === 0 && curVal0 > 0) {
+                chartColor = '#3182f6';
+            }
+            renderPerfChart(d.monthly, chartColor);
+            const yearTotal = d.monthly.reduce((a, b) => a + b, 0);
+            $('perfYearTotalCell').innerText = `${Math.round(yearTotal).toLocaleString()}원`;
+            updatePerfView();
+        } catch (e) { $('perf-month-label').classList.remove('skeleton-text'); $('perf-month-label').innerText = "불러오기 실패"; console.error(e); }
     }
-    return jsonOut({ status: "success" });
-  } catch (err) {
-    return jsonOut({ error: err.toString() });
-  }
-}
-// ▲▲▲ 신규 추가 끝 ▲▲▲
+
+    function movePerfMonth(delta) {
+        if (!perfStatsData) return;
+        const next = perfViewedMonthIdx + delta;
+        if (next < 0 || next > 11) return;
+        perfViewedMonthIdx = next;
+        updatePerfView();
+    }
+
+    function updatePerfView() {
+        const d = perfStatsData;
+        if (!d) return;
+        const idx = perfViewedMonthIdx;
+        const isCurrentMonth = (idx === d.currentMonth - 1);
+
+        $('perf-month-label').classList.remove('skeleton-text');
+        $('perf-month-label').innerText = `${d.year}년 ${idx + 1}월`;
+        $('perfMonthPrevBtn').disabled = (idx <= 0);
+        $('perfMonthNextBtn').disabled = (idx >= 11);
+
+        // 전월 대비 증감 계산
+        const prevIdx = idx - 1;
+        const curVal = d.monthly[idx] || 0;
+        const prevVal = prevIdx >= 0 ? (d.monthly[prevIdx] || 0) : null;
+
+        const COLOR_UP = '#3182f6';   // 파란색 (증가)
+        const COLOR_DOWN = '#fb7185'; // 빨간색 (감소)
+        const COLOR_NEUTRAL = '#4e5968';
+
+        let trendColor = COLOR_NEUTRAL;
+        let changeText = '';
+
+        if (prevVal !== null && prevVal > 0) {
+            const diff = curVal - prevVal;
+            const pct = (diff / prevVal) * 100;
+            const isUp = diff >= 0;
+            trendColor = isUp ? COLOR_UP : COLOR_DOWN;
+            changeText = `${isUp ? '▲' : '▼'} ${Math.abs(pct).toFixed(1)}%`;
+        } else if (prevVal === 0 && curVal > 0) {
+            trendColor = COLOR_UP;
+            changeText = '▲ 신규';
+        }
+
+        animateNumber($('perf-current-total'), curVal, (v) => `${Math.round(v).toLocaleString()}원`);
+        $('perf-current-total').style.color = trendColor;
+        $('perf-change').innerText = changeText;
+        $('perf-change').style.color = trendColor;
+        const monthCount = (d.monthCounts && d.monthCounts[idx]) || (isCurrentMonth ? d.currentMonthCount : 0) || 0;
+        $('perf-current-count').innerText = `총 ${monthCount.toLocaleString()}건`;
+
+        const breakdownByMonth = d.companyBreakdownByMonth || [];
+        lastCompanyBreakdown = breakdownByMonth[idx] || (isCurrentMonth ? (d.companyBreakdown || []) : []);
+        renderPerfBarTable(lastCompanyBreakdown, $('donutMetricSelect').value);
+    }
+
+    let lastCompanyBreakdown = [];
+    function onDonutMetricChange() {
+        renderPerfBarTable(lastCompanyBreakdown, $('donutMetricSelect').value);
+    }
+
+    function renderPerfChart(monthly, lineColor) {
+        const ctx = document.getElementById('perfChart').getContext('2d');
+        const labels = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+        const color = lineColor || '#3182f6';
+        if (perfChartInstance) perfChartInstance.destroy();
+        perfChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '월별 실적',
+                    data: monthly,
+                    borderColor: color,
+                    backgroundColor: color + '1f',
+                    borderWidth: 3,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    pointBackgroundColor: color,
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointHoverBorderWidth: 3,
+                    pointHitRadius: 12,
+                    tension: 0.35,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { intersect: false, mode: 'nearest', axis: 'x' },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        displayColors: false,
+                        backgroundColor: '#ffffff',
+                        titleColor: '#191f28',
+                        bodyColor: '#191f28',
+                        borderColor: 'rgba(0,0,0,0.08)',
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 12,
+                        titleFont: { size: 12, weight: '700' },
+                        bodyFont: { size: 15, weight: '800' },
+                        callbacks: {
+                            title: (items) => `${items[0].label}`,
+                            label: (c) => `${Math.round(c.parsed.y).toLocaleString()}원`
+                        }
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#4e5968', font: { size: 11 } } },
+                    y: { display: false, grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    function renderPerfBarTable(companyBreakdown, metric) {
+        const tbody = $('perfBarTableBody');
+
+        if (!companyBreakdown || companyBreakdown.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:var(--text-sub);">해당 월 계약 내역 없음</td></tr>`;
+            return;
+        }
+
+        const isCount = metric === 'count';
+        const isAmount = metric === 'amount';
+        const sorted = isCount
+            ? [...companyBreakdown].sort((a, b) => b.count - a.count)
+            : [...companyBreakdown].sort((a, b) => b.total - a.total);
+
+        const values = sorted.map(c => isCount ? c.count : c.total);
+        const total = values.reduce((a, b) => a + b, 0);
+        const maxVal = Math.max(1, ...values);
+
+        const valueText = (row, v) => {
+            if (isCount) return `${Math.round(v).toLocaleString()}건`;
+            if (isAmount) return `${Math.round(v).toLocaleString()}원`;
+            const pct = total > 0 ? Math.round((v / total) * 100) : 0;
+            return `${pct}%`;
+        };
+
+        tbody.innerHTML = sorted.map((row, i) => {
+            const v = values[i];
+            const pct = Math.max(v > 0 ? 6 : 0, Math.round((v / maxVal) * 100));
+            return `<tr><td>${row.company}</td><td class="num bar-cell"><div class="bar-fill" style="width:${pct}%"></div><span class="bar-text">${valueText(row, v)}</span></td></tr>`;
+        }).join('');
+    }
+
+    // ---------------- 설계사별 실적 대시보드 ----------------
+    let agentStatsData = null;
+
+    async function fetchAgentStats() {
+        try {
+            const d = await postToScript('agentStats');
+            if (d.error) { $('agentperf-month-label').classList.remove('skeleton-text'); $('agentperf-month-label').innerText = "불러오기 실패"; console.error(d.error); return; }
+            agentStatsData = d;
+            const select = $('agentRepSelect');
+            select.innerHTML = d.reps.map(r => `<option value="${r.name}">${r.name}</option>`).join('');
+            if (d.reps.length > 0) renderAgentPerf(d.reps[0].name);
+            else { $('agentperf-month-label').classList.remove('skeleton-text'); $('agentperf-month-label').innerText = "데이터 없음"; $('agentperf-current-total').innerText = '-'; }
+        } catch (e) { $('agentperf-month-label').classList.remove('skeleton-text'); $('agentperf-month-label').innerText = "불러오기 실패"; console.error(e); }
+    }
+
+    function onAgentRepChange() {
+        renderAgentPerf($('agentRepSelect').value);
+    }
+
+    function renderAgentPerf(repName) {
+        if (!agentStatsData) return;
+        const rep = agentStatsData.reps.find(r => r.name === repName);
+        if (!rep) return;
+
+        $('agentperf-month-label').classList.remove('skeleton-text');
+        $('agentperf-month-label').innerText = `${agentStatsData.year}년 ${agentStatsData.currentMonth}월`;
+        animateNumber($('agentperf-current-total'), rep.currentTotal, (v) => `${Math.round(v).toLocaleString()}원`);
+        $('agentperf-current-count').innerText = `총 ${(rep.currentMonthCount || 0).toLocaleString()}건`;
+
+        // 라인 그래프 (해당 설계사의 당해년도 월별 실적 추이) — 월별실적 대시보드와 동일한 스타일
+        renderAgentPerfChart(rep.monthly);
+        const yearTotal = rep.monthly.reduce((a, b) => a + b, 0);
+        $('agentMonthlyTotalCell').innerText = `${Math.round(yearTotal).toLocaleString()}원`;
+
+        // 보험사별 건수/실적 — 실적 컬럼에 데이터바 포함
+        const cb = rep.companyBreakdown || [];
+        const rowsEl = $('agentPerfTableBody');
+        if (cb.length === 0) {
+            rowsEl.innerHTML = `<div style="padding:16px; text-align:center; color:var(--text-sub); font-size:13px;">당월 계약 내역 없음</div>`;
+        } else {
+            const maxCompanyVal = Math.max(1, ...cb.map(c => c.total));
+            rowsEl.innerHTML = cb.map(c => {
+                const pct = Math.max(6, Math.round((c.total / maxCompanyVal) * 100));
+                return `<div class="agentperf-row"><span>${c.company}</span><span class="num">${c.count.toLocaleString()}건</span><span class="num bar-cell bar-total"><div class="bar-fill" style="width:${pct}%"></div><span class="bar-text">${Math.round(c.total).toLocaleString()}원</span></span></div>`;
+            }).join('');
+        }
+    }
+
+    let agentPerfChartInstance = null;
+    function renderAgentPerfChart(monthly) {
+        const canvas = $('agentPerfChart');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const labels = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+
+        // 전월 대비 증감으로 선 색상 결정 (월별실적 대시보드와 동일한 규칙)
+        const curIdx = (agentStatsData && agentStatsData.currentMonth ? agentStatsData.currentMonth : 1) - 1;
+        const prevIdx = curIdx - 1;
+        const curVal = monthly[curIdx] || 0;
+        const prevVal = prevIdx >= 0 ? (monthly[prevIdx] || 0) : null;
+        let color = '#4e5968';
+        if (prevVal !== null && prevVal > 0) {
+            color = (curVal - prevVal) >= 0 ? '#3182f6' : '#fb7185';
+        } else if (prevVal === 0 && curVal > 0) {
+            color = '#3182f6';
+        }
+
+        if (agentPerfChartInstance) agentPerfChartInstance.destroy();
+        agentPerfChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: monthly,
+                    borderColor: color,
+                    backgroundColor: color + '1f',
+                    borderWidth: 3,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    pointBackgroundColor: color,
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointHoverBorderWidth: 3,
+                    pointHitRadius: 12,
+                    tension: 0.35,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { intersect: false, mode: 'nearest', axis: 'x' },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        displayColors: false,
+                        backgroundColor: '#ffffff',
+                        titleColor: '#191f28',
+                        bodyColor: '#191f28',
+                        borderColor: 'rgba(0,0,0,0.08)',
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 12,
+                        titleFont: { size: 12, weight: '700' },
+                        bodyFont: { size: 15, weight: '800' },
+                        callbacks: {
+                            title: (items) => `${items[0].label}`,
+                            label: (c) => `${Math.round(c.parsed.y).toLocaleString()}원`
+                        }
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#4e5968', font: { size: 11 } } },
+                    y: { display: false, grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // ---------------- 설계사 코드 검색 (플로팅 패널 / 여백 고정 패널) ----------------
+    function toggleAgentPanel() {
+        const isOpen = $('agentPanel').classList.contains('open');
+        if (isOpen) closeAgentPanel(); else openAgentPanel();
+    }
+    function openAgentPanel() {
+        $('agentPanel').classList.add('open');
+        $('agentOverlay').classList.add('open');
+        setTimeout(() => $('agentQuery').focus(), 150);
+    }
+    function closeAgentPanel() {
+        $('agentPanel').classList.remove('open');
+        $('agentOverlay').classList.remove('open');
+    }
+
+    async function doAgentSearch() {
+        const q = $('agentQuery').value.trim();
+        if (!q) return;
+        $('agentStatus').innerText = "검색 중...";
+        $('agentResultArea').innerHTML = '';
+        try {
+            const d = await postToScript('agentCode', { q });
+            if (d.error) { $('agentStatus').innerText = "❌ " + d.error; return; }
+            renderAgentResult(d);
+        } catch (e) { $('agentStatus').innerText = "❌ 검색 오류"; }
+    }
+
+    function renderAgentResult(d) {
+        const area = $('agentResultArea');
+        area.innerHTML = '';
+        if (d.kind === 'none') { $('agentStatus').innerText = `'${$('agentQuery').value.trim()}' 결과 없음`; return; }
+        $('agentStatus').innerText = '';
+
+        if (d.kind === 'full') {
+            const first = d.rows[0];
+            area.appendChild(agentInfoRow('이름', first.name));
+            area.appendChild(agentInfoRow('연락처', first.phone));
+            area.appendChild(agentInfoRow('주민번호', first.residentId));
+            const secTitle = document.createElement('div');
+            secTitle.className = 'agent-section-title';
+            secTitle.innerText = '보험사 코드';
+            area.appendChild(secTitle);
+            d.rows.forEach(r => area.appendChild(agentCodeBox(r)));
+        } else if (d.kind === 'field') {
+            if (d.field === 'company') {
+                const uniq = [...new Set(d.rows.map(r => r.company).filter(Boolean))];
+                uniq.forEach(c => area.appendChild(agentInfoRow('보험사', c)));
+            } else {
+                const labelMap = { phone: '연락처', residentId: '주민번호' };
+                const value = d.rows[0][d.field];
+                area.appendChild(agentInfoRow(labelMap[d.field] || d.field, value));
+            }
+        } else if (d.kind === 'rows') {
+            const first = d.rows[0];
+            area.appendChild(agentInfoRow('연락처', first.phone));
+            area.appendChild(agentInfoRow('주민번호', first.residentId));
+            d.rows.forEach(r => area.appendChild(agentCodeBox(r)));
+        }
+    }
+
+    function agentInfoRow(label, value) {
+        const row = document.createElement('div');
+        row.className = 'agent-info-row';
+        const safeVal = String(value == null ? '' : value).replace(/'/g, "\\'");
+        row.innerHTML = `<div class="agent-info-label">${label}</div><div class="agent-info-value-row"><span class="agent-info-value">${value != null ? value : '-'}</span><button type="button" class="agent-copy-btn">⧉</button></div>`;
+        row.querySelector('.agent-copy-btn').onclick = (e) => copyToClipboard(e.currentTarget, value);
+        return row;
+    }
+
+    function agentCodeBox(r) {
+        const box = document.createElement('div');
+        box.className = 'agent-code-box';
+        box.innerHTML = `
+            <div class="agent-code-company">${r.company || '-'}</div>
+            <div class="agent-code-line"><span class="k">코드</span><span class="v">${r.code || '-'}</span><button type="button" class="agent-copy-btn">⧉</button></div>
+            <div class="agent-code-line"><span class="k">PW</span><span class="v">${r.password || '-'}</span><button type="button" class="agent-copy-btn">⧉</button></div>
+        `;
+        const btns = box.querySelectorAll('.agent-copy-btn');
+        btns[0].onclick = (e) => copyToClipboard(e.currentTarget, r.code);
+        btns[1].onclick = (e) => copyToClipboard(e.currentTarget, r.password);
+        return box;
+    }
+
+    async function startProcess() {
+        const dVal = $('cDate').value; const uN = $('uName').value.trim(); const pN = $('pName').value.trim();
+        if (!dVal || !uN || !pN) return alert("필수 정보가 누락되었습니다.");
+        $('process-btn').disabled = true; $('processStatus').innerText = "🚀 드라이브 파일 불러오는 중...";
+        try {
+            const dt = new Date(dVal);
+            const dObj = { y: dt.getFullYear().toString().slice(-2), m: (dt.getMonth()+1).toString(), day: dt.getDate().toString() };
+
+            const res = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'fetchFiles', key: sessionKey })
+            });
+            const rawText = await res.text();
+            let filesData;
+            try {
+                filesData = JSON.parse(rawText);
+            } catch (parseErr) {
+                console.error('서버 원본 응답(JSON 아님):', rawText);
+                throw new Error('서버 응답이 JSON이 아닙니다. 콘솔에 찍힌 "서버 원본 응답"을 확인하세요. (배포 미갱신 가능성)');
+            }
+            if (!filesData.data1 || !filesData.data2) throw new Error("드라이브 폴더에서 원본 파일을 찾지 못했습니다. 파일명을 확인해주세요.");
+
+            $('processStatus').innerText = "🖊️ 마스킹 처리 중...";
+            const i1 = await renderPdf(filesData.data1, "동", dObj, uN, pN);
+            const i2 = await renderPdf(filesData.data2, "고", dObj, uN, pN);
+
+            $('processStatus').innerText = "📤 전송 중...";
+            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'save', key: sessionKey, file1Data: i1, fileName1: `${uN}_동의서.jpg`, file2Data: i2, fileName2: `${uN}_고지의무.jpg` }) });
+            $('processStatus').innerText = "✅ 마스킹 및 전송 완료!";
+        } catch (e) { console.error(e); $('processStatus').innerText = "❌ 오류: " + e.message; } finally { $('process-btn').disabled = false; }
+    }
+
+    function dataURItoUint8Array(dataURI) {
+        const base64 = dataURI.split(',')[1];
+        const binary = atob(base64);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        return bytes;
+    }
+
+    async function renderPdf(dataUri, type, dy, n, p) {
+        const canvas = document.createElement('canvas');
+        const pdf = await pdfjsLib.getDocument({ data: dataURItoUint8Array(dataUri) }).promise;
+        const page = await pdf.getPage(1);
+        const baseViewport = page.getViewport({ scale: 1.0 });
+        const scale = 2.0; 
+        const viewport = page.getViewport({ scale: scale });
+        canvas.width = viewport.width; canvas.height = viewport.height;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+        const ratioX = canvas.width / baseViewport.width;
+        const ratioY = canvas.height / baseViewport.height;
+        const drawText = (t, x, y, sz=13) => { ctx.font = `${sz * ratioY}px 'Malgun Gothic'`; ctx.fillStyle = "#000"; ctx.fillText(t, x * ratioX, canvas.height - (y * ratioY)); };
+        const drawCheck = (x, y) => { ctx.font = `bold ${22 * ratioY}px Arial`; ctx.fillStyle = "red"; ctx.textAlign = "center"; ctx.fillText("v", x * ratioX, canvas.height - (y * ratioY)); ctx.textAlign = "start"; };
+        if(type === "고") {
+            [612, 579, 548, 504, 445, 385, 340, 310, 273].forEach(y => drawCheck(500, y));
+            drawText(dy.y, 199, 209); drawText(dy.m, 230, 209); drawText(dy.day, 256, 209); drawText(n, 431, 209); drawText(n, 500, 209);
+            drawText(dy.y, 200, 96); drawText(dy.m, 225, 96); drawText(dy.day, 250, 96); drawText(p, 430, 96); drawText(p, 505, 96);
+        } else {
+            [640, 545, 428, 310, 234].forEach(y => drawCheck(522, y));
+            drawText(dy.y, 254, 138); drawText(dy.m, 300, 138); drawText(dy.day, 341, 138); drawText(n, 150, 107); drawText(n, 239, 107);
+            drawText("미래전략사업단", 150, 58); drawText(p, 416, 64); drawText(p, 500, 64);
+        }
+        return canvas.toDataURL('image/jpeg', 0.9);
+    }
+
+    // ---------------- 일일실적 리포트 ----------------
+    let dailyReportData = null;
+
+    async function fetchDailyReport(dateStr) {
+        const wrap = document.querySelector('.report-table-wrap');
+        const picker = $('reportDatePicker');
+        wrap.classList.add('is-loading');
+        picker.disabled = true;
+        $('reportDateLabel').classList.add('skeleton-text');
+        $('reportDateLabel').innerText = '불러오는 중';
+        try {
+            const d = await postToScript('dailyReport', dateStr ? { date: dateStr } : {});
+            if (d.error) { $('reportDateLabel').classList.remove('skeleton-text'); $('reportDateLabel').innerText = "불러오기 실패"; console.error(d.error); return; }
+            dailyReportData = d;
+            $('reportDateLabel').classList.remove('skeleton-text');
+            $('reportDateLabel').innerText = `${d.dateStr} 실적`;
+            $('reportUpdatedLabel').innerText = `${d.updatedAt} 업데이트`;
+            if (!dateStr) {
+                // 최초 조회(오늘) 시, 날짜 선택기 기본값을 오늘로 맞춰줌
+                const now = new Date();
+                const iso = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+                $('reportDatePicker').value = iso;
+            }
+            renderDailyReport();
+        } catch (e) {
+            $('reportDateLabel').classList.remove('skeleton-text');
+            $('reportDateLabel').innerText = "불러오기 실패";
+            console.error(e);
+        } finally {
+            wrap.classList.remove('is-loading');
+            picker.disabled = false;
+        }
+    }
+
+    function fmtMoney(v) {
+        if (!v) return { text: '-', isDash: true };
+        return { text: Math.round(v).toLocaleString(), isDash: false };
+    }
+
+    function buildReportRows(d, includeCEO) {
+        const reps = d.reps.filter(r => includeCEO || !r.isCEO);
+        // 누계(전체)는 항상 '대표 제외' 팀 기준으로 고정 (체크 여부와 무관)
+        const grand = d.grandTotal.withoutCEO;
+        // 누계(대표)는 대표를 포함한 전체(팀+대표) 합계
+        const grandWithCEO = d.grandTotal.withCEO;
+        return { reps, grand, grandWithCEO };
+    }
+
+    function renderDailyReport() {
+        if (!dailyReportData) return;
+        const d = dailyReportData;
+        const includeCEO = $('reportIncludeCEO').checked;
+        const { reps, grand, grandWithCEO } = buildReportRows(d, includeCEO);
+        const groups = d.groups;
+
+        const table = $('reportTable');
+        table.innerHTML = '';
+
+        // 헤더 1행: 담당자/구분 + 전체 + 그룹명들 (각 2컬럼 병합)
+        const thead = document.createElement('thead');
+        const headRow1 = document.createElement('tr');
+        headRow1.innerHTML = `
+            <th rowspan="2">담당자</th>
+            <th rowspan="2">구분</th>
+            <th colspan="2" class="report-group-total report-group-start">전체</th>
+            ${groups.map(g => `<th colspan="2" class="report-group-start report-group-hdr">${g}</th>`).join('')}
+        `;
+        const headRow2 = document.createElement('tr');
+        headRow2.className = 'report-hr-strong';
+        headRow2.innerHTML = `
+            <th class="report-group-start">보험료</th><th>환산</th>
+            ${groups.map(() => `<th class="report-group-start">보험료</th><th>환산</th>`).join('')}
+        `;
+        thead.appendChild(headRow1);
+        thead.appendChild(headRow2);
+        table.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
+
+        function buildCells(bucket) {
+            const cells = [];
+            function pushCell(v, extraClasses) {
+                const f = fmtMoney(v);
+                const classes = extraClasses.slice();
+                if (f.isDash) classes.push('report-dash');
+                const cls = classes.length ? ` class="${classes.join(' ')}"` : '';
+                cells.push(`<td${cls}>${f.text}</td>`);
+            }
+            pushCell(bucket.total.premium, ['report-group-total', 'report-group-start']);
+            pushCell(bucket.total.conv, ['report-group-total']);
+            groups.forEach(g => {
+                pushCell(bucket.groups[g].premium, ['report-group-start']);
+                pushCell(bucket.groups[g].conv, []);
+            });
+            return cells.join('');
+        }
+
+        reps.forEach((rep, idx) => {
+            const altClass = (idx % 2 === 1) ? ' report-row-alt' : '';
+            const firstRowClass = (idx === 0) ? ' report-hr-strong' : '';
+            const rowToday = document.createElement('tr');
+            rowToday.className = (altClass + firstRowClass).trim();
+            rowToday.innerHTML = `
+                <td class="report-rep-name" rowspan="2">${rep.name}${rep.isCEO ? ' 👑' : ''}</td>
+                <td class="report-row-label">당일</td>
+                ${buildCells(rep.today)}
+            `;
+            const rowCum = document.createElement('tr');
+            rowCum.className = ('report-cumulative' + altClass).trim();
+            rowCum.innerHTML = `
+                <td class="report-row-label">누계</td>
+                ${buildCells(rep.cumulative)}
+            `;
+            tbody.appendChild(rowToday);
+            tbody.appendChild(rowCum);
+        });
+
+        // 그랜드 토탈 (전체 담당자 합계)
+        const grandToday = document.createElement('tr');
+        grandToday.className = 'report-grandtotal report-hr-strong';
+        grandToday.innerHTML = `
+            <td class="report-rep-name" rowspan="2">누계</td>
+            <td class="report-row-label">당일</td>
+            ${buildCells(grand.today)}
+        `;
+        const grandCum = document.createElement('tr');
+        grandCum.className = 'report-grandtotal';
+        grandCum.innerHTML = `
+            <td class="report-row-label">누계</td>
+            ${buildCells(grand.cumulative)}
+        `;
+        tbody.appendChild(grandToday);
+        tbody.appendChild(grandCum);
+
+        // 누계(대표): 대표 포함 체크 시에만 표시 - 대표를 포함한 전체(팀+대표) 합계
+        if (includeCEO) {
+            const ceoToday = document.createElement('tr');
+            ceoToday.className = 'report-grandtotal-ceo report-hr-strong';
+            ceoToday.innerHTML = `
+                <td class="report-rep-name" rowspan="2">누계(전체)</td>
+                <td class="report-row-label">당일</td>
+                ${buildCells(grandWithCEO.today)}
+            `;
+            const ceoCum = document.createElement('tr');
+            ceoCum.className = 'report-grandtotal-ceo';
+            ceoCum.innerHTML = `
+                <td class="report-row-label">누계</td>
+                ${buildCells(grandWithCEO.cumulative)}
+            `;
+            tbody.appendChild(ceoToday);
+            tbody.appendChild(ceoCum);
+        }
+
+        table.appendChild(tbody);
+    }
+
+    async function copyDailyReport() {
+        const table = $('reportTable');
+        if (!table || !table.innerHTML.trim()) return;
+        const btn = document.querySelector('.report-copy-btn');
+        const orig = btn.innerText;
+        btn.innerText = '⏳ 이미지 생성 중...';
+
+        // 캡처 이미지에 날짜가 보이도록, 표 맨 위에 날짜 캡션 행을 임시로 삽입
+        const groups = (dailyReportData && dailyReportData.groups) || [];
+        const totalCols = 2 + 2 + groups.length * 2; // 담당자,구분 + 전체(2) + 그룹별(2씩)
+        const dateOnly = (dailyReportData && dailyReportData.dateStr) ? dailyReportData.dateStr : '';
+        const thead = table.querySelector('thead');
+        const captionRow = document.createElement('tr');
+        captionRow.innerHTML = `<th colspan="${totalCols}" style="background:#ffffff; font-size:16px; padding:12px; text-align:center; border:none;">
+            <span style="color:#166534; font-weight:800;">인포유금융서비스 미래전략사업단 일일실적</span>
+            <span style="color:#dc2626; font-weight:800;"> (${dateOnly})</span>
+        </th>`;
+        thead.insertBefore(captionRow, thead.firstChild);
+
+        try {
+            const canvas = await html2canvas(table, { backgroundColor: '#ffffff', scale: 2 });
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+            if (!blob) throw new Error('이미지 생성 실패');
+
+            if (window.ClipboardItem) {
+                await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+                btn.innerText = '✓ 이미지 복사됨';
+            } else {
+                // 클립보드 이미지 쓰기 미지원 브라우저: 다운로드로 대체
+                const link = document.createElement('a');
+                link.download = `일일실적_${(dailyReportData && dailyReportData.dateStr) || ''}.png`;
+                link.href = URL.createObjectURL(blob);
+                link.click();
+                btn.innerText = '✓ 이미지 다운로드됨';
+            }
+            setTimeout(() => { btn.innerText = orig; }, 1500);
+        } catch (e) {
+            console.error(e);
+            btn.innerText = orig;
+            alert('복사에 실패했습니다. 브라우저 클립보드 권한을 확인해주세요.');
+        } finally {
+            captionRow.remove();
+        }
+    }
+
+    // ---------------- 관리자: 캘린더 이벤트 관리 ----------------
+    let adminKey = "";
+    let selectedEvColor = '#fb7185';
+    const EVENT_COLOR_PRESETS = ['#fb7185', '#3182f6', '#22c55e', '#a855f7', '#f59e0b', '#14b8a6', '#ec4899', '#6b7280'];
+    let adminLockTimer = null;
+
+    function renderColorSwatches() {
+        const wrap = $('evColorSwatches');
+        wrap.innerHTML = EVENT_COLOR_PRESETS.map(c =>
+            `<button type="button" class="ev-swatch" data-color="${c}" style="background:${c};" onclick="selectEvColor('${c}')"></button>`
+        ).join('');
+        selectEvColor(EVENT_COLOR_PRESETS[0]);
+    }
+
+    function selectEvColor(c) {
+        selectedEvColor = c;
+        $('evColorCustom').value = c;
+        document.querySelectorAll('.ev-swatch').forEach(el => el.classList.toggle('active', el.dataset.color.toLowerCase() === c.toLowerCase()));
+    }
+
+    async function tryAdminAccess() {
+        const pass = $('adminPassInput').value.trim(); if (!pass) return;
+        const btn = $('adminAccessBtn');
+        btn.disabled = true; btn.innerText = "인증 중...";
+        try {
+            const d = await postToScript('adminAuth', { adminKey: pass });
+            if (d.status === 'success') {
+                if (adminLockTimer) { clearInterval(adminLockTimer); adminLockTimer = null; }
+                adminKey = pass;
+                $('adminLoginError').innerHTML = '';
+                $('adminGateCard').style.display = 'none';
+                $('adminEventCard').style.display = 'block';
+                renderColorSwatches();
+                loadAdminEventList();
+                btn.disabled = false; btn.innerText = "관리자 접속";
+                return;
+            }
+            if (d.status === 'locked') {
+                startAdminLockCountdown(d.remainingSeconds);
+                return;
+            }
+            const left = (d.attemptsLeft != null) ? ` (남은 시도: ${d.attemptsLeft}회)` : '';
+            $('adminLoginError').innerHTML = `<p style="color:red; font-size:12px;">비밀번호가 올바르지 않습니다.${left}</p>`;
+            btn.disabled = false; btn.innerText = "관리자 접속";
+        } catch (e) {
+            $('adminLoginError').innerHTML = `<p style="color:red; font-size:12px;">⚠️ 서버 연결 오류</p>`;
+            btn.disabled = false; btn.innerText = "관리자 접속";
+        }
+    }
+
+    function startAdminLockCountdown(seconds) {
+        if (adminLockTimer) clearInterval(adminLockTimer);
+        let remain = seconds;
+        const btn = $('adminAccessBtn');
+        const render = () => {
+            const mm = Math.floor(remain / 60); const ss = remain % 60;
+            $('adminLoginError').innerHTML = `<p style="color:red; font-size:12px;">🔒 여러 번 틀려 잠겼습니다. ${mm}분 ${ss}초 후 다시 시도해주세요.</p>`;
+            btn.disabled = true; btn.innerText = `잠김 (${mm}:${String(ss).padStart(2,'0')})`;
+        };
+        render();
+        adminLockTimer = setInterval(() => {
+            remain -= 1;
+            if (remain <= 0) {
+                clearInterval(adminLockTimer); adminLockTimer = null;
+                $('adminLoginError').innerHTML = '';
+                btn.disabled = false; btn.innerText = "관리자 접속";
+                return;
+            }
+            render();
+        }, 1000);
+    }
+
+    async function loadAdminEventList() {
+        const listEl = $('adminEventList');
+        listEl.innerHTML = '<div style="font-size:13px; color:var(--text-sub);">불러오는 중...</div>';
+        try {
+            const events = await postToScript('getCalendarEvents');
+            if (!Array.isArray(events) || events.length === 0) {
+                listEl.innerHTML = '<div style="font-size:13px; color:var(--text-sub);">등록된 이벤트가 없습니다.</div>';
+                return;
+            }
+            const sorted = [...events].sort((a, b) => a.start.localeCompare(b.start));
+            listEl.innerHTML = sorted.map(ev => `
+                <div class="admin-event-row">
+                    <span class="admin-event-swatch" style="background:${ev.color || '#fb7185'};"></span>
+                    <div class="admin-event-info">
+                        <div>${ev.text}</div>
+                        <div class="admin-event-date">${ev.start}${ev.end !== ev.start ? ' ~ ' + ev.end : ''}</div>
+                    </div>
+                    <button type="button" class="admin-event-del" onclick="deleteCalendarEventUI('${ev.id}')" title="삭제">🗑️</button>
+                </div>
+            `).join('');
+        } catch (e) {
+            listEl.innerHTML = '<div style="font-size:13px; color:var(--red);">불러오기 실패</div>';
+        }
+    }
+
+    async function addCalendarEventUI() {
+        const start = $('evStart').value;
+        const end = $('evEnd').value;
+        const text = $('evText').value.trim();
+        if (!start || !end || !text) { alert('시작일/종료일/내용을 모두 입력해주세요.'); return; }
+        $('adminAddStatus').innerText = '추가 중...';
+        try {
+            const res = await postToScript('addCalendarEvent', { adminKey, start, end, text, color: selectedEvColor });
+            if (res.error) { $('adminAddStatus').innerHTML = `<span style="color:var(--red);">${res.error}</span>`; return; }
+            $('evText').value = '';
+            $('adminAddStatus').innerHTML = `<span style="color:var(--primary);">✓ 추가되었습니다</span>`;
+            loadAdminEventList();
+            fetchCalendarEvents();
+        } catch (e) {
+            $('adminAddStatus').innerHTML = `<span style="color:var(--red);">추가 실패</span>`;
+        }
+    }
+
+    async function deleteCalendarEventUI(id) {
+        if (!confirm('이 이벤트를 삭제할까요?')) return;
+        try {
+            const res = await postToScript('deleteCalendarEvent', { adminKey, id });
+            if (res.error) { alert(res.error); return; }
+            loadAdminEventList();
+            fetchCalendarEvents();
+        } catch (e) {
+            alert('삭제에 실패했습니다.');
+        }
+    }
+</script>
+</body>
+</html>
