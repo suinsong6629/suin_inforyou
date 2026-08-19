@@ -418,7 +418,10 @@
                     <button class="btn-main" onclick="addCalendarEventUI()">+ 이벤트 추가</button>
                     <div id="adminAddStatus" style="font-size:12px; font-weight:700;"></div>
                 </div>
-                <div style="font-size:14px; font-weight:700; margin-bottom:10px;">등록된 이벤트</div>
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+                    <div style="font-size:14px; font-weight:700;">등록된 이벤트</div>
+                    <button type="button" class="report-refresh-btn" onclick="loadAdminEventList()" title="새로고침">🔄</button>
+                </div>
                 <div id="adminEventList" style="display:flex; flex-direction:column; gap:8px;"></div>
             </div>
         </div>
@@ -490,6 +493,10 @@
         $('tabBtnHome').classList.toggle('active', name === 'home');
         $('tabBtnReports').classList.toggle('active', name === 'reports');
         $('tabBtnAdmin').classList.toggle('active', name === 'admin');
+        if (name === 'home') {
+            // 홈 탭으로 올 때마다 캘린더를 새로 불러와서, 관리자 탭에서 추가한 이벤트가 확실히 반영되도록 함
+            fetchCalendarEvents();
+        }
         if (name === 'reports') {
             // 리포트 탭이 숨겨져 있는 동안 생성된 차트는 크기가 0으로 잡혔을 수 있어, 보이는 순간 다시 계산
             requestAnimationFrame(() => {
@@ -1430,8 +1437,9 @@
             if (res.error) { $('adminAddStatus').innerHTML = `<span style="color:var(--red);">${res.error}</span>`; return; }
             $('evText').value = '';
             $('adminAddStatus').innerHTML = `<span style="color:var(--primary);">✓ 추가되었습니다</span>`;
-            loadAdminEventList();
-            fetchCalendarEvents();
+            // 동시에 여러 요청을 쏘면 간헐적으로 실패할 수 있어, 순서대로 하나씩 처리
+            await loadAdminEventList();
+            await fetchCalendarEvents();
         } catch (e) {
             $('adminAddStatus').innerHTML = `<span style="color:var(--red);">추가 실패</span>`;
         }
@@ -1442,8 +1450,8 @@
         try {
             const res = await postToScript('deleteCalendarEvent', { adminKey, id });
             if (res.error) { alert(res.error); return; }
-            loadAdminEventList();
-            fetchCalendarEvents();
+            await loadAdminEventList();
+            await fetchCalendarEvents();
         } catch (e) {
             alert('삭제에 실패했습니다.');
         }
