@@ -1636,7 +1636,6 @@
             const d = await postToScript('getVacationData');
             if (d.error) { grid.innerHTML = `<div style="font-size:13px; color:var(--red);">${d.error}</div>`; return; }
             vacationData = d;
-            $('vacationYearLabel').innerText = `${d.year}년`;
             renderVacationSummary(d);
         } catch (e) {
             grid.innerHTML = '<div style="font-size:13px; color:var(--red);">불러오기 실패</div>';
