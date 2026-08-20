@@ -458,16 +458,22 @@
     // 보안 강화: 비밀번호/세션키가 URL(주소)에 절대 노출되지 않도록, 모든 요청을 POST 본문에 담아 전송
     // (Content-Type을 text/plain으로 둬야 Apps Script가 프리플라이트 없이 바로 받을 수 있음)
     // 일시적인 네트워크/구글 쪽 지연으로 실패할 경우를 대비해 자동으로 1회 재시도함
-    async function fetchJsonWithRetry(bodyObj, retries = 1) {
+    // + 응답이 20초 넘게 없으면 자동으로 포기하고 재시도 (무한정 멈춰있지 않도록)
+    async function fetchJsonWithRetry(bodyObj, retries = 1, timeoutMs = 20000) {
         for (let attempt = 0; ; attempt++) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), timeoutMs);
             try {
                 const res = await fetch(SCRIPT_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(bodyObj)
+                    body: JSON.stringify(bodyObj),
+                    signal: controller.signal
                 });
+                clearTimeout(timer);
                 return await res.json();
             } catch (e) {
+                clearTimeout(timer);
                 if (attempt >= retries) throw e;
                 await new Promise(r => setTimeout(r, 700 * (attempt + 1)));
             }
@@ -524,14 +530,47 @@
         updateClock(); setInterval(updateClock, 1000);
         fetchWeather(); // 별도 외부 API라 병렬로 둬도 무방
 
-        // 다시 동시 처리로 (속도 유지) — 대신 각 요청은 postToScript의 자동 재시도로 안정성 확보
+        // 월별/설계사별/일일 리포트는 통합 요청 1번으로, 나머지(캘린더/링크)는 동시에 처리
         await Promise.all([
             fetchCalendarEvents(),
-            fetchMonthlyStats(),
-            fetchAgentStats(),
-            fetchLinks(),
-            fetchDailyReport()
+            fetchReportsBundle(),
+            fetchLinks()
         ]);
+    }
+
+    // 로그인 직후처럼 3개 실적 데이터가 한꺼번에 필요할 때, 개별 요청 3번 대신 통합 요청 1번으로 처리
+    // (Apps Script 요청 1번당 드는 고정 오버헤드를 3번이 아니라 1번만 내면 되므로 훨씬 빠름)
+    async function fetchReportsBundle() {
+        $('perf-month-label').classList.add('skeleton-text'); $('perf-month-label').innerText = '불러오는 중';
+        $('agentperf-month-label').classList.add('skeleton-text'); $('agentperf-month-label').innerText = '불러오는 중';
+        const wrap = document.querySelector('.report-table-wrap');
+        const picker = $('reportDatePicker');
+        wrap.classList.add('is-loading');
+        picker.disabled = true;
+        $('reportDateLabel').classList.add('skeleton-text');
+        $('reportDateLabel').innerText = '불러오는 중';
+
+        try {
+            const bundle = await postToScript('getReportsData');
+            if (bundle.error) {
+                $('perf-month-label').classList.remove('skeleton-text'); $('perf-month-label').innerText = "불러오기 실패";
+                $('agentperf-month-label').classList.remove('skeleton-text'); $('agentperf-month-label').innerText = "불러오기 실패";
+                $('reportDateLabel').classList.remove('skeleton-text'); $('reportDateLabel').innerText = "불러오기 실패";
+                console.error(bundle.error);
+                return;
+            }
+            processMonthlyStats(bundle.monthlyStats);
+            processAgentStats(bundle.agentStats);
+            processDailyReport(bundle.dailyReport, null);
+        } catch (e) {
+            $('perf-month-label').classList.remove('skeleton-text'); $('perf-month-label').innerText = "불러오기 실패";
+            $('agentperf-month-label').classList.remove('skeleton-text'); $('agentperf-month-label').innerText = "불러오기 실패";
+            $('reportDateLabel').classList.remove('skeleton-text'); $('reportDateLabel').innerText = "불러오기 실패";
+            console.error(e);
+        } finally {
+            wrap.classList.remove('is-loading');
+            picker.disabled = false;
+        }
     }
 
     // 매일 바뀌는 마이매니저 링크를 스프레드시트(링크설정 시트 B1)에서 읽어와 버튼에 반영
@@ -546,9 +585,16 @@
     let lockCountdownTimer = null;
     async function tryAccess() {
         const pass = $('entry-pass').value.trim(); if(!pass) return;
-        $('access-btn').disabled = true; $('access-btn').innerText = "인증 중...";
+        $('access-btn').disabled = true;
+        let elapsed = 0;
+        $('access-btn').innerText = "인증 중... (0초)";
+        const elapsedTimer = setInterval(() => {
+            elapsed += 1;
+            $('access-btn').innerText = `인증 중... (${elapsed}초)`;
+        }, 1000);
         try {
             const data = await fetchJsonWithRetry({ action: 'auth', key: pass });
+            clearInterval(elapsedTimer);
 
             if (data.status === "success") {
                 sessionKey = pass;
@@ -567,7 +613,8 @@
             $('lock-error-area').innerHTML = `<p style="color:red; font-size:12px;">비밀번호가 올바르지 않습니다.${leftText}</p>`;
             $('access-btn').disabled = false; $('access-btn').innerText = "보안 접속 시작";
         } catch(e) {
-            $('lock-error-area').innerHTML = `<p style="color:red; font-size:12px;">⚠️ 서버 연결 오류</p>`;
+            clearInterval(elapsedTimer);
+            $('lock-error-area').innerHTML = `<p style="color:red; font-size:12px;">⚠️ 서버 연결 지연/오류입니다. 다시 시도해주세요.</p>`;
             $('access-btn').disabled = false; $('access-btn').innerText = "보안 접속 시작";
         }
     }
@@ -697,28 +744,32 @@
     let perfStatsData = null;   // 서버에서 받은 12개월 전체 데이터
     let perfViewedMonthIdx = null; // 현재 화면에 표시 중인 월 (0~11)
 
+    function processMonthlyStats(d) {
+        if (d.error) { $('perf-month-label').classList.remove('skeleton-text'); $('perf-month-label').innerText = "불러오기 실패"; console.error(d.error); return; }
+        perfStatsData = d;
+        perfViewedMonthIdx = d.currentMonth - 1;
+
+        // 라인 그래프 색상은 항상 '당월' 기준 전월 대비 증감으로 표시 (화살표로 다른 달을 봐도 그래프 색은 안 바뀜)
+        const curIdx0 = d.currentMonth - 1;
+        const prevIdx0 = curIdx0 - 1;
+        const curVal0 = d.monthly[curIdx0] || 0;
+        const prevVal0 = prevIdx0 >= 0 ? (d.monthly[prevIdx0] || 0) : null;
+        let chartColor = '#4e5968';
+        if (prevVal0 !== null && prevVal0 > 0) {
+            chartColor = (curVal0 - prevVal0) >= 0 ? '#3182f6' : '#fb7185';
+        } else if (prevVal0 === 0 && curVal0 > 0) {
+            chartColor = '#3182f6';
+        }
+        renderPerfChart(d.monthly, chartColor);
+        const yearTotal = d.monthly.reduce((a, b) => a + b, 0);
+        $('perfYearTotalCell').innerText = `${Math.round(yearTotal).toLocaleString()}원`;
+        updatePerfView();
+    }
+
     async function fetchMonthlyStats() {
         try {
             const d = await postToScript('monthlyStats');
-            if (d.error) { $('perf-month-label').classList.remove('skeleton-text'); $('perf-month-label').innerText = "불러오기 실패"; console.error(d.error); return; }
-            perfStatsData = d;
-            perfViewedMonthIdx = d.currentMonth - 1;
-
-            // 라인 그래프 색상은 항상 '당월' 기준 전월 대비 증감으로 표시 (화살표로 다른 달을 봐도 그래프 색은 안 바뀜)
-            const curIdx0 = d.currentMonth - 1;
-            const prevIdx0 = curIdx0 - 1;
-            const curVal0 = d.monthly[curIdx0] || 0;
-            const prevVal0 = prevIdx0 >= 0 ? (d.monthly[prevIdx0] || 0) : null;
-            let chartColor = '#4e5968';
-            if (prevVal0 !== null && prevVal0 > 0) {
-                chartColor = (curVal0 - prevVal0) >= 0 ? '#3182f6' : '#fb7185';
-            } else if (prevVal0 === 0 && curVal0 > 0) {
-                chartColor = '#3182f6';
-            }
-            renderPerfChart(d.monthly, chartColor);
-            const yearTotal = d.monthly.reduce((a, b) => a + b, 0);
-            $('perfYearTotalCell').innerText = `${Math.round(yearTotal).toLocaleString()}원`;
-            updatePerfView();
+            processMonthlyStats(d);
         } catch (e) { $('perf-month-label').classList.remove('skeleton-text'); $('perf-month-label').innerText = "불러오기 실패"; console.error(e); }
     }
 
@@ -873,15 +924,19 @@
     // ---------------- 설계사별 실적 대시보드 ----------------
     let agentStatsData = null;
 
+    function processAgentStats(d) {
+        if (d.error) { $('agentperf-month-label').classList.remove('skeleton-text'); $('agentperf-month-label').innerText = "불러오기 실패"; console.error(d.error); return; }
+        agentStatsData = d;
+        const select = $('agentRepSelect');
+        select.innerHTML = d.reps.map(r => `<option value="${r.name}">${r.name}</option>`).join('');
+        if (d.reps.length > 0) renderAgentPerf(d.reps[0].name);
+        else { $('agentperf-month-label').classList.remove('skeleton-text'); $('agentperf-month-label').innerText = "데이터 없음"; $('agentperf-current-total').innerText = '-'; }
+    }
+
     async function fetchAgentStats() {
         try {
             const d = await postToScript('agentStats');
-            if (d.error) { $('agentperf-month-label').classList.remove('skeleton-text'); $('agentperf-month-label').innerText = "불러오기 실패"; console.error(d.error); return; }
-            agentStatsData = d;
-            const select = $('agentRepSelect');
-            select.innerHTML = d.reps.map(r => `<option value="${r.name}">${r.name}</option>`).join('');
-            if (d.reps.length > 0) renderAgentPerf(d.reps[0].name);
-            else { $('agentperf-month-label').classList.remove('skeleton-text'); $('agentperf-month-label').innerText = "데이터 없음"; $('agentperf-current-total').innerText = '-'; }
+            processAgentStats(d);
         } catch (e) { $('agentperf-month-label').classList.remove('skeleton-text'); $('agentperf-month-label').innerText = "불러오기 실패"; console.error(e); }
     }
 
@@ -1143,6 +1198,21 @@
     // ---------------- 일일실적 리포트 ----------------
     let dailyReportData = null;
 
+    function processDailyReport(d, dateStr) {
+        if (d.error) { $('reportDateLabel').classList.remove('skeleton-text'); $('reportDateLabel').innerText = "불러오기 실패"; console.error(d.error); return; }
+        dailyReportData = d;
+        $('reportDateLabel').classList.remove('skeleton-text');
+        $('reportDateLabel').innerText = `${d.dateStr} 실적`;
+        $('reportUpdatedLabel').innerText = `${d.updatedAt} 업데이트`;
+        if (!dateStr) {
+            // 최초 조회(오늘) 시, 날짜 선택기 기본값을 오늘로 맞춰줌
+            const now = new Date();
+            const iso = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+            $('reportDatePicker').value = iso;
+        }
+        renderDailyReport();
+    }
+
     async function fetchDailyReport(dateStr) {
         const wrap = document.querySelector('.report-table-wrap');
         const picker = $('reportDatePicker');
@@ -1152,18 +1222,7 @@
         $('reportDateLabel').innerText = '불러오는 중';
         try {
             const d = await postToScript('dailyReport', dateStr ? { date: dateStr } : {});
-            if (d.error) { $('reportDateLabel').classList.remove('skeleton-text'); $('reportDateLabel').innerText = "불러오기 실패"; console.error(d.error); return; }
-            dailyReportData = d;
-            $('reportDateLabel').classList.remove('skeleton-text');
-            $('reportDateLabel').innerText = `${d.dateStr} 실적`;
-            $('reportUpdatedLabel').innerText = `${d.updatedAt} 업데이트`;
-            if (!dateStr) {
-                // 최초 조회(오늘) 시, 날짜 선택기 기본값을 오늘로 맞춰줌
-                const now = new Date();
-                const iso = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-                $('reportDatePicker').value = iso;
-            }
-            renderDailyReport();
+            processDailyReport(d, dateStr);
         } catch (e) {
             $('reportDateLabel').classList.remove('skeleton-text');
             $('reportDateLabel').innerText = "불러오기 실패";
