@@ -415,7 +415,7 @@
         <div id="tab-vacation" class="tab-content" style="display:none;">
             <div class="glass-card">
                 <div class="report-head">
-                    <div style="font-size:18px; font-weight:700;">🏖️ 직원 휴가 현황 (<span id="vacationYearLabel"></span>)</div>
+                    <div style="font-size:18px; font-weight:700;">🏖️ 직원 휴가 현황 <span style="font-size:12px; font-weight:700; color:var(--text-sub);">(입사일 기준 연차구간)</span></div>
                     <button type="button" class="report-refresh-btn" onclick="fetchVacationData()" title="새로고침">🔄</button>
                 </div>
                 <div id="vacationSummaryGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:14px;"></div>
@@ -453,9 +453,11 @@
             <div class="glass-card" id="adminVacationCard" style="display:none;">
                 <div style="font-size:18px; font-weight:700; margin-bottom:15px;">🏖️ 직원 휴가 관리</div>
 
-                <div style="font-size:14px; font-weight:700; margin-bottom:10px;">직원 연차 일수 설정</div>
-                <div style="display:flex; gap:8px; max-width:420px; margin-bottom:12px; align-items:flex-end;">
-                    <div class="field" style="flex:1; margin-bottom:0;"><label for="empNameInput">직원명</label><input type="text" id="empNameInput" placeholder="이름" style="margin-bottom:0;"></div>
+                <div style="font-size:14px; font-weight:700; margin-bottom:6px;">직원 연차 일수 설정</div>
+                <div style="font-size:12px; color:var(--text-sub); margin-bottom:10px;">입사일을 입력하면 채용일 기준 1년 단위(입사기념일 구간)로 자동 계산됩니다. 비워두면 달력 연도(1~12월) 기준으로 계산됩니다.</div>
+                <div style="display:flex; gap:8px; max-width:520px; margin-bottom:12px; align-items:flex-end; flex-wrap:wrap;">
+                    <div class="field" style="flex:1; min-width:120px; margin-bottom:0;"><label for="empNameInput">직원명</label><input type="text" id="empNameInput" placeholder="이름" style="margin-bottom:0;"></div>
+                    <div class="field" style="width:150px; margin-bottom:0;"><label for="empHireDateInput">입사일</label><input type="date" id="empHireDateInput" style="margin-bottom:0;"></div>
                     <div class="field" style="width:100px; margin-bottom:0;"><label for="empDaysInput">연차일수</label><input type="number" id="empDaysInput" placeholder="15" style="margin-bottom:0;"></div>
                     <button class="btn-main" style="width:auto; padding:14px 18px; white-space:nowrap;" onclick="setEmployeeLeaveDaysUI()">저장</button>
                 </div>
@@ -1650,9 +1652,11 @@
                     return `<div class="vacation-detail-row">${r.start}${r.end !== r.start ? ' ~ ' + r.end : ''} (${days}일${r.type === '반차' ? ' · 반차' : ''})${r.reason ? ' · ' + r.reason : ''}</div>`;
                 }).join('')
                 : '<div class="vacation-detail-row">사용 내역 없음</div>';
+            const periodLabel = emp.periodStart ? `${emp.periodStart} ~ ${emp.periodEnd}` : `${d.year}년 (달력 기준)`;
             return `
                 <div class="vacation-card">
                     <div class="vacation-card-name">${emp.name}</div>
+                    <div style="font-size:11px; color:var(--text-sub); margin-top:-6px;">${periodLabel}</div>
                     <div class="vacation-card-stats">
                         <div><span class="vc-label">총</span><span class="vc-value">${emp.totalDays}일</span></div>
                         <div><span class="vc-label">사용</span><span class="vc-value">${emp.usedDays}일</span></div>
@@ -1672,15 +1676,20 @@
             vacationData = d;
 
             const empListEl = $('vacationEmployeeList');
-            empListEl.innerHTML = d.employees.map(emp => `
+            empListEl.innerHTML = d.employees.map(emp => {
+                const periodText = emp.periodStart
+                    ? `${emp.periodStart} ~ ${emp.periodEnd}`
+                    : '입사일 미설정 (달력연도 기준)';
+                return `
                 <div class="admin-event-row">
                     <div class="admin-event-info">
                         <div>${emp.name}</div>
-                        <div class="admin-event-date">연차 ${emp.totalDays}일</div>
+                        <div class="admin-event-date">연차 ${emp.totalDays}일 · ${periodText}</div>
                     </div>
                     <button type="button" class="admin-event-del" onclick="deleteEmployeeLeaveUI('${emp.name}')" title="삭제">🗑️</button>
                 </div>
-            `).join('') || '<div style="font-size:13px; color:var(--text-sub);">등록된 직원이 없습니다.</div>';
+            `;
+            }).join('') || '<div style="font-size:13px; color:var(--text-sub);">등록된 직원이 없습니다.</div>';
 
             const select = $('vacEmpSelect');
             select.innerHTML = d.employees.map(emp => `<option value="${emp.name}">${emp.name}</option>`).join('');
@@ -1705,11 +1714,12 @@
     async function setEmployeeLeaveDaysUI() {
         const name = $('empNameInput').value.trim();
         const totalDays = $('empDaysInput').value;
+        const hireDate = $('empHireDateInput').value;
         if (!name || totalDays === '') { alert('이름과 연차일수를 입력해주세요.'); return; }
         try {
-            const res = await postToScript('setEmployeeLeaveDays', { adminKey, name, totalDays: Number(totalDays) });
+            const res = await postToScript('setEmployeeLeaveDays', { adminKey, name, totalDays: Number(totalDays), hireDate });
             if (res.error) { alert(res.error); return; }
-            $('empNameInput').value = ''; $('empDaysInput').value = '';
+            $('empNameInput').value = ''; $('empDaysInput').value = ''; $('empHireDateInput').value = '';
             await loadVacationAdminData();
             fetchVacationData();
         } catch (e) {
