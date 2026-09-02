@@ -1335,22 +1335,26 @@
         const groups = d.groups;
 
         const table = $('reportTable');
+
+        // 내용 유무와 무관하게 컬럼 너비가 항상 일정하게 유지되도록, 셀마다 직접 width를 지정
+        // (colgroup만으로는 표 복사(html2canvas) 시 반영이 안 되는 경우가 있어 각 셀에 직접 지정)
+        const NAME_COL_W = 64, TYPE_COL_W = 48, DATA_COL_W = 77;
         table.innerHTML = '';
 
         // 헤더 1행: 담당자/구분 + 전체 + 그룹명들 (각 2컬럼 병합)
         const thead = document.createElement('thead');
         const headRow1 = document.createElement('tr');
         headRow1.innerHTML = `
-            <th rowspan="2">담당자</th>
-            <th rowspan="2">구분</th>
-            <th colspan="2" class="report-group-total report-group-start">전체</th>
-            ${groups.map(g => `<th colspan="2" class="report-group-start report-group-hdr">${g}</th>`).join('')}
+            <th rowspan="2" style="min-width:${NAME_COL_W}px; width:${NAME_COL_W}px;">담당자</th>
+            <th rowspan="2" style="min-width:${TYPE_COL_W}px; width:${TYPE_COL_W}px;">구분</th>
+            <th colspan="2" class="report-group-total report-group-start" style="min-width:${DATA_COL_W * 2}px; width:${DATA_COL_W * 2}px;">전체</th>
+            ${groups.map(g => `<th colspan="2" class="report-group-start report-group-hdr" style="min-width:${DATA_COL_W * 2}px; width:${DATA_COL_W * 2}px;">${g}</th>`).join('')}
         `;
         const headRow2 = document.createElement('tr');
         headRow2.className = 'report-hr-strong';
         headRow2.innerHTML = `
-            <th class="report-group-start">보험료</th><th>환산</th>
-            ${groups.map(() => `<th class="report-group-start">보험료</th><th>환산</th>`).join('')}
+            <th class="report-group-start" style="min-width:${DATA_COL_W}px; width:${DATA_COL_W}px;">보험료</th><th style="min-width:${DATA_COL_W}px; width:${DATA_COL_W}px;">환산</th>
+            ${groups.map(() => `<th class="report-group-start" style="min-width:${DATA_COL_W}px; width:${DATA_COL_W}px;">보험료</th><th style="min-width:${DATA_COL_W}px; width:${DATA_COL_W}px;">환산</th>`).join('')}
         `;
         thead.appendChild(headRow1);
         thead.appendChild(headRow2);
@@ -1365,7 +1369,7 @@
                 const classes = extraClasses.slice();
                 if (f.isDash) classes.push('report-dash');
                 const cls = classes.length ? ` class="${classes.join(' ')}"` : '';
-                cells.push(`<td${cls}>${f.text}</td>`);
+                cells.push(`<td${cls} style="min-width:${DATA_COL_W}px; width:${DATA_COL_W}px;">${f.text}</td>`);
             }
             pushCell(bucket.total.premium, ['report-group-total', 'report-group-start']);
             pushCell(bucket.total.conv, ['report-group-total']);
@@ -1382,14 +1386,14 @@
             const rowToday = document.createElement('tr');
             rowToday.className = (altClass + firstRowClass).trim();
             rowToday.innerHTML = `
-                <td class="report-rep-name" rowspan="2">${rep.name}${rep.isCEO ? ' 👑' : ''}</td>
-                <td class="report-row-label">당일</td>
+                <td class="report-rep-name" rowspan="2" style="min-width:${NAME_COL_W}px; width:${NAME_COL_W}px;">${rep.name}${rep.isCEO ? ' 👑' : ''}</td>
+                <td class="report-row-label" style="min-width:${TYPE_COL_W}px; width:${TYPE_COL_W}px;">당일</td>
                 ${buildCells(rep.today)}
             `;
             const rowCum = document.createElement('tr');
             rowCum.className = ('report-cumulative' + altClass).trim();
             rowCum.innerHTML = `
-                <td class="report-row-label">누계</td>
+                <td class="report-row-label" style="min-width:${TYPE_COL_W}px; width:${TYPE_COL_W}px;">누계</td>
                 ${buildCells(rep.cumulative)}
             `;
             tbody.appendChild(rowToday);
@@ -1400,14 +1404,14 @@
         const grandToday = document.createElement('tr');
         grandToday.className = 'report-grandtotal report-hr-strong';
         grandToday.innerHTML = `
-            <td class="report-rep-name" rowspan="2">누계</td>
-            <td class="report-row-label">당일</td>
+            <td class="report-rep-name" rowspan="2" style="min-width:${NAME_COL_W}px; width:${NAME_COL_W}px;">누계</td>
+            <td class="report-row-label" style="min-width:${TYPE_COL_W}px; width:${TYPE_COL_W}px;">당일</td>
             ${buildCells(grand.today)}
         `;
         const grandCum = document.createElement('tr');
         grandCum.className = 'report-grandtotal';
         grandCum.innerHTML = `
-            <td class="report-row-label">누계</td>
+            <td class="report-row-label" style="min-width:${TYPE_COL_W}px; width:${TYPE_COL_W}px;">누계</td>
             ${buildCells(grand.cumulative)}
         `;
         tbody.appendChild(grandToday);
@@ -1418,14 +1422,14 @@
             const ceoToday = document.createElement('tr');
             ceoToday.className = 'report-grandtotal-ceo report-hr-strong';
             ceoToday.innerHTML = `
-                <td class="report-rep-name" rowspan="2">누계(전체)</td>
-                <td class="report-row-label">당일</td>
+                <td class="report-rep-name" rowspan="2" style="min-width:${NAME_COL_W}px; width:${NAME_COL_W}px;">누계(전체)</td>
+                <td class="report-row-label" style="min-width:${TYPE_COL_W}px; width:${TYPE_COL_W}px;">당일</td>
                 ${buildCells(grandWithCEO.today)}
             `;
             const ceoCum = document.createElement('tr');
             ceoCum.className = 'report-grandtotal-ceo';
             ceoCum.innerHTML = `
-                <td class="report-row-label">누계</td>
+                <td class="report-row-label" style="min-width:${TYPE_COL_W}px; width:${TYPE_COL_W}px;">누계</td>
                 ${buildCells(grandWithCEO.cumulative)}
             `;
             tbody.appendChild(ceoToday);
